@@ -73,6 +73,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //                          ////////////////////////////////
 
 //#include <map.h>
+#include <rect.h>
 
 // #define HASH_OBJECTS
 #define NO_OBJ_REF_STATE_INFO

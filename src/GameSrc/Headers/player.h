@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gamesys.h"
 #include "objects.h"
 #include "map.h"
+#include <fix.h>
 
 // Defines
 #define DEGREES_OF_FREEDOM 6 // number of physics control axes.
@@ -102,11 +103,11 @@ typedef struct _weapon_slot {
     union {
         ubyte ammo; // current number of rounds
         ubyte heat; // how hot am I?
-    };
+    } noname1;
     union {
         ubyte ammo_type; // current ammo type.
         ubyte setting;   // current charge setting.
-    };
+    } noname2;
     ubyte make_info; // manufacturer
 } weapon_slot;
 

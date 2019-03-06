@@ -7,6 +7,8 @@
 
 static int NullMidiInit(MusicDevice *dev, unsigned samplerate)
 {
+    (void)dev;
+    (void)samplerate;
     return 0;
 }
 
@@ -17,43 +19,73 @@ static void NullMidiDestroy(MusicDevice *dev)
 
 static void NullMidiSetupMode(MusicDevice *dev, MusicMode mode)
 {
+    (void)dev;
+    (void)mode;
 }
 
 static void NullMidiReset(MusicDevice *dev)
 {
+    (void)dev;
 }
 
 static void NullMidiGenerate(MusicDevice *dev, short *samples, int numframes)
 {
+    (void)dev;
     memset(samples, 0, 2 * numframes * sizeof(short));
 }
 
 static void NullMidiSendNoteOff(MusicDevice *dev, int channel, int note, int vel)
 {
+    (void)dev;
+    (void)channel;
+    (void)note;
+    (void)vel;
 }
 
 static void NullMidiSendNoteOn(MusicDevice *dev, int channel, int note, int vel)
 {
+    (void)dev;
+    (void)channel;
+    (void)note;
+    (void)vel;
 }
 
 static void NullMidiSendNoteAfterTouch(MusicDevice *dev, int channel, int note, int touch)
 {
+    (void)dev;
+    (void)channel;
+    (void)note;
+    (void)touch;
 }
 
 static void NullMidiSendControllerChange(MusicDevice *dev, int channel, int ctl, int val)
 {
+    (void)dev;
+    (void)channel;
+    (void)ctl;
+    (void)val;
 }
 
 static void NullMidiSendProgramChange(MusicDevice *dev, int channel, int pgm)
 {
+    (void)dev;
+    (void)channel;
+    (void)pgm;
 }
 
 static void NullMidiSendChannelAfterTouch(MusicDevice *dev, int channel, int touch)
 {
+    (void)dev;
+    (void)channel;
+    (void)touch;
 }
 
 static void NullMidiSendPitchBendML(MusicDevice *dev, int channel, int msb, int lsb)
 {
+    (void)dev;
+    (void)channel;
+    (void)msb;
+    (void)lsb;
 }
 
 static MusicDevice *createNullMidiDevice()
@@ -344,18 +376,18 @@ MusicDevice *CreateMusicDevice(MusicType type)
 
     switch (type)
     {
-    default:
-        break;
-    case Music_None:
-        dev = createNullMidiDevice();
-        break;
-    case Music_AdlMidi:
-        dev = createAdlMidiDevice();
-        break;
+      default:
+          break;
+      case Music_None:
+          dev = createNullMidiDevice();
+          break;
+      case Music_AdlMidi:
+          dev = createAdlMidiDevice();
+          break;
 #ifdef USE_FLUIDSYNTH
-    case Music_FluidSynth:
-        dev = createFluidSynthDevice();
-        break;
+      case Music_FluidSynth:
+          dev = createFluidSynthDevice();
+          break;
 #endif
     }
 

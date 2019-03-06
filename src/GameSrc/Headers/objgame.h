@@ -38,11 +38,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte trap_type;
     ubyte destroy_count;
@@ -56,11 +56,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     short locked;
     ubyte stringnum;
@@ -75,11 +75,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte start_frame;
     ubyte end_frame;
@@ -91,11 +91,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte trap_type;
     ubyte destroy_count;
@@ -108,11 +108,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     int contents1;
     int contents2;

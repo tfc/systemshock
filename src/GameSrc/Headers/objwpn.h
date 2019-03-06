@@ -37,11 +37,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte ammo_type;
     ubyte ammo_count;
@@ -52,11 +52,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
 } ObjAmmo;
 
@@ -65,11 +65,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ObjID owner;
     int bullet_triple;
@@ -83,11 +83,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte unique_id;
     ubyte walls_hit;

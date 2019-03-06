@@ -75,11 +75,11 @@ typedef struct Obj {
     union {
         ObjRefID ref; // what refers to this
         ObjID headused;
-    };
+    } noname1;
     union {
         ObjID next; // next Obj in free chain or used chain
         ObjID headfree;
-    };
+    } noname2;
     ObjID prev;   // prev Obj in used chain
     ObjLoc loc;   // location
     ObjInfo info; // extra, application-specific information
@@ -93,11 +93,11 @@ typedef struct old_Obj {
     union {
         ObjRefID ref; // what refers to this
         ObjID headused;
-    };
+    } noname1;
     union {
         ObjID next; // next Obj in free chain or used chain
         ObjID headfree;
-    };
+    } noname2;
     ObjID prev;       // prev Obj in used chain
     ObjLoc loc;       // location
     old_ObjInfo info; // extra, application-specific information
@@ -136,11 +136,11 @@ typedef struct ObjSpec {
             ushort tile : 1; // look in tiled array?
         } bits;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next; // next struct in free or used chain
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev; // prev struct in used chain
 } ObjSpec;
 

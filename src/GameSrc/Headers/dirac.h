@@ -19,12 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Here is the high and mighty Dirac Frame header file, courtesy of Mr. Robert Fermier...
 // ======================================================================================
 
-//	Struct...
-//	---------
+#include <edms.h>
+#include <physhand.h>
+
+//      Struct...
+//      ---------
 typedef struct {
-
     fix mass, hardness, roughness, gravity;
-
     fix corners[10][4];
 
 } Dirac_frame;

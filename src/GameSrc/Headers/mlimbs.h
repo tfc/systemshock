@@ -80,7 +80,7 @@ struct mlimbs_request_info {
 
 struct mlimbs_channel_info {
     int usernum;          // Index into userID[] for the chunk currently using this channel
-    int sequence_channel; //	For channels used by sequences, this field shows which of the
+    int sequence_channel; //    For channels used by sequences, this field shows which of the
                           // sequences channels should be mapped to this channel.
     int mchannel;         // this channels existance
     char status;          // status can be one of the following
@@ -105,7 +105,8 @@ extern volatile uint default_rel_vol;
 extern volatile uint default_ramp_time;
 extern volatile uchar num_XMIDI_sequences;
 extern volatile ulong mlimbs_counter;
-extern volatile void (*mlimbs_AI)();
+//extern volatile void (*mlimbs_AI)();
+extern void (*mlimbs_AI)(); // error: type qualifiers ignored on function return type [-Werror=ignored-qualifiers]
 extern volatile int mlimbs_master_slot;
 
 /* Function prototypes */

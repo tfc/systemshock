@@ -36,11 +36,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
 } ObjDrug;
 
@@ -49,11 +49,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte version;
 } ObjHardware;
@@ -63,11 +63,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     ubyte version;
     short data_munge;

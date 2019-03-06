@@ -255,14 +255,14 @@ typedef short sfix;
 // from the #defines)
 typedef struct g3s_vector {
 #if 0 // MLA #ifdef __cplusplus
-	fix x,y,z;
+        fix x,y,z;
 #else
     union {
         struct {
             fix x, y, z;
-        };
+        } noname1;
         fix xyz[3];
-    };
+    } noname2;
 #endif
 } g3s_vector;
 
@@ -290,30 +290,30 @@ typedef struct g3s_point *g3s_phandle;
 
 typedef struct g3s_point {
 #if 0 // #ifdef __cplusplus
-	fix x,y,z;
+        fix x,y,z;
 #else
     union { // rotated 3d coords, use as vector or elements
         g3s_vector vec;
         struct {
             fix x, y, z;
-        };
+        } noname1;
         fix xyz[3];
         g3s_phandle next; // next in free list, when point is unused
-    };
+    } noname2;
 #endif
 
     fix sx, sy;     // screen coords
     byte codes;     // clip codes
     ubyte p3_flags; // misc flags
 #if 0               // #ifdef __cplusplus
-	sfix u,v;
+        sfix u,v;
 #else
     union {
         struct {
             sfix u, v;
         } uv;        // for texturing, etc.
         grs_rgb rgb; // for RGB-space gouraud shading
-    };
+    } noname3;
 #endif
     sfix i; // gouraud shading & lighting
 } g3s_point;
@@ -968,7 +968,7 @@ edi];
 #pragma aux g3_draw_poly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_draw_poly"     \
+        "call   g3_draw_poly"     \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];
@@ -976,7 +976,7 @@ edi];
 #pragma aux g3_draw_spoly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_draw_spoly"    \
+        "call   g3_draw_spoly"    \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];
@@ -984,7 +984,7 @@ edi];
 #pragma aux g3_draw_cpoly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_draw_cpoly"    \
+        "call   g3_draw_cpoly"    \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];
@@ -992,7 +992,7 @@ edi];
 #pragma aux g3_check_and_draw_poly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_check_and_draw_poly"   \
+        "call   g3_check_and_draw_poly"   \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];
@@ -1000,7 +1000,7 @@ edi];
 #pragma aux g3_check_and_draw_cpoly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_check_and_draw_cpoly"  \
+        "call   g3_check_and_draw_cpoly"  \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];
@@ -1008,7 +1008,7 @@ edi];
 #pragma aux g3_check_and_draw_spoly_st = \
         "mov ecx,[esp]"                 \
         "lea esi,4[esp]"                        \
-        "call	g3_check_and_draw_spoly"  \
+        "call   g3_check_and_draw_spoly"  \
         "pop ecx"                               \
         "lea esp,[esp+ecx*4]"   \
         parm [ecx] [esi] value [eax] modify [eax ebx ecx edx esi edi];

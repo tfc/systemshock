@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Includes
 #include "objects.h"
+#include <error.h>
+#include <lgsndx.h>
 
 // C Library Includes
 
@@ -43,54 +45,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Defines
 #define DEFAULT_PERIL_MAX  100
-#define DEFAULT_PERIL_MIN  1
+#define DEFAULT_PERIL_MIN    1
 #define DEFAULT_POSIT_MAX  100
-#define DEFAULT_POSIT_MIN  1
+#define DEFAULT_POSIT_MIN    1
 #define DEFAULT_MOTION_MAX 100
-#define DEFAULT_MOTION_MIN 1
+#define DEFAULT_MOTION_MIN   1
 
-#define NO_MUSIC_ZONE   0
-#define HOSPITAL_ZONE   1 // nee Residential
-#define EXECUTIVE_ZONE  2
-#define INDUSTRIAL_ZONE 3
-#define METAL_ZONE      4
-#define PARK_ZONE       5 // also used in access corridors
-#define BRIDGE_ZONE     6 // once Outer bridge
-#define ELEVATOR_ZONE   7
+#define NO_MUSIC_ZONE        0
+#define HOSPITAL_ZONE        1 // nee Residential
+#define EXECUTIVE_ZONE       2
+#define INDUSTRIAL_ZONE      3
+#define METAL_ZONE           4
+#define PARK_ZONE            5 // also used in access corridors
+#define BRIDGE_ZONE          6 // once Outer bridge
+#define ELEVATOR_ZONE        7
 
-#define NUM_EVENTS 9
+#define NUM_EVENTS           9
 
-#define WALKING_SCORE 0
-#define PERIL_SCORE   4
-#define COMBAT_SCORE  6
+#define WALKING_SCORE        0
+#define PERIL_SCORE          4
+#define COMBAT_SCORE         6
 
-#define PERIL_THRESHOLD 70
+#define PERIL_THRESHOLD     70
 
-#define NO_MONSTER -1
-#define SMALL_ROBOT 0
-#define LARGE_ROBOT 1
-#define MUTANT 2
+#define NO_MONSTER          -1
+#define SMALL_ROBOT          0
+#define LARGE_ROBOT          1
+#define MUTANT               2
 
-#define SAME_MODE       0
-#define NORMAL_MODE     1
-#define TRANSITION_MODE 2
+#define SAME_MODE            0
+#define NORMAL_MODE          1
+#define TRANSITION_MODE      2
 
-#define NUM_TRANSITIONS 9
+#define NUM_TRANSITIONS      9
 
-#define TRANS_INTRO         0
-#define TRANS_WALK_TO_PERIL 1
-#define TRANS_PERIL_TO_COMB 2
-#define TRANS_DEATH         3
-#define TRANS_VICTORY       4
-#define TRANS_PERIL_TO_WALK 5
-#define TRANS_COMB_TO_WALK  6
-#define TRANS_COMB_TO_PERIL 7
-#define TRANS_WALK_TO_COMB  8
+#define TRANS_INTRO          0
+#define TRANS_WALK_TO_PERIL  1
+#define TRANS_PERIL_TO_COMB  2
+#define TRANS_DEATH          3
+#define TRANS_VICTORY        4
+#define TRANS_PERIL_TO_WALK  5
+#define TRANS_COMB_TO_WALK   6
+#define TRANS_COMB_TO_PERIL  7
+#define TRANS_WALK_TO_COMB   8
 
-#define MONSTER_MUSIC_MUTANT      0
-#define MONSTER_MUSIC_ROBOT       1
-#define MONSTER_MUSIC_CYBORG      2
-#define MONSTER_MUSIC_SMALL_ROBOT 3
+#define MONSTER_MUSIC_MUTANT       0
+#define MONSTER_MUSIC_ROBOT        1
+#define MONSTER_MUSIC_CYBORG       2
+#define MONSTER_MUSIC_SMALL_ROBOT  3
 
 #define NUM_SCORES                 8
 #define NUM_LAYERABLE_SUPERCHUNKS 22
@@ -102,8 +104,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAX_KEYS              10
 #define KEY_BAR_RESOLUTION     2
 
-#define NUM_PARK_SOUNDS 10
-#define PARK_LAYER_BASE 32
+#define NUM_PARK_SOUNDS       10
+#define PARK_LAYER_BASE       32
 
 #define CYBERSPACE_SCORE_BASE 10
 #define NUM_NODE_THEMES        2

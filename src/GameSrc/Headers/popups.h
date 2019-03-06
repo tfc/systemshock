@@ -19,6 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __POPUPS_H
 #define __POPUPS_H
 
+#include <cursors.h>
+#include <res.h>
+
 /*
  * $Source: r:/prj/cit/src/inc/RCS/popups.h $
  * $Revision: 1.3 $
