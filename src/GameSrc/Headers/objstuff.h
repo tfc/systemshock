@@ -1,19 +1,19 @@
 /*
 
-Copyright (C) 2015-2018 Night Dive Studios, LLC.
+  Copyright (C) 2015-2018 Night Dive Studios, LLC.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #ifndef __OBJSTUFF_H
@@ -37,11 +37,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     short cosmetic_value;
     int data1;
@@ -53,11 +53,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     short cosmetic_value;
     int data1;
@@ -159,11 +159,11 @@ typedef struct _PlotSmallstuffProp {
 #define NUM_ONTHEWALL_SMALLSTUFF 9
 #define NUM_PLOT_SMALLSTUFF 8
 
-#define NUM_BIGSTUFF                                                                                   \
+#define NUM_BIGSTUFF                                                    \
     (NUM_ELECTRONIC_BIGSTUFF + NUM_FURNISHING_BIGSTUFF + NUM_ONTHEWALL_BIGSTUFF + NUM_LIGHT_BIGSTUFF + \
      NUM_LABGEAR_BIGSTUFF + NUM_TECHNO_BIGSTUFF + NUM_DECOR_BIGSTUFF + NUM_TERRAIN_BIGSTUFF)
 
-#define NUM_SMALLSTUFF                                                                                  \
+#define NUM_SMALLSTUFF                                                  \
     (NUM_USELESS_SMALLSTUFF + NUM_BROKEN_SMALLSTUFF + NUM_CORPSELIKE_SMALLSTUFF + NUM_GEAR_SMALLSTUFF + \
      NUM_CARDS_SMALLSTUFF + NUM_CYBER_SMALLSTUFF + NUM_ONTHEWALL_SMALLSTUFF + NUM_PLOT_SMALLSTUFF)
 

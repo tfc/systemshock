@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __OBJECTS_H
 #define __OBJECTS_H
 
+#include <lg_types.h>
+
 #pragma pack(2)
 
 /*

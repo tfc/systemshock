@@ -1,19 +1,19 @@
 /*
 
-Copyright (C) 2015-2018 Night Dive Studios, LLC.
+  Copyright (C) 2015-2018 Night Dive Studios, LLC.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #ifndef __OBJCRIT_H
@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Includes
 #include "objsim.h"
 #include "objclass.h"
+#include <lg_types.h>
 
 #pragma pack(2)
 
@@ -39,11 +40,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     fix des_heading, des_speed, urgency;
     short wait_frames;
@@ -72,11 +73,11 @@ typedef struct {
     union {
         ObjID id;
         ObjSpecID headused;
-    };
+    } noname1;
     union {
         ObjSpecID next;
         ObjSpecID headfree;
-    };
+    } noname2;
     ObjSpecID prev;
     fix des_heading, des_speed, urgency;
     short wait_frames;
@@ -184,7 +185,7 @@ typedef struct RobobabeCritterProp {
 // significant about our game
 #define NUM_ROBOBABE_CRITTER 2
 
-#define NUM_CRITTER \
+#define NUM_CRITTER                                                     \
     (NUM_MUTANT_CRITTER + NUM_ROBOT_CRITTER + NUM_CYBORG_CRITTER + NUM_CYBER_CRITTER + NUM_ROBOBABE_CRITTER)
 
 // Enumeration of subclasses
@@ -257,11 +258,11 @@ extern ObjCritter default_critter;
 #endif
 
 #define get_crit_posture(osid) (objCritters[osid].current_posture & 0xF)
-#define set_crit_posture(osid, newpos) \
+#define set_crit_posture(osid, newpos)                                  \
     objCritters[osid].current_posture = (objCritters[osid].current_posture & 0xF0) + newpos
 
 #define get_crit_view(oisd) (objCritters[osid].current_posture >> 8)
-#define set_crit_view(osid, newview) \
+#define set_crit_view(osid, newview)                                    \
     objCritters[osid].current_posture = (newview << 8) + (objCritters[osid].current_posture & 0xF)
 
 #endif // __OBJCRIT_H

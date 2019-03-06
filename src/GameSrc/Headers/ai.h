@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Includes
 #include "objects.h"
+#include <error.h>
 
 // Defines
 #define NUM_AI_MOODS       5
@@ -74,7 +75,7 @@ errtype ai_critter_die(ObjSpecID osid);
 errtype ai_critter_really_dead(ObjSpecID osid);
 
 // actually do attack
-errtype ai_attack_player(ObjSpecID osid, char a);
+errtype ai_attack_player(ObjSpecID osid, unsigned char a);
 
 // Change a critter's posture, and do appropriate
 // things to other anim variables

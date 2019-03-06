@@ -88,7 +88,7 @@ errtype set_posture_safe(ObjSpecID osid, ubyte new_pos);
 errtype set_posture_movesafe(ObjSpecID osid, ubyte new_pos);
 errtype clear_critter_controls(ObjSpecID osid);
 errtype apply_EDMS_controls(ObjSpecID osid);
-errtype roll_on_dnd_treasure_tables(int *pcont, char treasure_type);
+errtype roll_on_dnd_treasure_tables(int *pcont, unsigned char treasure_type);
 
 #define AI_HEAD_HIT_CHANCE 0x40
 void ai_find_player(ObjID id) {
@@ -118,7 +118,7 @@ void ai_find_player(ObjID id) {
 errtype set_posture(ObjSpecID osid, ubyte new_pos) {
     if (new_pos != get_crit_posture(osid)) {
         set_crit_posture(osid, new_pos);
-        objs[objCritters[osid].id].info.current_frame = 0;
+        objs[objCritters[osid].noname1.id].info.current_frame = 0;
     }
     return (OK);
 }
@@ -155,9 +155,11 @@ errtype apply_EDMS_controls(ObjSpecID osid) {
 #ifdef AI_EDMS
     State crit_state;
     ObjCritter *pcrit = &objCritters[osid];
-    ObjID id = pcrit->id;
+    ObjID id = pcrit->noname1.id;
     fix curr_ai_dist = FIX_UNIT;
     fix use_speed, use_step;
+
+    (void)use_step;
 
     // Apply controls from last frame, see how close we came
     if (CHECK_OBJ_PH(id)) {
@@ -223,29 +225,29 @@ errtype ai_critter_hit(ObjSpecID osid, short damage, uchar tranq, uchar stun) {
     if (ai_critter_sleeping(osid))
         return (OK);
 
-    oid = objCritters[osid].id;
+    oid = objCritters[osid].noname1.id;
     switch (ID2TRIP(oid)) {
-    case ROBOBABE_TRIPLE: {
-        extern uchar *shodan_bitmask;
-        extern void shodan_phase_in(uchar * bitmask, short x, short y, short w, short h, short num, uchar dir);
-        shodan_phase_in(shodan_bitmask, 0, 0, FULL_VIEW_WIDTH, FULL_VIEW_HEIGHT, damage << 4, FALSE);
-    } break;
+      case ROBOBABE_TRIPLE: {
+          extern uchar *shodan_bitmask;
+          extern void shodan_phase_in(uchar * bitmask, short x, short y, short w, short h, short num, uchar dir);
+          shodan_phase_in(shodan_bitmask, 0, 0, FULL_VIEW_WIDTH, FULL_VIEW_HEIGHT, damage << 4, FALSE);
+      } break;
     }
 
     // Play a sound effect if hurt enough
-    if ((damage * 100 / ObjProps[OPNUM(objCritters[osid].id)].hit_points) > HURT_SOUND_THRESHOLD)
-        play_digi_fx_obj(CritterProps[CPNUM(objCritters[osid].id)].hurt_sound, 1, objCritters[osid].id);
+    if ((damage * 100 / ObjProps[OPNUM(objCritters[osid].noname1.id)].hit_points) > HURT_SOUND_THRESHOLD)
+        play_digi_fx_obj(CritterProps[CPNUM(objCritters[osid].noname1.id)].hurt_sound, 1, objCritters[osid].noname1.id);
 
     // Depending on how disruptable we are, we might be disrupted
     // that means we have to restart our attack timer
     r = rand() % 255;
     //   Spew(DSRC_AI_Combat, ("r = %d, dp = %d + %d =
-    //   %d\n",r,CritterProps[CPNUM(objCritters[osid].id)].disrupt_perc,damage >> 2,
-    //      CritterProps[CPNUM(objCritters[osid].id)].disrupt_perc + (damage >> 2)));
-    if (r < CritterProps[CPNUM(objCritters[osid].id)].disrupt_perc + (damage >> (5 - QUESTVAR_GET(COMBAT_DIFF_QVAR)))) {
+    //   %d\n",r,CritterProps[CPNUM(objCritters[osid].noname1.id)].disrupt_perc,damage >> 2,
+    //      CritterProps[CPNUM(objCritters[osid].noname1.id)].disrupt_perc + (damage >> 2)));
+    if (r < CritterProps[CPNUM(objCritters[osid].noname1.id)].disrupt_perc + (damage >> (5 - QUESTVAR_GET(COMBAT_DIFF_QVAR)))) {
         set_posture(osid, DISRUPT_CRITTER_POSTURE);
         objCritters[osid].attack_count =
-            player_struct.game_time + CritterProps[CPNUM(objCritters[osid].id)].attacks[0].speed;
+            player_struct.game_time + CritterProps[CPNUM(objCritters[osid].noname1.id)].attacks[0].speed;
     }
 
     // And boy, are we ticked.
@@ -281,7 +283,7 @@ errtype ai_critter_hit(ObjSpecID osid, short damage, uchar tranq, uchar stun) {
         // than a constant.
         // Oh, and we also don't have any effect on critters with a mood of ISOLATION
 
-        oid = objCritters[osid].id;
+        oid = objCritters[osid].noname1.id;
         x1 = OBJ_LOC_BIN_X(objs[oid].loc) - ANGER_RADIUS;
         x2 = x1 + (2 * ANGER_RADIUS);
         y1 = OBJ_LOC_BIN_Y(objs[oid].loc) - ANGER_RADIUS;
@@ -292,11 +294,11 @@ errtype ai_critter_hit(ObjSpecID osid, short damage, uchar tranq, uchar stun) {
                 oref = me_objref(MAP_GET_XY(i, j));
                 while (oref != OBJ_REF_NULL) {
                     oid = objRefs[oref].obj;
-                    if ((objs[oid].ref = oref) && (objs[oid].obclass == CLASS_CRITTER)) {
+                    if ((objs[oid].noname1.ref = oref) && (objs[oid].obclass == CLASS_CRITTER)) {
                         if ((objCritters[objs[oid].specID].mood != AI_MOOD_ISOLATION) && (!ai_critter_sleeping(osid))) {
                             // Only get upset if loner-ness matches our own.
                             if ((objs[oid].info.inst_flags & CLASS_INST_FLAG) ==
-                                (objs[objCritters[osid].id].info.inst_flags & CLASS_INST_FLAG)) {
+                                (objs[objCritters[osid].noname1.id].info.inst_flags & CLASS_INST_FLAG)) {
                                 objCritters[objs[oid].specID].mood = AI_MOOD_HOSTILE;
                             }
                         }
@@ -314,7 +316,7 @@ errtype ai_autobomb_explode(ObjID id, ObjSpecID osid);
 errtype ai_critter_die(ObjSpecID osid) {
     extern ObjID damage_sound_id;
     extern char damage_sound_fx;
-    ObjID id = objCritters[osid].id;
+    ObjID id = objCritters[osid].noname1.id;
 
     if (ID2TRIP(id) == AUTOBOMB_TRIPLE)
         ai_autobomb_explode(id, osid);
@@ -439,11 +441,11 @@ int treasure_table[NUM_TREASURE_TYPES][NUM_TREASURE_SLOTS][NUM_TREASURE_ENTRIES]
      {17, NOTHING_TRIPLE}},
 };
 
-errtype roll_on_dnd_treasure_tables(int *pcont, char treasure_type) {
-    char perc;
-    char count = 0;
+errtype roll_on_dnd_treasure_tables(int *pcont, unsigned char treasure_type) {
+    unsigned char perc;
+    unsigned char count = 0;
     uchar give, done = FALSE;
-    int chance, trip;
+    unsigned int chance, trip;
 
     perc = rand() % 100;
     while (!done && (count < NUM_TREASURE_SLOTS)) {
@@ -503,7 +505,7 @@ errtype do_regular_loot(ObjSpecID source_critter, ObjID corpse) {
 
 errtype do_random_loot(ObjID corpse) {
     ObjSpecID osid = objs[corpse].specID;
-    int *pc1, *pc2;
+    int *pc1 = 0, *pc2 = 0;
     uchar t_type;
     //   char buf[80];
 
@@ -511,38 +513,53 @@ errtype do_random_loot(ObjID corpse) {
          ((ID2TRIP(corpse) >= CORPSE1_TRIPLE) && (ID2TRIP(corpse) <= CORPSE8_TRIPLE))) &&
         (objs[corpse].info.inst_flags & CLASS_INST_FLAG)) {
         switch (objs[corpse].obclass) {
-        case CLASS_CONTAINER:
-            t_type = CritterProps[CPTRIP(objContainers[osid].contents1)].treasure_type;
-            pc1 = &objContainers[osid].contents1;
-            pc2 = &objContainers[osid].contents2;
-            *pc1 = 0;
-            *pc2 = 0;
-            break;
-        case CLASS_SMALLSTUFF:
-            t_type = FIRST_CORPSE_TTYPE + objSmallstuffs[osid].cosmetic_value;
-            pc1 = &objSmallstuffs[osid].data1;
-            pc2 = &objSmallstuffs[osid].data2;
-            break;
+          case CLASS_CONTAINER:
+              t_type = CritterProps[CPTRIP(objContainers[osid].contents1)].treasure_type;
+              pc1 = &objContainers[osid].contents1;
+              pc2 = &objContainers[osid].contents2;
+              *pc1 = 0;
+              *pc2 = 0;
+              break;
+          case CLASS_SMALLSTUFF:
+              t_type = FIRST_CORPSE_TTYPE + objSmallstuffs[osid].cosmetic_value;
+              pc1 = &objSmallstuffs[osid].data1;
+              pc2 = &objSmallstuffs[osid].data2;
+              break;
+          case CLASS_GUN:
+          case CLASS_AMMO:
+          case CLASS_PHYSICS:
+          case CLASS_GRENADE:
+          case CLASS_DRUG:
+          case CLASS_HARDWARE:
+          case CLASS_SOFTWARE:
+          case CLASS_BIGSTUFF:
+          case CLASS_FIXTURE:
+          case CLASS_DOOR:
+          case CLASS_ANIMATING:
+          case CLASS_TRAP:
+          case CLASS_CRITTER:
+          case NUM_CLASSES:
+              break;
         }
 
         if (*pc1 == 0) {
             roll_on_dnd_treasure_tables(pc1, t_type);
             switch (QUESTVAR_GET(COMBAT_DIFF_QVAR)) {
-            case 0:
-            case 1:
-                if (*pc1 == 0)
-                    roll_on_dnd_treasure_tables(pc1, t_type);
-                break;
+              case 0:
+              case 1:
+                  if (*pc1 == 0)
+                      roll_on_dnd_treasure_tables(pc1, t_type);
+                  break;
             }
         }
         if (*pc2 == 0) {
             roll_on_dnd_treasure_tables(pc2, t_type);
             switch (QUESTVAR_GET(COMBAT_DIFF_QVAR)) {
-            case 0:
-            case 1:
-                if (*pc2 == 0)
-                    roll_on_dnd_treasure_tables(pc2, t_type);
-                break;
+              case 0:
+              case 1:
+                  if (*pc2 == 0)
+                      roll_on_dnd_treasure_tables(pc2, t_type);
+                  break;
             }
         }
 
@@ -557,16 +574,16 @@ errtype ai_critter_really_dead(ObjSpecID osid) {
     char f;
     extern errtype obj_floor_func(ObjID id);
 
-    corpse_trip = CritterProps[CPNUM(objCritters[osid].id)].corpse;
+    corpse_trip = CritterProps[CPNUM(objCritters[osid].noname1.id)].corpse;
     if (corpse_trip != 0) {
         ObjID new_obj;
         new_obj = obj_create_base(corpse_trip);
         if (new_obj) {
-            if (f = FRAME_NUM_3D(ObjProps[OPNUM(new_obj)].bitmap_3d))
+            if ((f = FRAME_NUM_3D(ObjProps[OPNUM(new_obj)].bitmap_3d)))
                 objs[new_obj].info.current_frame = rand() % (f + 1);
             else
                 objs[new_obj].info.current_frame = 0;
-            obj_move_to(new_obj, &objs[objCritters[osid].id].loc, TRUE);
+            obj_move_to(new_obj, &objs[objCritters[osid].noname1.id].loc, TRUE);
             //         obj_floor_func(new_obj);
 
             if (objCritters[osid].flags & AI_FLAG_NOLOOT) {
@@ -574,7 +591,7 @@ errtype ai_critter_really_dead(ObjSpecID osid) {
                 objs[new_obj].info.inst_flags &= ~CLASS_INST_FLAG;
             } else {
                 // set our contents1 to the triple so that we know how to generate loot right later
-                objContainers[objs[new_obj].specID].contents1 = ID2TRIP(objCritters[osid].id);
+                objContainers[objs[new_obj].specID].contents1 = ID2TRIP(objCritters[osid].noname1.id);
 
                 // fresh kill, yum!
                 objs[new_obj].info.inst_flags |= CLASS_INST_FLAG;
@@ -593,10 +610,10 @@ uchar pacifism_on;
 void ai_misses(ObjSpecID osid) {
     // We aren't hitting, so get closer sometimes
     if (rand() % 4 == 1) {
-        objs[objCritters[osid].id].info.inst_flags |= CLASS_INST_FLAG2;
+        objs[objCritters[osid].noname1.id].info.inst_flags |= CLASS_INST_FLAG2;
         objCritters[osid].mood = AI_MOOD_HOSTILE;
     } else
-        objs[objCritters[osid].id].info.inst_flags &= ~CLASS_INST_FLAG2;
+        objs[objCritters[osid].noname1.id].info.inst_flags &= ~CLASS_INST_FLAG2;
 }
 
 errtype ai_autobomb_explode(ObjID id, ObjSpecID osid) {
@@ -628,10 +645,10 @@ errtype ai_autobomb_explode(ObjID id, ObjSpecID osid) {
     return (OK);
 }
 
-errtype ai_attack_player(ObjSpecID osid, char a) {
+errtype ai_attack_player(ObjSpecID osid, unsigned char a) {
     int wpnflags, wpnpower;
     ObjID hit_obj = OBJ_NULL;
-    ObjID id = objCritters[osid].id;
+    ObjID id = objCritters[osid].noname1.id;
     ObjLoc dest_loc;
     int cp_num;
     fix attack_mass; // cause of new ray casting prototype - minman
@@ -639,13 +656,13 @@ errtype ai_attack_player(ObjSpecID osid, char a) {
     if (pacifism_on)
         return (OK);
 
-    cp_num = CPNUM(objCritters[osid].id);
+    cp_num = CPNUM(objCritters[osid].noname1.id);
 
     // If we are an autobomb, don't attack as usual, instead go boom!
     switch (ID2TRIP(id)) {
-    case AUTOBOMB_TRIPLE: {
-        return (ai_autobomb_explode(id, osid));
-    } break;
+      case AUTOBOMB_TRIPLE: {
+          return (ai_autobomb_explode(id, osid));
+      } break;
     }
 
     wpnpower = 100; // Full strength attack!
@@ -653,7 +670,7 @@ errtype ai_attack_player(ObjSpecID osid, char a) {
     attack_mass = fix_make(CritterProps[cp_num].attacks[a].attack_mass, 0) * 20;
 
 #ifdef CRITTER_ALWAYS_ACCURATE
-    hit_obj = ray_cast_objects(objCritters[osid].id, PLAYER_OBJ, attack_mass,
+    hit_obj = ray_cast_objects(objCritters[osid].noname1.id, PLAYER_OBJ, attack_mass,
                                fix_make(0, CritterProps[cp_num].attacks[a].attack_size),
                                fix_make(CritterProps[cp_num].attacks[a].attack_velocity, 0),
                                fix_make(CritterProps[cp_num].attacks[a].att_range, 0));
@@ -664,8 +681,8 @@ errtype ai_attack_player(ObjSpecID osid, char a) {
         short miss_amt = ((255 - CritterProps[cp_num].attacks[a].accuracy) - rand() % 255);
 
         // Play sound effect
-        play_digi_fx_obj(CritterProps[cp_num].attack_sound, 1, objCritters[osid].id);
-        objs[objCritters[osid].id].info.inst_flags |= UNLIT_FLAG;
+        play_digi_fx_obj(CritterProps[cp_num].attack_sound, 1, objCritters[osid].noname1.id);
+        objs[objCritters[osid].noname1.id].info.inst_flags |= UNLIT_FLAG;
 
         // Shoot at player's last known location.
         // Also, modify where we fire by our accuracy variable
@@ -684,7 +701,7 @@ errtype ai_attack_player(ObjSpecID osid, char a) {
             extern uchar prevent_ray_spew;
             prevent_ray_spew = FALSE;
 #endif
-            hit_obj = ray_cast_attack(objCritters[osid].id, dest_loc, attack_mass, RAYCAST_ATTACK_SIZE,
+            hit_obj = ray_cast_attack(objCritters[osid].noname1.id, dest_loc, attack_mass, RAYCAST_ATTACK_SIZE,
                                       fix_make(CritterProps[cp_num].attacks[a].attack_velocity, 0),
                                       fix_make(CritterProps[cp_num].attacks[a].att_range, 0));
 #ifdef PLAYTEST
@@ -696,12 +713,12 @@ errtype ai_attack_player(ObjSpecID osid, char a) {
                               CritterProps[cp_num].attacks[a].offense_value,
                               CritterProps[cp_num].attacks[a].penetration, wpnflags, wpnpower, NULL, 0, 0, NULL);
 
-                objs[objCritters[osid].id].info.inst_flags &= ~CLASS_INST_FLAG2;
+                objs[objCritters[osid].noname1.id].info.inst_flags &= ~CLASS_INST_FLAG2;
             } else
                 ai_misses(osid);
         } else {
-            ai_fire_special(objCritters[osid].id, PLAYER_OBJ, CritterProps[cp_num].attacks[a].slow_proj,
-                            objs[objCritters[osid].id].loc, dest_loc, a, SLOW_PROJECTILE_DURATION);
+            ai_fire_special(objCritters[osid].noname1.id, PLAYER_OBJ, CritterProps[cp_num].attacks[a].slow_proj,
+                            objs[objCritters[osid].noname1.id].loc, dest_loc, a, SLOW_PROJECTILE_DURATION);
         }
     } else {
         objCritters[osid].mood = AI_MOOD_HOSTILE;
@@ -806,13 +823,13 @@ errtype ai_fire_special(ObjID src, ObjID target, int proj_triple, ObjLoc src_loc
 }
 
 /* KLC - these don't do anything.
-errtype ai_freeze_tag()
-{
+   errtype ai_freeze_tag()
+   {
    return(OK);
-}
+   }
 
-errtype ai_time_passes(ulong *ticks_passed)
-{
+   errtype ai_time_passes(ulong *ticks_passed)
+   {
    return(OK);
-}
+   }
 */
