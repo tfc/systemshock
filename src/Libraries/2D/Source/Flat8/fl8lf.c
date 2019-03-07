@@ -44,29 +44,29 @@ int gri_lit_floor_umap_loop(grs_tmap_loop_info *tli) {
 
 #if InvDiv
     fix inv = fix_div(fix_make(1, 0), tli->w);
-    fix u = fix_mul_asm_safe(tli->left.u, inv);
-    fix du = fix_mul_asm_safe(tli->right.u, inv) - u;
-    fix v = fix_mul_asm_safe(tli->left.v, inv);
-    fix dv = fix_mul_asm_safe(tli->right.v, inv) - v;
-    fix i = fix_mul_asm_safe(tli->left.i, inv);
-    fix di = fix_mul_asm_safe(tli->right.i, inv) - i;
+    fix u = fix_mul_asm_safe(tli->noname5.left.u, inv);
+    fix du = fix_mul_asm_safe(tli->noname6.right.u, inv) - u;
+    fix v = fix_mul_asm_safe(tli->noname5.left.v, inv);
+    fix dv = fix_mul_asm_safe(tli->noname6.right.v, inv) - v;
+    fix i = fix_mul_asm_safe(tli->noname5.left.i, inv);
+    fix di = fix_mul_asm_safe(tli->noname6.right.i, inv) - i;
 #else
-    fix u = fix_div(tli->left.u, tli->w);
-    fix du = fix_div(tli->right.u, tli->w) - u;
-    fix v = fix_div(tli->left.v, tli->w);
-    fix dv = fix_div(tli->right.v, tli->w) - v;
-    fix i = fix_div(tli->left.i, tli->w);
-    fix di = fix_div(tli->right.i, tli->w) - i;
+    fix u = fix_div(tli->noname5.left.u, tli->w);
+    fix du = fix_div(tli->noname6.right.u, tli->w) - u;
+    fix v = fix_div(tli->noname5.left.v, tli->w);
+    fix dv = fix_div(tli->noname6.right.v, tli->w) - v;
+    fix i = fix_div(tli->noname5.left.i, tli->w);
+    fix di = fix_div(tli->noname6.right.i, tli->w) - i;
 #endif
 
-    ulong t_mask = tli->mask;
-    uchar t_wlog = tli->bm.wlog;
+    ulong t_mask = tli->noname7.mask;
+    uchar t_wlog = tli->noname4.bm.wlog;
     uchar *g_ltab = grd_screen->ltab;
     long *t_vtab = tli->vtab;
-    uchar *t_bits = tli->bm.bits;
+    uchar *t_bits = tli->noname4.bm.bits;
 
     do {
-        fix dx = tli->right.x - tli->left.x;
+        fix dx = tli->noname6.right.x - tli->noname5.left.x;
         if (dx > 0)
         {
 
@@ -82,58 +82,58 @@ int gri_lit_floor_umap_loop(grs_tmap_loop_info *tli) {
             di = fix_div(di, dx);
 #endif
 
-            fix d = fix_ceil(tli->left.x) - tli->left.x;
+            fix d = fix_ceil(tli->noname5.left.x) - tli->noname5.left.x;
             u += fix_mul(du, d);
             v += fix_mul(dv, d);
             i += fix_mul(di, d);
 
-            uchar *p_dest = grd_bm.bits + (grd_bm.row * tli->y) + fix_cint(tli->left.x);
+            uchar *p_dest = grd_bm.bits + (grd_bm.row * tli->noname1.y) + fix_cint(tli->noname5.left.x);
 
-            int x = fix_cint(tli->right.x) - fix_cint(tli->left.x);
+            int x = fix_cint(tli->noname6.right.x) - fix_cint(tli->noname5.left.x);
 
-            switch (tli->bm.hlog) {
-                case GRL_OPAQUE:
-                    for (; x > 0; x--) {
-                        int k = t_vtab[fix_fint(v)] + fix_fint(u);
-                        *(p_dest++) = g_ltab[t_bits[k] + fix_light(i)];
-                        // gr_fill_upixel(g_ltab[t_bits[k]+fix_light(i)],x,t_y);
-                    }
-                break;
+            switch (tli->noname4.bm.hlog) {
+              case GRL_OPAQUE:
+                  for (; x > 0; x--) {
+                      int k = t_vtab[fix_fint(v)] + fix_fint(u);
+                      *(p_dest++) = g_ltab[t_bits[k] + fix_light(i)];
+                      // gr_fill_upixel(g_ltab[t_bits[k]+fix_light(i)],x,t_y);
+                  }
+                  break;
 
-                case GRL_TRANS:
-                    for (; x > 0; x--) {
-                        int k = t_vtab[fix_fint(v)] + fix_fint(u);
-                        if (k = t_bits[k]) *p_dest = g_ltab[k + fix_light(i)];
-                        // gr_fill_upixel(g_ltab[k+fix_light(i)],x,t_y);
-                        p_dest++;
-                        u += du;
-                        v += dv;
-                        i += di;
-                    }
-                break;
+              case GRL_TRANS:
+                  for (; x > 0; x--) {
+                      int k = t_vtab[fix_fint(v)] + fix_fint(u);
+                      if ((k = t_bits[k])) *p_dest = g_ltab[k + fix_light(i)];
+                      // gr_fill_upixel(g_ltab[k+fix_light(i)],x,t_y);
+                      p_dest++;
+                      u += du;
+                      v += dv;
+                      i += di;
+                  }
+                  break;
 
-                case GRL_OPAQUE|GRL_LOG2:
-                    for (; x > 0; x--) {
-                        int k = ((fix_fint(v)<<t_wlog)+fix_fint(u))&t_mask;
-                        *(p_dest++) = g_ltab[t_bits[k]+fix_light(i)];
-                        // gr_fill_upixel(g_ltab[t_bits[k]+fix_light(i)],x,t_y);
-                        u += du;
-                        v += dv;
-                        i += di;
-                    }
-                break;
+              case GRL_OPAQUE|GRL_LOG2:
+                  for (; x > 0; x--) {
+                      int k = ((fix_fint(v)<<t_wlog)+fix_fint(u))&t_mask;
+                      *(p_dest++) = g_ltab[t_bits[k]+fix_light(i)];
+                      // gr_fill_upixel(g_ltab[t_bits[k]+fix_light(i)],x,t_y);
+                      u += du;
+                      v += dv;
+                      i += di;
+                  }
+                  break;
 
-                case GRL_TRANS | GRL_LOG2:
-                    for (; x > 0; x--) {
-                        int k = ((fix_fint(v) << t_wlog) + fix_fint(u)) & t_mask;
-                        if (k = t_bits[k]) *p_dest = g_ltab[k + fix_light(i)];
-                        // gr_fill_upixel(g_ltab[k+fix_light(i)],x,t_y);
-                        p_dest++;
-                        u += du;
-                        v += dv;
-                        i += di;
-                    }
-                break;
+              case GRL_TRANS | GRL_LOG2:
+                  for (; x > 0; x--) {
+                      int k = ((fix_fint(v) << t_wlog) + fix_fint(u)) & t_mask;
+                      if ((k = t_bits[k])) *p_dest = g_ltab[k + fix_light(i)];
+                      // gr_fill_upixel(g_ltab[k+fix_light(i)],x,t_y);
+                      p_dest++;
+                      u += du;
+                      v += dv;
+                      i += di;
+                  }
+                  break;
             }
         }
 
@@ -141,31 +141,31 @@ int gri_lit_floor_umap_loop(grs_tmap_loop_info *tli) {
 
 #if InvDiv
         inv = fix_div(fix_make(1, 0), tli->w);
-        u = fix_mul_asm_safe((tli->left.u += tli->left.du), inv);
-        tli->right.u += tli->right.du;
-        du = fix_mul_asm_safe(tli->right.u, inv) - u;
-        v = fix_mul_asm_safe((tli->left.v += tli->left.dv), inv);
-        tli->right.v += tli->right.dv;
-        dv = fix_mul_asm_safe(tli->right.v, inv) - v;
-        i = fix_mul_asm_safe((tli->left.i += tli->left.di), inv);
-        tli->right.i += tli->right.di;
-        di = fix_mul_asm_safe(tli->right.i, inv) - i;
+        u = fix_mul_asm_safe((tli->noname5.left.u += tli->noname5.left.du), inv);
+        tli->noname6.right.u += tli->noname6.right.du;
+        du = fix_mul_asm_safe(tli->noname6.right.u, inv) - u;
+        v = fix_mul_asm_safe((tli->noname5.left.v += tli->noname5.left.dv), inv);
+        tli->noname6.right.v += tli->noname6.right.dv;
+        dv = fix_mul_asm_safe(tli->noname6.right.v, inv) - v;
+        i = fix_mul_asm_safe((tli->noname5.left.i += tli->noname5.left.di), inv);
+        tli->noname6.right.i += tli->noname6.right.di;
+        di = fix_mul_asm_safe(tli->noname6.right.i, inv) - i;
 #else
-        u = fix_div((tli->left.u += tli->left.du), tli->w);
-        tli->right.u += tli->right.du;
-        du = fix_div(tli->right.u, tli->w) - u;
-        v = fix_div((tli->left.v += tli->left.dv), tli->w);
-        tli->right.v += tli->right.dv;
-        dv = fix_div(tli->right.v, tli->w) - v;
-        i = fix_div((tli->left.i += tli->left.di), tli->w);
-        tli->right.i += tli->right.di;
-        di = fix_div(tli->right.i, tli->w) - i;
+        u = fix_div((tli->noname5.left.u += tli->noname5.left.du), tli->w);
+        tli->noname6.right.u += tli->noname6.right.du;
+        du = fix_div(tli->noname6.right.u, tli->w) - u;
+        v = fix_div((tli->noname5.left.v += tli->noname5.left.dv), tli->w);
+        tli->noname6.right.v += tli->noname6.right.dv;
+        dv = fix_div(tli->noname6.right.v, tli->w) - v;
+        i = fix_div((tli->noname5.left.i += tli->noname5.left.di), tli->w);
+        tli->noname6.right.i += tli->noname6.right.di;
+        di = fix_div(tli->noname6.right.i, tli->w) - i;
 #endif
 
-        tli->left.x += tli->left.dx;
-        tli->right.x += tli->right.dx;
+        tli->noname5.left.x += tli->noname5.left.noname.dx;
+        tli->noname6.right.x += tli->noname6.right.noname.dx;
 
-        tli->y++;
+        tli->noname1.y++;
 
     } while (--(tli->n) > 0);
 
@@ -173,27 +173,27 @@ int gri_lit_floor_umap_loop(grs_tmap_loop_info *tli) {
 }
 
 void gri_trans_lit_floor_umap_init(grs_tmap_loop_info *tli) {
-    if ((tli->bm.row == (1 << tli->bm.wlog)) && (tli->bm.h == (1 << tli->bm.hlog))) {
-        tli->mask = (1 << (tli->bm.hlog + tli->bm.wlog)) - 1;
-        tli->bm.hlog = GRL_TRANS | GRL_LOG2;
+    if ((tli->noname4.bm.row == (1 << tli->noname4.bm.wlog)) && (tli->noname4.bm.h == (1 << tli->noname4.bm.hlog))) {
+        tli->noname7.mask = (1 << (tli->noname4.bm.hlog + tli->noname4.bm.wlog)) - 1;
+        tli->noname4.bm.hlog = GRL_TRANS | GRL_LOG2;
     } else {
-        tli->vtab = gr_make_vtab(&(tli->bm));
-        tli->bm.hlog = GRL_TRANS;
+        tli->vtab = gr_make_vtab(&(tli->noname4.bm));
+        tli->noname4.bm.hlog = GRL_TRANS;
     }
     tli->loop_func = (void (*)())gri_lit_floor_umap_loop;
-    tli->left_edge_func = (void (*)())gri_uviwx_edge;
-    tli->right_edge_func = (void (*)())gri_uviwx_edge;
+    tli->noname8.left_edge_func = (void (*)())gri_uviwx_edge;
+    tli->noname9.right_edge_func = (void (*)())gri_uviwx_edge;
 }
 
 void gri_opaque_lit_floor_umap_init(grs_tmap_loop_info *tli) {
-    if ((tli->bm.row == (1 << tli->bm.wlog)) && (tli->bm.h == (1 << tli->bm.hlog))) {
-        tli->mask = (1 << (tli->bm.hlog + tli->bm.wlog)) - 1;
-        tli->bm.hlog = GRL_OPAQUE | GRL_LOG2;
+    if ((tli->noname4.bm.row == (1 << tli->noname4.bm.wlog)) && (tli->noname4.bm.h == (1 << tli->noname4.bm.hlog))) {
+        tli->noname7.mask = (1 << (tli->noname4.bm.hlog + tli->noname4.bm.wlog)) - 1;
+        tli->noname4.bm.hlog = GRL_OPAQUE | GRL_LOG2;
     } else {
-        tli->vtab = gr_make_vtab(&(tli->bm));
-        tli->bm.hlog = GRL_OPAQUE;
+        tli->vtab = gr_make_vtab(&(tli->noname4.bm));
+        tli->noname4.bm.hlog = GRL_OPAQUE;
     }
     tli->loop_func = (void (*)())gri_lit_floor_umap_loop;
-    tli->left_edge_func = (void (*)())gri_uviwx_edge;
-    tli->right_edge_func = (void (*)())gri_uviwx_edge;
+    tli->noname8.left_edge_func = (void (*)())gri_uviwx_edge;
+    tli->noname9.right_edge_func = (void (*)())gri_uviwx_edge;
 }

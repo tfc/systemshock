@@ -43,18 +43,18 @@ void gri_trans_blend_clut_lin_umap_init(grs_tmap_loop_info *ti) {
     if (grd_unpack_buf != NULL) {
         grs_bitmap tbm;
 
-        tbm.row = 2 * ti->bm.w;
-        if (ti->bm.bits == grd_unpack_buf)
-            tbm.bits = ti->bm.bits + ti->bm.row * ti->bm.h;
+        tbm.row = 2 * ti->noname4.bm.w;
+        if (ti->noname4.bm.bits == grd_unpack_buf)
+            tbm.bits = ti->noname4.bm.bits + ti->noname4.bm.row * ti->noname4.bm.h;
         else
             tbm.bits = grd_unpack_buf;
 
-        flat8_flat8_smooth_hv_double_ubitmap(&(ti->bm), &tbm);
+        flat8_flat8_smooth_hv_double_ubitmap(&(ti->noname4.bm), &tbm);
         ti->n = BMT_FLAT8 * GRD_FUNCS + GRC_TRANS_CLUT_BILIN;
-        ti->bm.bits = tbm.bits;
-        ti->bm.row = tbm.row;
-        ti->bm.w *= 2;
-        ti->bm.h *= 2;
+        ti->noname4.bm.bits = tbm.bits;
+        ti->noname4.bm.row = tbm.row;
+        ti->noname4.bm.w *= 2;
+        ti->noname4.bm.h *= 2;
         ((void (*)(grs_tmap_loop_info *))(grd_tmap_init_table[ti->n]))(ti);
     }
 }

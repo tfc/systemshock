@@ -6,15 +6,15 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 /*
  * $Source: r:/prj/lib/src/2d/RCS/polyint.h $
@@ -63,8 +63,8 @@ do {                                      \
    _w_max = _vpl[0]->w;                   \
    for (pvp=_vpl+1; pvp<_vpl+_n; ++pvp) { \
       y=fix_cint((*pvp)->y);              \
-      if (y < _y_min) {                   \ 
-         _y_min = y;                      \ 
+      if (y < _y_min) {                   \
+         _y_min = y;                      \
          _w_min = (*pvp)->w;              \
          _p_left = pvp;                   \
       }                                   \
@@ -82,12 +82,12 @@ do {                                      \
    int __x;                               \
    _x_min = fix_cint(_vpl[0]->x);         \
    _x_max = fix_cint(_vpl[0]->x);         \
-   _p_top = _vpl;                        \
+   _p_top = _vpl;                         \
    for (pvp=_vpl+1; pvp<_vpl+_n; ++pvp) { \
       __x=fix_cint((*pvp)->x);            \
       if (__x < _x_min) {                 \
          _x_min = __x;                    \
-         _p_top = pvp;                   \
+         _p_top = pvp;                    \
       }                                   \
       if (__x > _x_max)                   \
          _x_max = __x;                    \
@@ -106,12 +106,12 @@ do {                                      \
    _p_top = _vpl;                         \
    for (pvp=_vpl+1; pvp<_vpl+_n; ++pvp) { \
       __x=fix_cint((*pvp)->x);            \
-      if (__x < _x_min) {                 \
+      if ((unsigned)__x < _x_min) {       \
          _x_min = __x;                    \
          _w_min = (*pvp)->w;              \
          _p_top = pvp;                    \
       }                                   \
-      if (__x > _x_max) {                 \
+      if ((unsigned)__x > _x_max) {       \
          _w_max = (*pvp)->w;              \
          _x_max = __x;                    \
       }                                   \
@@ -137,7 +137,6 @@ do {                                      \
    }                                      \
    if (_x_min == _x_max) return _retval;  \
 } while(0)
-
 
 #define poly_do_left_edge(_p_left,_prev,_y_left,_y_prev,_y,_vpl,_n) \
 do {                                            \
@@ -311,5 +310,3 @@ do {                                                         \
    i0 += fix_mul(di,fix_ceil(_prev->x)-_prev->x);\
 } while (0)
 #endif /* !__POLYINT_H */
-
-

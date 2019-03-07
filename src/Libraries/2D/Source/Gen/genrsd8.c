@@ -6,15 +6,15 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 /*
  * $Source: r:/prj/lib/src/2d/RCS/genrsd8.c $
@@ -27,32 +27,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * $Log: genrsd8.c $
  * Revision 1.7  1994/10/25  15:14:10  kevin
  * Renamed funcs.
- * 
+ *
  * Revision 1.6  1993/10/19  09:51:26  kaboom
  * Replaced #include "grd.h" with new headers split from grd.h.
- * 
+ *
  * Revision 1.5  1993/10/02  01:17:31  kaboom
  * Changed include of clip.h to include of clpcon.h and/or clpfcn.h.
- * 
+ *
  * Revision 1.4  1993/09/06  19:43:34  kaboom
  * Fixed bug in completely clipped case---now checks for >= on right and bottom.
- * 
+ *
  * Revision 1.3  1993/07/13  17:48:33  kaboom
  * Fixed bugs in clipping case off right edge.  Updated for padded clipping
  * rectangle.
- * 
+ *
  * Revision 1.2  1993/04/29  18:40:46  kaboom
  * Changed include of gr.h to smaller more specific grxxx.h.
- * 
+ *
  * Revision 1.1  1993/02/16  16:00:01  kaboom
  * Initial revision
- * 
+ *
  ********************************************************************
  * Log from old general.c:
  *
  * Revision 1.9  1992/12/14  18:13:37  kaboom
  * Fixed bug in gen_rsd8_[u]bitmap --
- * was omitting bottom line.  
+ * was omitting bottom line.
  *
  * Revision 1.7  1992/12/11  13:58:09  kaboom
  * Fixed bug in clipping off right and bottom in gen_rsd8_bitmap.
@@ -95,7 +95,10 @@ void gri_gen_rsd8_ubitmap (grs_bitmap *bm, short x, short y)
             switch (rsd_code) {
             case RSD_RUN:
                gr_set_fcolor (*rsd_src);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
                gr_uhline (x, y, x+rsd_count-1);
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
                rsd_src++;
                break;
             case RSD_SKIP:
@@ -116,7 +119,10 @@ void gri_gen_rsd8_ubitmap (grs_bitmap *bm, short x, short y)
             switch (rsd_code) {
             case RSD_RUN:
                gr_set_fcolor (*rsd_src);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
                gr_uhline (x, y, x+op_count-1);
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
                break;
             case RSD_SKIP:
                break;
@@ -161,9 +167,9 @@ int gri_gen_rsd8_bitmap (grs_bitmap *bm, short x_left, short y_top)
 
    /* clip bitmap to rectangular clipping window. */
    if (x_left>grd_canvas->gc.clip.i.right ||
-		 x_right<=grd_canvas->gc.clip.i.left ||
+                 x_right<=grd_canvas->gc.clip.i.left ||
        y_top>grd_canvas->gc.clip.i.bot ||
-		 y_bot<=grd_canvas->gc.clip.i.top)
+                 y_bot<=grd_canvas->gc.clip.i.top)
       /* completely clipped, forget it. */
       return CLIP_ALL;
 
@@ -281,7 +287,10 @@ int gri_gen_rsd8_bitmap (grs_bitmap *bm, short x_left, short y_top)
             switch (rsd_code) {
             case RSD_RUN:
                gr_set_fcolor (*rsd_src);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
                gr_uhline (x, y, x+rsd_count-1);
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
                rsd_src++;
                break;
             case RSD_SKIP:
@@ -300,7 +309,10 @@ int gri_gen_rsd8_bitmap (grs_bitmap *bm, short x_left, short y_top)
             switch (rsd_code) {
             case RSD_RUN:
                gr_set_fcolor (*rsd_src);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
                gr_uhline (x, y, x+op_count-1);
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
                break;
             case RSD_SKIP:
                break;

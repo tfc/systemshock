@@ -6,24 +6,24 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 /*
  * $Source: r:/prj/lib/src/2d/RCS/permap.c $
  * $Revision: 1.8 $
  * $Author: kevin $
  * $Date: 1994/12/01 14:59:57 $
- * 
+ *
  * Full perspective texture mapping dispatchers.
- * 
+ *
 */
 
 #include "bitmap.h"
@@ -136,16 +136,16 @@ void per_umap (grs_bitmap *bm, int n, grs_vertex **vpl, grs_tmap_info *ti)
 
    ps.dp+=ti->tmap_type+(GRD_FUNCS*bm->type);
    if (grd_gc.fill_type!=FILL_NORM)
-      ps.fill_parm=grd_gc.fill_parm;
+      ps.noname1.fill_parm=grd_gc.fill_parm;
    else if (ti->flags&TMF_CLUT)
-      if ((ps.clut=ti->clut)==NULL)
-         ps.clut=gr_get_clut();
+      if ((ps.noname1.clut=ti->clut)==NULL)
+         ps.noname1.clut=gr_get_clut();
 
-   save_bits=bm->bits;     /* in case bitmap type is rsd8 */   
-   
+   save_bits=bm->bits;     /* in case bitmap type is rsd8 */
+
    switch (percode) {
    case GR_PER_CODE_BIGSLOPE:
-   	  ((void (*)(grs_bitmap *, grs_per_setup *))(grd_tmap_hscan_init_table[ps.dp]))(bm,&ps);
+          ((void (*)(grs_bitmap *, grs_per_setup *))(grd_tmap_hscan_init_table[ps.dp]))(bm,&ps);
       ((void (*)(grs_bitmap *, int, grs_vertex **, grs_per_setup *))(ps.shell_func))(bm,n,vpl,&ps);
       break;
    case GR_PER_CODE_SMALLSLOPE:
@@ -170,5 +170,3 @@ void per_umap (grs_bitmap *bm, int n, grs_vertex **vpl, grs_tmap_info *ti)
    bm->bits=save_bits;
    return;
 }
-
-

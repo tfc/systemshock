@@ -65,13 +65,15 @@ int gri_scale_umap_loop_68K(grs_tmap_loop_info *tli);
 // ========================================================================
 // opaque solid polygon scaler
 int gri_opaque_solid_scale_umap_init(grs_tmap_loop_info *info, grs_vertex **vert) {
-    info->left_edge_func = (void (*)())gri_scale_edge;
-    info->right_edge_func = (void (*)())gr_null;
-    info->bm.hlog = 0;
-    info->bm.bits = info->clut;
+    (void)vert;
+
+    info->noname8.left_edge_func = (void (*)())gri_scale_edge;
+    info->noname9.right_edge_func = (void (*)())gr_null;
+    info->noname4.bm.hlog = 0;
+    info->noname4.bm.bits = info->clut;
     info->loop_func = (void (*)())gri_poly_loop;
-    info->d = ((uchar *)((long)grd_canvas->bm.row * (long)info->y));
-    info->d += (long)grd_canvas->bm.bits;
+    info->noname1.d = ((uchar *)((long)grd_canvas->bm.row * (long)info->noname1.y));
+    info->noname1.d += (long)grd_canvas->bm.bits;
     return (0);
 }
 
@@ -81,50 +83,54 @@ int gri_opaque_solid_scale_umap_init(grs_tmap_loop_info *info, grs_vertex **vert
 // ========================================================================
 // transparent solid polygon scaler
 int gri_trans_solid_scale_umap_init(grs_tmap_loop_info *tli, grs_vertex **vert) {
-    tli->bm.hlog = GRL_TRANS | GRL_SOLID;
+    (void)vert;
+
+    tli->noname4.bm.hlog = GRL_TRANS | GRL_SOLID;
     tli->loop_func = (void (*)())gri_scale_umap_loop_PPC;
-    tli->right_edge_func = gr_null;
-    tli->left_edge_func = (void (*)())gri_scale_edge;
+    tli->noname9.right_edge_func = gr_null;
+    tli->noname8.left_edge_func = (void (*)())gri_scale_edge;
     return (0);
 }
 
 // ========================================================================
 // transparent bitmap scaler
 int gri_trans_scale_umap_init(grs_tmap_loop_info *tli, grs_vertex **vert) {
-    tli->bm.hlog = GRL_TRANS;
+    (void)vert;
+
+    tli->noname4.bm.hlog = GRL_TRANS;
     tli->loop_func = (void (*)())gri_scale_umap_loop_PPC;
-    tli->right_edge_func = gr_null;
-    tli->left_edge_func = (void (*)())gri_scale_edge;
+    tli->noname9.right_edge_func = gr_null;
+    tli->noname8.left_edge_func = (void (*)())gri_scale_edge;
     return (0);
 }
 
 // ========================================================================
 // opaque bitmap scaler
 int gri_opaque_scale_umap_init(grs_tmap_loop_info *tli) {
-    tli->bm.hlog = GRL_OPAQUE;
+    tli->noname4.bm.hlog = GRL_OPAQUE;
     tli->loop_func = (void (*)())gri_scale_umap_loop_PPC;
-    tli->right_edge_func = gr_null;
-    tli->left_edge_func = (void (*)())gri_scale_edge;
+    tli->noname9.right_edge_func = gr_null;
+    tli->noname8.left_edge_func = (void (*)())gri_scale_edge;
     return (0);
 }
 
 // ========================================================================
 // transparent clut bitmap scaler
 int gri_trans_clut_scale_umap_init(grs_tmap_loop_info *tli) {
-    tli->bm.hlog = GRL_TRANS | GRL_CLUT;
+    tli->noname4.bm.hlog = GRL_TRANS | GRL_CLUT;
     tli->loop_func = (void (*)())gri_scale_umap_loop_PPC;
-    tli->right_edge_func = gr_null;
-    tli->left_edge_func = (void (*)())gri_scale_edge;
+    tli->noname9.right_edge_func = gr_null;
+    tli->noname8.left_edge_func = (void (*)())gri_scale_edge;
     return (0);
 }
 
 // ========================================================================
 // opaque clut bitmap scaler
 int gri_opaque_clut_scale_umap_init(grs_tmap_loop_info *tli) {
-    tli->bm.hlog = GRL_OPAQUE | GRL_CLUT;
+    tli->noname4.bm.hlog = GRL_OPAQUE | GRL_CLUT;
     tli->loop_func = (void (*)())gri_scale_umap_loop_PPC;
-    tli->right_edge_func = gr_null;
-    tli->left_edge_func = (void (*)())gri_scale_edge;
+    tli->noname9.right_edge_func = gr_null;
+    tli->noname8.left_edge_func = (void (*)())gri_scale_edge;
     return (0);
 }
 
@@ -137,59 +143,62 @@ int gri_scale_umap_loop_PPC(grs_tmap_loop_info *tli) {
     fix xl, xr, dx, d;
     uchar *p_src, *p_dest;
 
-    xl = fix_cint(tli->left.x);
-    xr = fix_cint(tli->right.x);
+    xl = fix_cint(tli->noname5.left.x);
+    xr = fix_cint(tli->noname6.right.x);
     if (xr <= xl)
         return TRUE;
-    ul = tli->left.u;
-    dx = tli->right.x - tli->left.x;
-    du = fix_div(tli->right.u - ul, dx);
-    d = fix_ceil(tli->left.x) - tli->left.x;
+    ul = tli->noname5.left.u;
+    dx = tli->noname6.right.x - tli->noname5.left.x;
+    du = fix_div(tli->noname6.right.u - ul, dx);
+    d = fix_ceil(tli->noname5.left.x) - tli->noname5.left.x;
     ul += fix_mul(du, d);
 
     do {
-        p_src = tli->bm.bits + tli->bm.row * fix_int(tli->left.v);
-        p_dest = grd_bm.bits + (grd_bm.row * tli->y) + xl;
-        switch (tli->bm.hlog) {
-        case GRL_OPAQUE:
-            for (x = xl, u = ul; x < xr; x++) {
-                *(p_dest++) = p_src[fix_fint(u)]; // gr_fill_upixel(k,x,tli->y);
-                u += du;
-            }
-            break;
-        case GRL_TRANS:
-            for (x = xl, u = ul; x < xr; x++) {
-                if (k = p_src[fix_fint(u)])
-                    *p_dest = k; // gr_fill_upixel(k,x,tli->y);
-                u += du;
-                p_dest++;
-            }
-            break;
-        case GRL_OPAQUE | GRL_CLUT:
-            for (x = xl, u = ul; x < xr; x++) {
-                *(p_dest++) = tli->clut[p_src[fix_fint(u)]]; // gr_fill_upixel(tli->clut[k],x,tli->y);
-                u += du;
-            }
-            break;
-        case GRL_TRANS | GRL_CLUT:
-            for (x = xl, u = ul; x < xr; x++) {
-                if (k = p_src[fix_fint(u)])
-                    *p_dest = tli->clut[k]; // gr_fill_upixel(tli->clut[k],x,tli->y);
-                u += du;
-                p_dest++;
-            }
-            break;
-        case GRL_TRANS | GRL_SOLID:
-            for (x = xl, u = ul; x < xr; x++) {
-                if (k = p_src[fix_fint(u)])
-                    *p_dest = (uchar)(tli->clut); // gr_fill_upixel((uchar )(tli->clut),x,tli->y);
-                u += du;
-                p_dest++;
-            }
-            break;
+        p_src = tli->noname4.bm.bits + tli->noname4.bm.row * fix_int(tli->noname5.left.v);
+        p_dest = grd_bm.bits + (grd_bm.row * tli->noname1.y) + xl;
+        switch (tli->noname4.bm.hlog) {
+          case GRL_OPAQUE:
+              for (x = xl, u = ul; x < xr; x++) {
+                  *(p_dest++) = p_src[fix_fint(u)]; // gr_fill_upixel(k,x,tli->y);
+                  u += du;
+              }
+              break;
+          case GRL_TRANS:
+              for (x = xl, u = ul; x < xr; x++) {
+                  if ((k = p_src[fix_fint(u)]))
+                      *p_dest = k; // gr_fill_upixel(k,x,tli->y);
+                  u += du;
+                  p_dest++;
+              }
+              break;
+          case GRL_OPAQUE | GRL_CLUT:
+              for (x = xl, u = ul; x < xr; x++) {
+                  *(p_dest++) = tli->clut[p_src[fix_fint(u)]]; // gr_fill_upixel(tli->clut[k],x,tli->y);
+                  u += du;
+              }
+              break;
+          case GRL_TRANS | GRL_CLUT:
+              for (x = xl, u = ul; x < xr; x++) {
+                  if ((k = p_src[fix_fint(u)]))
+                      *p_dest = tli->clut[k]; // gr_fill_upixel(tli->clut[k],x,tli->y);
+                  u += du;
+                  p_dest++;
+              }
+              break;
+          case GRL_TRANS | GRL_SOLID:
+              for (x = xl, u = ul; x < xr; x++) {
+                  if ((k = p_src[fix_fint(u)]))
+                  {
+                      //*p_dest = (uchar)(tli->clut); // gr_fill_upixel((uchar )(tli->clut),x,tli->y);
+                      *p_dest = *(uchar *)(tli->clut); // gr_fill_upixel((uchar )(tli->clut),x,tli->y);
+                  }
+                  u += du;
+                  p_dest++;
+              }
+              break;
         }
-        tli->left.v += tli->left.dv;
-        tli->y++;
+        tli->noname5.left.v += tli->noname5.left.dv;
+        tli->noname1.y++;
     } while (--(tli->n) > 0);
 
     return FALSE; /* tmap OK */

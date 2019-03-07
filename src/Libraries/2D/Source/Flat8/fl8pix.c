@@ -79,6 +79,7 @@ void flat8_blend_set_upixel(long color, short x, short y) {
 // MLA #pragma off (unreferenced)
 void flat8_solid_set_upixel(long color, short x, short y) {
     uchar *p;
+    (void)color;
 
     p = grd_bm.bits + grd_bm.row * y + x;
     *p = (uchar)grd_gc.fill_parm;

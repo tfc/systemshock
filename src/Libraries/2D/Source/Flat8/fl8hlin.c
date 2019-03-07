@@ -99,6 +99,7 @@ void gri_flat8_uhline_clut(short x0, short y0, short x1, long c, long parm) {
 void gri_flat8_uhline_xor(short x0, short y0, short x1, long c, long parm) {
     uchar *p;
     short t;
+    (void)parm;
 
     if (x0 > x1) {
         t = x0;
@@ -114,6 +115,7 @@ void gri_flat8_uhline_xor(short x0, short y0, short x1, long c, long parm) {
 void gri_flat8_uhline_blend(short x0, short y0, short x1, long c, long parm) {
     uchar *p;
     short t;
+    (void)parm;
 
     if (x0 > x1) {
         t = x0;

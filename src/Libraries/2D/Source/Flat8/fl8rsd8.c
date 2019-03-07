@@ -65,15 +65,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 void gr_rsd8_blit(uchar *rsd_src, uchar *dst, int grd_bm_row, int bm_w);
 
 //### MLA- not supposed to be used (PC code is in RSDBLT.ASM)
-void gr_rsd8_blit(uchar *rsd_src, uchar *dst, int grd_bm_row, int bm_w) { DebugString("ask mark"); }
+void gr_rsd8_blit(uchar *rsd_src, uchar *dst, int grd_bm_row, int bm_w)
+{
+    (void)rsd_src;
+    (void)dst;
+    (void)grd_bm_row;
+    (void)bm_w;
+    DebugString("ask mark");
+}
 
 void gri_flat8_rsd8_ubitmap(grs_bitmap *bm, short x, short y) {
     /*   uchar *p_dst;
-       uchar *rsd_src;                     // rsd source buffer
+         uchar *rsd_src;                     // rsd source buffer
 
-       rsd_src = bm->bits;
-       p_dst = grd_bm.bits + grd_bm.row*y + x;
-       gr_rsd8_blit(rsd_src,p_dst,grd_bm.row,bm->w);*/
+         rsd_src = bm->bits;
+         p_dst = grd_bm.bits + grd_bm.row*y + x;
+         gr_rsd8_blit(rsd_src,p_dst,grd_bm.row,bm->w);*/
     unpack_rsd8_ubitmap(bm, x, y);
 }
 
@@ -142,16 +149,16 @@ int gri_flat8_rsd8_bitmap(grs_bitmap *bm, short x_left, short y_top) {
             if (cur_byte + rsd_count <= start_byte) {
                 /* current code doesn't hit start_byte yet, so skip all of it. */
                 switch (rsd_code) {
-                case RSD_RUN:
-                    /* advance past 1 byte of run color. */
-                    rsd_src++;
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    /* advance past rsd_count bytes of dump pixel data. */
-                    rsd_src += rsd_count;
-                    break;
+                  case RSD_RUN:
+                      /* advance past 1 byte of run color. */
+                      rsd_src++;
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      /* advance past rsd_count bytes of dump pixel data. */
+                      rsd_src += rsd_count;
+                      break;
                 }
                 cur_byte += rsd_count;
                 rsd_count = 0;
@@ -160,13 +167,13 @@ int gri_flat8_rsd8_bitmap(grs_bitmap *bm, short x_left, short y_top) {
                    to start_byte. */
                 op_count = start_byte - cur_byte;
                 switch (rsd_code) {
-                case RSD_RUN:
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    rsd_src += op_count;
-                    break;
+                  case RSD_RUN:
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      rsd_src += op_count;
+                      break;
                 }
                 cur_byte += op_count;
                 rsd_count -= op_count;
@@ -186,27 +193,27 @@ int gri_flat8_rsd8_bitmap(grs_bitmap *bm, short x_left, short y_top) {
                 RSD_GET_TOKEN();
             if (x + rsd_count <= x_left + x_off) {
                 switch (rsd_code) {
-                case RSD_RUN:
-                    rsd_src++;
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    rsd_src += rsd_count;
-                    break;
+                  case RSD_RUN:
+                      rsd_src++;
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      rsd_src += rsd_count;
+                      break;
                 }
                 x += rsd_count;
                 rsd_count = 0;
             } else {
                 op_count = x_left + x_off - x;
                 switch (rsd_code) {
-                case RSD_RUN:
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    rsd_src += op_count;
-                    break;
+                  case RSD_RUN:
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      rsd_src += op_count;
+                      break;
                 }
                 rsd_count -= op_count;
                 x += op_count;
@@ -219,16 +226,16 @@ int gri_flat8_rsd8_bitmap(grs_bitmap *bm, short x_left, short y_top) {
                 RSD_GET_TOKEN();
             if (x + rsd_count <= x_right) {
                 switch (rsd_code) {
-                case RSD_RUN:
-                    LG_memset(p_dst, *rsd_src, rsd_count);
-                    rsd_src++;
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    LG_memcpy(p_dst, rsd_src, rsd_count);
-                    rsd_src += rsd_count;
-                    break;
+                  case RSD_RUN:
+                      LG_memset(p_dst, *rsd_src, rsd_count);
+                      rsd_src++;
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      LG_memcpy(p_dst, rsd_src, rsd_count);
+                      rsd_src += rsd_count;
+                      break;
                 }
                 x += rsd_count;
                 p_dst += rsd_count;
@@ -236,15 +243,15 @@ int gri_flat8_rsd8_bitmap(grs_bitmap *bm, short x_left, short y_top) {
             } else {
                 op_count = x_right - x;
                 switch (rsd_code) {
-                case RSD_RUN:
-                    LG_memset(p_dst, *rsd_src, op_count);
-                    break;
-                case RSD_SKIP:
-                    break;
-                default: /* RSD_DUMP */
-                    LG_memcpy(p_dst, rsd_src, op_count);
-                    rsd_src += op_count;
-                    break;
+                  case RSD_RUN:
+                      LG_memset(p_dst, *rsd_src, op_count);
+                      break;
+                  case RSD_SKIP:
+                      break;
+                  default: /* RSD_DUMP */
+                      LG_memcpy(p_dst, rsd_src, op_count);
+                      rsd_src += op_count;
+                      break;
                 }
                 x += op_count;
                 p_dst += op_count;

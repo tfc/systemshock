@@ -44,17 +44,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* clear a flat8 canvas. */
 void flat8_clear(long color) {
-
     uchar *p;
     int h;
     int w;
     int row;
     ushort short_val;
-    double double_stack, doub_vl;
-    uint firstbytes, middoubles, lastbytes, fb, md, lb;
-    uchar *dst;
-    double *dst_doub;
-    uint temp;
+    //double double_stack, doub_vl;
+    uint firstbytes, middoubles, lastbytes;//, fb, md, lb;
+    //uchar *dst;
+    //double *dst_doub;
+    //uint temp;
 
     color &= 0x00ff;
     p = grd_bm.bits;
@@ -67,13 +66,16 @@ void flat8_clear(long color) {
         // get a 64 bit version of color in doub_vl
         short_val = (uchar)color | color << 8;
         color = (int)short_val | ((int)short_val) << 16;
-        *(int *)(&double_stack) = color;
-        *((int *)(&double_stack) + 1) = color;
-        doub_vl = double_stack;
+        //*(int *)(&double_stack) = color;
+        //*((int *)(&double_stack) + 1) = color;
+        //doub_vl = double_stack;
 
         lastbytes = w;
-        if (firstbytes = (int)p & 3) // check for boundary problems
+        //if ((firstbytes = (int)p & 3)) // check for boundary problems
+        if ((firstbytes = *(int*)p & 3)) // check for boundary problems
+        {
             lastbytes -= firstbytes;
+        }
 
         middoubles = lastbytes >> 3;
         lastbytes -= middoubles << 3;
@@ -82,28 +84,28 @@ void flat8_clear(long color) {
         middoubles = 0;
     }
 
-    fb = firstbytes, md = middoubles, lb = lastbytes;
+    //fb = firstbytes, md = middoubles, lb = lastbytes;
     while (h--) {
         // MLA - inlined this code
         memset(p, color, w);
         /*{
-                     firstbytes = fb,middoubles = md,lastbytes = lb;
-                           dst = p;
+          firstbytes = fb,middoubles = md,lastbytes = lb;
+          dst = p;
 
-                           if (middoubles)
-                            {
-                                   // first get to a 4 byte boundary
-                                   while (firstbytes--) *(dst++) = color;
-                                   dst_doub = (double *) dst;
+          if (middoubles)
+          {
+          // first get to a 4 byte boundary
+          while (firstbytes--) *(dst++) = color;
+          dst_doub = (double *) dst;
 
-                                   // now do doubles
-                                   while (middoubles--) *(dst_doub++) = doub_vl;
-                                   dst = (uchar *) dst_doub;
-                            }
+          // now do doubles
+          while (middoubles--) *(dst_doub++) = doub_vl;
+          dst = (uchar *) dst_doub;
+          }
 
-                           // do remaining bytes
-                           while (lastbytes--) *(dst++) = color;
-        }*/
+          // do remaining bytes
+          while (lastbytes--) *(dst++) = color;
+          }*/
 
         p += row;
     }

@@ -104,6 +104,8 @@ void gri_flat8_uvline_xor(short x0, short y0, short y1, long c, long parm) {
     short t;
     int grow = grd_bm.row;
 
+    (void)parm;
+
     if (y0 > y1) {
         t = y0;
         y0 = y1;
@@ -121,6 +123,8 @@ void gri_flat8_uvline_blend(short x0, short y0, short y1, long c, long parm) {
     uchar *p;
     short t;
     int grow = grd_bm.row;
+
+    (void)parm;
 
     if (y0 > y1) {
         t = y0;

@@ -38,10 +38,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern errtype musicai_reset(uchar runai);
 extern errtype musicai_shutdown();
 
-struct mlimbs_request_info default_request = {0, 0, 4, 100, 0, 64, TRUE, 0, 0};
+struct mlimbs_request_info default_request = {0, 0, 4, 100, 0, 64, TRUE, 0, 0, 0};
 
 extern int ext_rp;
-extern char mlimbs_machine;
+extern unsigned char mlimbs_machine;
 extern char cyber_play;
 
 #define NUM_SNDMIDIDEVICES 2
@@ -155,7 +155,7 @@ void grind_credits_music_ai(void) {
         current_request[0].pieceID = mlimbs_boredom;
     } else
         make_request(0, mlimbs_boredom);
-    //   if (mlimbs_counter == 4)						//KLC - Was 16
+    //   if (mlimbs_counter == 4)                                               //KLC - Was 16
     //      mlimbs_counter = 0;
     //   if ((mlimbs_counter % 4) == 3)
     //   {
@@ -233,14 +233,14 @@ void grind_music_ai(void) {
             current_score = WALKING_SCORE;
     }
     switch (actual_score) {
-    case COMBAT_SCORE:
-        break;
-    case PERIL_SCORE:
-        peril_bars++;
-        break;
-    default:
-        peril_bars = 0;
-        break;
+      case COMBAT_SCORE:
+          break;
+      case PERIL_SCORE:
+          peril_bars++;
+          break;
+      default:
+          peril_bars = 0;
+          break;
     }
 
     // Minor change maybe
@@ -275,30 +275,30 @@ void grind_music_ai(void) {
     if ((last_score != current_score) && (!mai_semaphor)) {
         boring_count = 0;
         switch (current_score) {
-        case WALKING_SCORE:
-            if (last_score == PERIL_SCORE)
-                mai_transition(TRANS_PERIL_TO_WALK);
-            else if (last_score == COMBAT_SCORE)
-                mai_transition(TRANS_COMB_TO_WALK);
-            break;
-        case PERIL_SCORE:
-            if (last_score == WALKING_SCORE)
-                mai_transition(TRANS_WALK_TO_PERIL);
-            else if (last_score == COMBAT_SCORE)
-                mai_transition(TRANS_COMB_TO_PERIL);
-            break;
-        case COMBAT_SCORE:
-            if (last_score == WALKING_SCORE)
-                mai_transition(TRANS_WALK_TO_COMB);
-            else if (last_score == PERIL_SCORE)
-                mai_transition(TRANS_PERIL_TO_COMB);
-            break;
+          case WALKING_SCORE:
+              if (last_score == PERIL_SCORE)
+                  mai_transition(TRANS_PERIL_TO_WALK);
+              else if (last_score == COMBAT_SCORE)
+                  mai_transition(TRANS_COMB_TO_WALK);
+              break;
+          case PERIL_SCORE:
+              if (last_score == WALKING_SCORE)
+                  mai_transition(TRANS_WALK_TO_PERIL);
+              else if (last_score == COMBAT_SCORE)
+                  mai_transition(TRANS_COMB_TO_PERIL);
+              break;
+          case COMBAT_SCORE:
+              if (last_score == WALKING_SCORE)
+                  mai_transition(TRANS_WALK_TO_COMB);
+              else if (last_score == PERIL_SCORE)
+                  mai_transition(TRANS_PERIL_TO_COMB);
+              break;
         }
 
         // if we aren't doing a layered transition, just jump
         // over to new score if possible
         if (transition_count == 0) {
-            //         if (mlimbs_counter % 4 == 0)		KLC - do it every time
+            //         if (mlimbs_counter % 4 == 0)             KLC - do it every time
             //         {
             mlimbs_boredom = 0;
             last_score = current_score;
@@ -317,32 +317,32 @@ void grind_music_ai(void) {
         }
     }
     switch (current_mode) {
-    case TRANSITION_MODE:
-        if (!mai_semaphor) {
-            play_me = transition_table[current_transition];
-            tmode_time--;
-            if (tmode_time == 0) {
-                next_mode = NORMAL_MODE;
-                mlimbs_counter = 3; // so that next_mode will take effect next ai loop   KLC - was 15
-            }
-        }
-        break;
-    case NORMAL_MODE:
-        // Play basic superchunk
-        seq = mlimbs_counter; // KLC - was mlimbs_counter / 4
-        play_me = track_table[actual_score + mlimbs_boredom][seq];
+      case TRANSITION_MODE:
+          if (!mai_semaphor) {
+              play_me = transition_table[current_transition];
+              tmode_time--;
+              if (tmode_time == 0) {
+                  next_mode = NORMAL_MODE;
+                  mlimbs_counter = 3; // so that next_mode will take effect next ai loop   KLC - was 15
+              }
+          }
+          break;
+      case NORMAL_MODE:
+          // Play basic superchunk
+          seq = mlimbs_counter; // KLC - was mlimbs_counter / 4
+          play_me = track_table[actual_score + mlimbs_boredom][seq];
 
-        break;
+          break;
     }
     open_track = 0;
 
     /* KLC - no pb12 track in our stuff
-       // Play the pitchbend track if we are just starting out
-       if ((just_started) && (!mai_semaphor))
-       {
-          make_request(open_track++, PITCHBEND_CHUNK);
-          just_started = FALSE;
-       }
+    // Play the pitchbend track if we are just starting out
+    if ((just_started) && (!mai_semaphor))
+    {
+    make_request(open_track++, PITCHBEND_CHUNK);
+    just_started = FALSE;
+    }
     */
 
     if (mai_semaphor) {
@@ -351,24 +351,24 @@ void grind_music_ai(void) {
     } else {
         if (global_fullmap->cyber) {
             /* KLC - moved to mlimbs_do_ai.
-                     MapElem *pme;
+               MapElem *pme;
 
-                     // Deal with pitch bend??
-                     pme = MAP_GET_XY(PLAYER_BIN_X, PLAYER_BIN_Y);
-                     if (!me_bits_peril(pme))
-                        play_me = NUM_NODE_THEMES + me_bits_music(pme);
-                     else
-                        play_me = me_bits_music(pme);
-                     if (play_me != cyber_play)
-                     {
-                        musicai_shutdown();
-                        make_request(open_track++, play_me);
-                        musicai_reset(FALSE);
-                        MacTuneStartCurrentTheme();
-                     }
-                     else
-                        make_request(open_track++, play_me);
-                     cyber_play = play_me;
+               // Deal with pitch bend??
+               pme = MAP_GET_XY(PLAYER_BIN_X, PLAYER_BIN_Y);
+               if (!me_bits_peril(pme))
+               play_me = NUM_NODE_THEMES + me_bits_music(pme);
+               else
+               play_me = me_bits_music(pme);
+               if (play_me != cyber_play)
+               {
+               musicai_shutdown();
+               make_request(open_track++, play_me);
+               musicai_reset(FALSE);
+               MacTuneStartCurrentTheme();
+               }
+               else
+               make_request(open_track++, play_me);
+               cyber_play = play_me;
             */
         } else {
             if (decon_count < decon_time) {
@@ -443,7 +443,7 @@ void grind_music_ai(void) {
                     make_request(open_track++, park_playing);
                     park_playing = 0;
                 } else if ((score_playing == PARK_ZONE) && (rand() % 100 < park_random))
-                // KLC                  && ((mlimbs_counter % 4)  == 0))
+                    // KLC                  && ((mlimbs_counter % 4)  == 0))
                 {
                     r = rand() % NUM_PARK_SOUNDS;
                     park_playing = r + PARK_LAYER_BASE;
@@ -463,6 +463,7 @@ void grind_music_ai(void) {
 }
 
 errtype check_asynch_ai(uchar new_score_ok) {
+    (void)new_score_ok;
     //   extern uchar mlimbs_semaphore;
     //   if (ai_cycle)
     //   {
@@ -474,15 +475,15 @@ errtype check_asynch_ai(uchar new_score_ok) {
     //      mlimbs_semaphore = FALSE;
 
     /*
-          // We need new theme loaded...
-          if (!mai_semaphor)
-          {
-             if (new_score_ok && (new_theme==-1))
-             {
-                new_theme = -2;
-                load_score_for_location(new_x,new_y);
-             }
-          }
+    // We need new theme loaded...
+    if (!mai_semaphor)
+    {
+    if (new_score_ok && (new_theme==-1))
+    {
+    new_theme = -2;
+    load_score_for_location(new_x,new_y);
+    }
+    }
     */
     //   }
     return (OK);

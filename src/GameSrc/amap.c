@@ -41,6 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // cyborg                - brightbrownx
 // doors                 - maize?
 
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -115,7 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef FIX_PIXRATIO
 fix pixratio_yx = FIX_UNIT;
 fix pixratio_xy = FIX_UNIT;
-//#define coor_to_pix(y) fast_fix_mul(pixratio_yx,(y))	 KLC - Changed this
+//#define coor_to_pix(y) fast_fix_mul(pixratio_yx,(y))   KLC - Changed this
 //#define pix_to_coor(y) fast_fix_mul(pixratio_xy,(y))
 #define coor_to_pix(y) fix_mul(pixratio_yx, (y))
 #define pix_to_coor(y) fix_mul(pixratio_xy, (y))
@@ -164,23 +165,23 @@ void amap_version_set(int id, int new_ver) {
     curAMap *amptr = oAMap(id);
 
     switch (new_ver) {
-    case -1:
-        amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_CRIT;
-        amptr->sensor_rad = 0x800;
-        break;
-    case 0:
-    case 1:
-        amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_MSG;
-        amptr->sensor_rad = 0x400;
-        break;
-    case 2:
-        amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_ROB | AMAP_SHOW_MSG;
-        amptr->sensor_rad = 0x600;
-        break;
-    case 3:
-        amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_CRIT | AMAP_SHOW_HAZ | AMAP_SHOW_MSG;
-        amptr->sensor_rad = 0x800;
-        break;
+      case -1:
+          amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_CRIT;
+          amptr->sensor_rad = 0x800;
+          break;
+      case 0:
+      case 1:
+          amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_MSG;
+          amptr->sensor_rad = 0x400;
+          break;
+      case 2:
+          amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_ROB | AMAP_SHOW_MSG;
+          amptr->sensor_rad = 0x600;
+          break;
+      case 3:
+          amptr->flags = AMAP_TRACK_OBJ | AMAP_SHOW_SEC | AMAP_SHOW_CRIT | AMAP_SHOW_HAZ | AMAP_SHOW_MSG;
+          amptr->sensor_rad = 0x800;
+          break;
     }
     amptr->avail_flags = amptr->flags | AMAP_AVAIL_ALWAYS;
     amptr->version_id = new_ver;
@@ -217,32 +218,32 @@ uchar wall_seen_p(int wallcode, int csbits, MapElem *cur) {
     } else {
         int mo1, mo2, lb1, lb2, ck1, ck2;
         switch (me_tiletype(cur)) {
-        case TILE_SOLID_NW:
-            mo1 = -MAP_XSIZE;
-            mo2 = 1;
-            ck1 = FMK_NW;
-            ck2 = FMK_WW;
-            break;
-        case TILE_SOLID_NE:
-            mo1 = -MAP_XSIZE;
-            mo2 = -1;
-            ck1 = FMK_NW;
-            ck2 = FMK_EW;
-            break;
-        case TILE_SOLID_SE:
-            mo1 = MAP_XSIZE;
-            mo2 = 1;
-            ck1 = FMK_SW;
-            ck2 = FMK_WW;
-            break;
-        case TILE_SOLID_SW:
-            mo1 = MAP_XSIZE;
-            mo2 = -1;
-            ck1 = FMK_SW;
-            ck2 = FMK_EW;
-            break;
-        default:
-            return 0;
+          case TILE_SOLID_NW:
+              mo1 = -MAP_XSIZE;
+              mo2 = 1;
+              ck1 = FMK_NW;
+              ck2 = FMK_WW;
+              break;
+          case TILE_SOLID_NE:
+              mo1 = -MAP_XSIZE;
+              mo2 = -1;
+              ck1 = FMK_NW;
+              ck2 = FMK_EW;
+              break;
+          case TILE_SOLID_SE:
+              mo1 = MAP_XSIZE;
+              mo2 = 1;
+              ck1 = FMK_SW;
+              ck2 = FMK_WW;
+              break;
+          case TILE_SOLID_SW:
+              mo1 = MAP_XSIZE;
+              mo2 = -1;
+              ck1 = FMK_SW;
+              ck2 = FMK_EW;
+              break;
+          default:
+              return 0;
         }
         lb1 = me_clearsolid(cur + mo1);
         lb2 = me_clearsolid(cur + mo2);
@@ -257,25 +258,25 @@ uchar wall_seen_p(int wallcode, int csbits, MapElem *cur) {
 
     if (wallcode == FMK_INT_INT) {
         switch (me_tiletype(cur)) {
-        case TILE_SOLID_NW:
-            return 1;
-        case TILE_SOLID_NE:
-            return 1;
-        case TILE_SOLID_SE:
-            return 1;
-        case TILE_SOLID_SW:
-            return 1;
+          case TILE_SOLID_NW:
+              return 1;
+          case TILE_SOLID_NE:
+              return 1;
+          case TILE_SOLID_SE:
+              return 1;
+          case TILE_SOLID_SW:
+              return 1;
         }
     } else {
         switch (get_edge_code(cur, csbits)) {
-        case MEDGE_NO_EGRESS:
-            return 1;
-        case MEDGE_CLIFF_THING:
-            return 2;
-        case MEDGE_LARGE_STEP:
-            return 3;
-        case MEDGE_SMALL_STEP:
-            return 4;
+          case MEDGE_NO_EGRESS:
+              return 1;
+          case MEDGE_CLIFF_THING:
+              return 2;
+          case MEDGE_LARGE_STEP:
+              return 3;
+          case MEDGE_SMALL_STEP:
+              return 4;
         }
     }
     return 0;
@@ -288,14 +289,14 @@ uchar wall_xist_p(int wallcode, int csbits, MapElem *cur) {
         return ((csbits & (wallcode >> 4)) == 0); // wow, this is super wacky (tm)? punt diags and go with?
     else {
         switch (me_tiletype(cur)) {
-        case TILE_SOLID_NW:
-            return 1;
-        case TILE_SOLID_NE:
-            return 1;
-        case TILE_SOLID_SE:
-            return 1;
-        case TILE_SOLID_SW:
-            return 1;
+          case TILE_SOLID_NW:
+              return 1;
+          case TILE_SOLID_NE:
+              return 1;
+          case TILE_SOLID_SE:
+              return 1;
+          case TILE_SOLID_SW:
+              return 1;
         }
         return 0;
     }
@@ -306,24 +307,24 @@ uchar wall_xist_p(int wallcode, int csbits, MapElem *cur) {
 
 void wall_draw(int xm, int ym, int wallcode, int size, MapElem *cur) {
     switch (wallcode) {
-    case FMK_INT_SW:
-        am_hline(xm, ym, xm + size);
-        break;
-    case FMK_INT_NW:
-        am_hline(xm, ym - size, xm + size);
-        break;
-    case FMK_INT_WW:
-        am_vline(xm, ym, ym - size);
-        break;
-    case FMK_INT_EW:
-        am_vline(xm + size, ym, ym - size);
-        break;
-    case FMK_INT_INT:
-        if ((me_tiletype(cur) == TILE_SOLID_NW) || (me_tiletype(cur) == TILE_SOLID_SE))
-            am_int_line(xm, ym, xm + size, ym - size);
-        else
-            am_int_line(xm, ym - size, xm + size, ym);
-        break;
+      case FMK_INT_SW:
+          am_hline(xm, ym, xm + size);
+          break;
+      case FMK_INT_NW:
+          am_hline(xm, ym - size, xm + size);
+          break;
+      case FMK_INT_WW:
+          am_vline(xm, ym, ym - size);
+          break;
+      case FMK_INT_EW:
+          am_vline(xm + size, ym, ym - size);
+          break;
+      case FMK_INT_INT:
+          if ((me_tiletype(cur) == TILE_SOLID_NW) || (me_tiletype(cur) == TILE_SOLID_SE))
+              am_int_line(xm, ym, xm + size, ym - size);
+          else
+              am_int_line(xm, ym - size, xm + size, ym);
+          break;
     }
 }
 
@@ -348,21 +349,21 @@ void tile_draw(int xm, int ym, int tiletype, int size, int offs, int color) {
     while ((offs > 0) && (size < 2 * offs))
         offs--;
     switch (tiletype) {
-    case TILE_SOLID_NW:
-        tri_draw(xm + size + 1, ym - size + offs - 1, xm + size + 1, ym + 1, xm + offs - 1, ym + 1, color);
-        break;
-    case TILE_SOLID_SE:
-        tri_draw(xm + offs, ym - size + offs, xm + size, ym - size + offs, xm + offs, ym, color);
-        break;
-    case TILE_SOLID_SW:
-        tri_draw(xm + offs, ym - size + offs, xm + size + 1, ym - size + offs, xm + size + 1, ym + 1, color);
-        break;
-    case TILE_SOLID_NE:
-        tri_draw(xm + offs, ym - size + offs, xm + size + 1, ym + 1, xm + offs, ym + 1, color);
-        break;
-    default:
-        gr_set_fcolor(color);
-        am_rect(xm + offs, ym - size + offs, xm + size + 1, ym + 1);
+      case TILE_SOLID_NW:
+          tri_draw(xm + size + 1, ym - size + offs - 1, xm + size + 1, ym + 1, xm + offs - 1, ym + 1, color);
+          break;
+      case TILE_SOLID_SE:
+          tri_draw(xm + offs, ym - size + offs, xm + size, ym - size + offs, xm + offs, ym, color);
+          break;
+      case TILE_SOLID_SW:
+          tri_draw(xm + offs, ym - size + offs, xm + size + 1, ym - size + offs, xm + size + 1, ym + 1, color);
+          break;
+      case TILE_SOLID_NE:
+          tri_draw(xm + offs, ym - size + offs, xm + size + 1, ym + 1, xm + offs, ym + 1, color);
+          break;
+      default:
+          gr_set_fcolor(color);
+          am_rect(xm + offs, ym - size + offs, xm + size + 1, ym + 1);
     }
 }
 
@@ -429,119 +430,119 @@ void obj_mess(curAMap *amptr, MapElem *curmp, int drw, int xm, int ym, int tsize
             px = ObjProps[OPNUM(cobjid)].physics_xr;
             px = (px << amptr->zoom) >> 6;
             switch (cobj->obclass) { // critters, doors, elevators, or do we do that with music bits, yes!!! special
-            case CLASS_CRITTER:
-                if (pass != REAL_OBJ_PASS)
-                    break;
-                if ((drw & (DRAW_MASK_FULL | DRAW_MASK_RAD)) && (amptr->flags & (AMAP_SHOW_CRIT | AMAP_SHOW_ROB))) {
-                    static uchar base_col[3] = {PURPLE_8_BASE + 7, METALBLUE_8_BASE + 7, BRIGHTBROWN_8_BASE + 7};
-                    uchar col;
+              case CLASS_CRITTER:
+                  if (pass != REAL_OBJ_PASS)
+                      break;
+                  if ((drw & (DRAW_MASK_FULL | DRAW_MASK_RAD)) && (amptr->flags & (AMAP_SHOW_CRIT | AMAP_SHOW_ROB))) {
+                      static uchar base_col[3] = {PURPLE_8_BASE + 7, METALBLUE_8_BASE + 7, BRIGHTBROWN_8_BASE + 7};
+                      uchar col;
 
-                    if ((cobj->subclass != CRITTER_SUBCLASS_ROBOT) && ((amptr->flags & AMAP_SHOW_CRIT) == 0))
-                        break;
-                    if (cobj->subclass < 3)
-                        col = base_col[cobj->subclass];
-                    else
-                        col = GRAY_8_BASE;
-                    // pick color and intensity based on creature type and all
-                    if (cobj->info.type < 5)
-                        col -= cobj->info.type;
-                    else
-                        col -= 5;
-                    // okay, this is a hack, but hey, I felt sorry for the
-                    // poor guys.
-                    if (ID2TRIP(cobjid) != ASSASSIN_TRIPLE)
-                        obj_draw(xm, ym, cobj, tsize, px, col);
-                }
-                break;
-            case CLASS_DOOR:
-                if (pass != TERR_OBJ_PASS)
-                    break;
-                // perhaps only draw physics doors???
-                if ((ObjProps[OPNUM(cobjid)].flags & TERRAIN_OBJECT) != 0)
-                    if (drw & DRAW_MASK_SEEN)                 // used to do FULL too
-                        if ((cobj->loc.p | cobj->loc.b) == 0) // if pitched or banked, hit the road
-                        {
-                            int col = MAIZE_8_BASE;
-                            int trip = ID2TRIP(cobjid);
-                            if ((trip >= SECRET_DOOR1_TRIPLE) && (trip <= SECRET_DOOR3_TRIPLE))
-                                col = GREEN_BASE + 2;
-                            if (USE_MODE(cobjid) == NULL_USE_MODE)
-                                col = GREEN_BASE + 2;
-                            //                     if (trip==INVISO_DOOR_TRIPLE) col=AQUA_8_BASE+2;
-                            line_draw(xm, ym, cobj, tsize, cobj->info.current_frame > 0 ? 0 : 1,
-                                      col); // if frame, then open, else closed
+                      if ((cobj->subclass != CRITTER_SUBCLASS_ROBOT) && ((amptr->flags & AMAP_SHOW_CRIT) == 0))
+                          break;
+                      if (cobj->subclass < 3)
+                          col = base_col[cobj->subclass];
+                      else
+                          col = GRAY_8_BASE;
+                      // pick color and intensity based on creature type and all
+                      if (cobj->info.type < 5)
+                          col -= cobj->info.type;
+                      else
+                          col -= 5;
+                      // okay, this is a hack, but hey, I felt sorry for the
+                      // poor guys.
+                      if (ID2TRIP(cobjid) != ASSASSIN_TRIPLE)
+                          obj_draw(xm, ym, cobj, tsize, px, col);
+                  }
+                  break;
+              case CLASS_DOOR:
+                  if (pass != TERR_OBJ_PASS)
+                      break;
+                  // perhaps only draw physics doors???
+                  if ((ObjProps[OPNUM(cobjid)].flags & TERRAIN_OBJECT) != 0)
+                      if (drw & DRAW_MASK_SEEN)                 // used to do FULL too
+                          if ((cobj->loc.p | cobj->loc.b) == 0) // if pitched or banked, hit the road
+                          {
+                              int col = MAIZE_8_BASE;
+                              int trip = ID2TRIP(cobjid);
+                              if ((trip >= SECRET_DOOR1_TRIPLE) && (trip <= SECRET_DOOR3_TRIPLE))
+                                  col = GREEN_BASE + 2;
+                              if (USE_MODE(cobjid) == NULL_USE_MODE)
+                                  col = GREEN_BASE + 2;
+                              //                     if (trip==INVISO_DOOR_TRIPLE) col=AQUA_8_BASE+2;
+                              line_draw(xm, ym, cobj, tsize, cobj->info.current_frame > 0 ? 0 : 1,
+                                        col); // if frame, then open, else closed
+                          }
+                  break;
+              default:                       // special
+                  switch (ID2TRIP(cobjid)) { // security cameras, automap notes
+                    case LARGCPU_TRIPLE:
+                    case CAMERA_TRIPLE:
+                        if (pass != REAL_OBJ_PASS)
+                            break;
+                        if ((drw & DRAW_MASK_SEEN) && (amptr->flags & AMAP_SHOW_SEC)) {
+                            px = tsize >> 3;
+                            obj_draw(xm, ym, cobj, tsize, px, RED_8_BASE + 5);
                         }
-                break;
-            default:                       // special
-                switch (ID2TRIP(cobjid)) { // security cameras, automap notes
-                case LARGCPU_TRIPLE:
-                case CAMERA_TRIPLE:
-                    if (pass != REAL_OBJ_PASS)
                         break;
-                    if ((drw & DRAW_MASK_SEEN) && (amptr->flags & AMAP_SHOW_SEC)) {
-                        px = tsize >> 3;
-                        obj_draw(xm, ym, cobj, tsize, px, RED_8_BASE + 5);
-                    }
-                    break;
-                case MAPNOTE_TRIPLE:
-                    if (pass != NOTE_OBJ_PASS)
-                        break;
-                    if (amptr->flags & AMAP_SHOW_MSG) {
-                        if (amptr->note_obj == cobjid) {
-                            px = tsize >> 1;
-                            col = 2;
-                        } else {
-                            px = tsize >> 2;
-                            col = 6;
-                        }
-                        obj_draw(xm, ym, cobj, tsize, px, AQUA_8_BASE + col);
+                    case MAPNOTE_TRIPLE:
+                        if (pass != NOTE_OBJ_PASS)
+                            break;
+                        if (amptr->flags & AMAP_SHOW_MSG) {
+                            if (amptr->note_obj == cobjid) {
+                                px = tsize >> 1;
+                                col = 2;
+                            } else {
+                                px = tsize >> 2;
+                                col = 6;
+                            }
+                            obj_draw(xm, ym, cobj, tsize, px, AQUA_8_BASE + col);
 
-                        if (amptr->flags & AMAP_FULL_MSG) {
-                            strncpy(buf, amap_note_string(cobjid), 49);
-                            buf[49] = 0;
-                            fon = gr_get_font();
-                            gr_set_font((grs_font *)ResLock(RES_tinyTechFont));
-                            md = tsize - 2;
-                            wrap_text(buf, md);
-                            gr_string_size(buf, &w, &h);
-                            if (h > md) {
-                                // square up text iteratively
-                                md = (w + h) / 2;
-                                unwrap_text(buf);
+                            if (amptr->flags & AMAP_FULL_MSG) {
+                                strncpy(buf, amap_note_string(cobjid), 49);
+                                buf[49] = 0;
+                                fon = gr_get_font();
+                                gr_set_font((grs_font *)ResLock(RES_tinyTechFont));
+                                md = tsize - 2;
                                 wrap_text(buf, md);
                                 gr_string_size(buf, &w, &h);
-                                if (abs(w - h) > 4) {
+                                if (h > md) {
+                                    // square up text iteratively
                                     md = (w + h) / 2;
                                     unwrap_text(buf);
                                     wrap_text(buf, md);
+                                    gr_string_size(buf, &w, &h);
+                                    if (abs(w - h) > 4) {
+                                        md = (w + h) / 2;
+                                        unwrap_text(buf);
+                                        wrap_text(buf, md);
+                                    }
                                 }
-                            }
-                            gr_set_fcolor(BLACK + 1);
+                                gr_set_fcolor(BLACK + 1);
 #ifdef SVGA_SUPPORT
-                            {
-                                extern uchar shadow_scale;
-                                shadow_scale = FALSE;
+                                {
+                                    extern uchar shadow_scale;
+                                    shadow_scale = FALSE;
 #endif
 #ifdef CORRECT_PIXEL_RATIO
-                                draw_shadowed_string(buf, xm + 1, coor_to_pix(ym - tsize + 1), AQUA_8_BASE + col);
+                                    draw_shadowed_string(buf, xm + 1, coor_to_pix(ym - tsize + 1), AQUA_8_BASE + col);
 #else
-                            draw_shadowed_string(buf, xm + 1, ym - tsize + 1, AQUA_8_BASE + col);
+                                    draw_shadowed_string(buf, xm + 1, ym - tsize + 1, AQUA_8_BASE + col);
 #endif
 #ifdef SVGA_SUPPORT
-                                shadow_scale = TRUE;
-                            }
+                                    shadow_scale = TRUE;
+                                }
 #endif
-                            ResUnlock(RES_tinyTechFont);
-                            gr_set_font(fon);
+                                ResUnlock(RES_tinyTechFont);
+                                gr_set_font(fon);
+                            }
                         }
-                    }
-                    break;
-                case ENRG_CHARGE_TRIPLE:
-                case CYB_TERM_TRIPLE:
-                default:
-                    break;
-                }
-                break;
+                        break;
+                    case ENRG_CHARGE_TRIPLE:
+                    case CYB_TERM_TRIPLE:
+                    default:
+                        break;
+                  }
+                  break;
             }
         } // end of in home square
         curORef = objRefs[curORef].next;
@@ -632,6 +633,8 @@ void amap_draw(curAMap *amptr, int expose) {
     fix amrh, amrw;
     int max_xc, max_yc, xbase, crnr_x, crnr_y; // am w and h radius
     MapElem *mapybase, *init_mapybase;
+
+    drw = 0;
 
     if (amptr->flags & AMAP_TRACK_OBJ) {
         amptr->xf = objs[amptr->obj_to_follow].loc.x << 8;
@@ -882,8 +885,13 @@ void *amap_loc_get_note(void *map_sq) {
     while (curORef != OBJ_REF_NULL) {
         cobjid = objRefs[curORef].obj;
         if (CitrefCheckHomeSq(curORef))
+        {
             if (ID2TRIP(cobjid) == MAPNOTE_TRIPLE)
-                return (void *)(unsigned int)cobjid;
+            {
+                //return (void *)(unsigned int)cobjid;
+                return (void *)(intptr_t)cobjid;
+            }
+        }
         curORef = objRefs[curORef].next;
     } // end of ORef loop
     return NULL;
@@ -948,18 +956,18 @@ uchar amap_flags(curAMap *amptr, int flags, int set) {
     if (flags == 0)
         return FALSE;
     switch (set) {
-    case AMAP_SET:
-        amptr->flags |= flags;
-        break;
-    case AMAP_UNSET:
-        amptr->flags &= ~flags;
-        break;
-    case AMAP_TOGGLE:
-        if (amptr->flags & flags)
-            amptr->flags &= ~flags;
-        else
-            amptr->flags |= flags;
-        break;
+      case AMAP_SET:
+          amptr->flags |= flags;
+          break;
+      case AMAP_UNSET:
+          amptr->flags &= ~flags;
+          break;
+      case AMAP_TOGGLE:
+          if (amptr->flags & flags)
+              amptr->flags &= ~flags;
+          else
+              amptr->flags |= flags;
+          break;
     }
     return TRUE;
 }
@@ -985,18 +993,18 @@ void amap_pan(curAMap *amptr, int dir, int *dist) {
     d = *dist >> amptr->zoom;
     *dist -= d << amptr->zoom;
     switch (dir) {
-    case AMAP_PAN_E:
-        amptr->xf += d;
-        break;
-    case AMAP_PAN_W:
-        amptr->xf -= d;
-        break;
-    case AMAP_PAN_N:
-        amptr->yf -= d;
-        break;
-    case AMAP_PAN_S:
-        amptr->yf += d;
-        break;
+      case AMAP_PAN_E:
+          amptr->xf += d;
+          break;
+      case AMAP_PAN_W:
+          amptr->xf -= d;
+          break;
+      case AMAP_PAN_N:
+          amptr->yf -= d;
+          break;
+      case AMAP_PAN_S:
+          amptr->yf += d;
+          break;
     }
     amptr->flags &= ~AMAP_TRACK_OBJ;
 }
@@ -1007,12 +1015,12 @@ void *amap_deal_with_map_click(curAMap *amptr, int *x, int *y) {
     // actually clicked on the map, we should deal...
     datum = amap_loc_note_check(amptr, x, y, &todo);
     switch (todo) {
-    case AMAP_NO_NOTE:
-        amptr->note_obj = 0;
-        return datum;
-    case AMAP_HAVE_NOTE:
-        amptr->note_obj = (int)datum;
-        return AMAP_NOTE_HACK_PTR;
+      case AMAP_NO_NOTE:
+          amptr->note_obj = 0;
+          return datum;
+      case AMAP_HAVE_NOTE:
+          amptr->note_obj = (intptr_t)datum;
+          return AMAP_NOTE_HACK_PTR;
     }
     //   case AMAP_OFF_MAP:   return NULL;
     return NULL;
@@ -1039,11 +1047,15 @@ void amap_str_startup(int magic_num) { amap_str_ptr = &amap_strings[0] + magic_n
 void amap_fixup_existing(int tolera, int delta) {
     ObjSpecID pmo;
     ObjID cur_obj;
-    for (pmo = objTraps[OBJ_SPEC_NULL].id; pmo != OBJ_SPEC_NULL; pmo = objTraps[pmo].next) {
-        cur_obj = objTraps[pmo].id;
+    for (pmo = objTraps[OBJ_SPEC_NULL].noname1.id; pmo != OBJ_SPEC_NULL; pmo = objTraps[pmo].noname2.next) {
+        cur_obj = objTraps[pmo].noname1.id;
         if (ID2TRIP(cur_obj) == MAPNOTE_TRIPLE)
-            if (amap_note_value(cur_obj) > tolera)
+        {
+            if (amap_note_value(cur_obj) > (unsigned int)tolera)
+            {
                 amap_note_value(cur_obj) -= delta;
+            }
+        }
     }
 }
 
@@ -1085,6 +1097,7 @@ uchar amap_get_note(curAMap *amptr, char *buf) {
 }
 
 grs_bitmap *screen_automap_bitmap(char c) {
+    (void)c;
     extern grs_bitmap *static_bitmap;
     return (static_bitmap);
 }

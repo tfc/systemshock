@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <string.h>
+#include <kbcook.h>
+#include <keydefs.h>
 
 #include "../MacSrc/ShockBitmap.h"
 
@@ -122,7 +124,7 @@ frc *full_map_context;
 
 #define FSMAP_OPP 0x8000
 // note this makes the init code 0b00010100000101, or 0x505
-static ushort btn_to_code[] = {DO_ZOOMIN, DO_ZOOMOUT, DO_RECENTER, DO_FULLMSG, DO_SECUR, DO_CRITTER, DO_SCAN, 0};
+//static ushort btn_to_code[] = {DO_ZOOMIN, DO_ZOOMOUT, DO_RECENTER, DO_FULLMSG, DO_SECUR, DO_CRITTER, DO_SCAN, 0};
 
 static ushort btn_to_amap[] = {
     0, 0, FSMAP_OPP | AMAP_TRACK_OBJ, AMAP_FULL_MSG, AMAP_SHOW_SEC, AMAP_SHOW_CRIT | AMAP_SHOW_ROB, AMAP_SHOW_SENS, 0};
@@ -511,6 +513,9 @@ uchar amap_scroll_handler(uiEvent *ev, LGRegion *reg, void *v) {
     short code;
     curAMap *amptr = oAMap(MFD_FULLSCR_MAP);
 
+    (void)reg;
+    (void)v;
+
     if (!map_scroll_code || !map_scroll_clicked) {
         if (ev->type == UI_EVENT_KBD_POLL) {
             code = ((uiRawKeyEvent *)ev)->scancode;
@@ -572,6 +577,8 @@ void edit_mapnote(curAMap *amptr) {
 uchar amap_ms_callback(curAMap *amptr, int x, int y, short action, ubyte b) {
     extern void mouse_unconstrain(void);
     int scregion = 0;
+
+    (void)b;
 
     if (action & (MOUSE_WHEELUP | MOUSE_WHEELDN)) {
         if (zoom_deal(amptr, action & MOUSE_WHEELUP ? BTN_ZOOMIN : BTN_ZOOMOUT))
@@ -829,7 +836,7 @@ uchar amap_kb_callback(curAMap *amptr, int code) {
     // We're not editing.  Keyboard equivalents for buttons.
 
     else {
-        char btn = -1, todo = AMAP_TOGGLE;
+        //char btn = -1, todo = AMAP_TOGGLE;
         map_scroll_code = 0;
         map_scroll_clicked = FALSE;
         switch (code & (~KB_FLAG_DOWN)) {

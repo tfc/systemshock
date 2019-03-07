@@ -60,10 +60,10 @@ void gri_opaque_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_u_mask = pi->u_mask;
     l_du = pi->du;
     l_dv = pi->dv;
-    l_y_fix = pi->y_fix;
-    l_x = pi->x;
+    l_y_fix = pi->noname1.y_fix;
+    l_x = pi->noname4.x;
 
-    l_y_fix = l_x * l_scan_slope + fix_make(pi->yp, 0xffff);
+    l_y_fix = l_x * l_scan_slope + fix_make(pi->noname3.yp, 0xffff);
     l_u = pi->u0 + fix_div(pi->unum, pi->denom);
     l_v = pi->v0 + fix_div(pi->vnum, pi->denom);
     l_du = fix_div(pi->dunum, pi->denom);
@@ -75,12 +75,12 @@ void gri_opaque_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     if (l_scan_slope < 0)
         gr_row = -gr_row;
     p = grd_bm.bits + l_x + (y_cint * grd_bm.row);
-    if (l_x < pi->xl) {
+    if (l_x < pi->noname5.xl) {
         l_dl = pi->dyl;
         l_dt = pi->dtl;
         test = l_x * pi->dyl - y_cint * pi->dxl + pi->cl;
-        x = pi->xl - l_x;
-        l_x = pi->xl;
+        x = pi->noname5.xl - l_x;
+        l_x = pi->noname5.xl;
         for (; x > 0; x--) {
             if (test <= 0) {
                 k = (l_u >> 16) & l_u_mask;
@@ -102,9 +102,9 @@ void gri_opaque_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    if (l_x < pi->xr0) {
-        x = pi->xr0 - l_x;
-        l_x = pi->xr0;
+    if (l_x < pi->noname7.xr0) {
+        x = pi->noname7.xr0 - l_x;
+        l_x = pi->noname7.xr0;
         for (; x > 0; x--) {
             k = (l_u >> 16) & l_u_mask;
             k += (l_v >> l_v_shift) & l_v_mask;
@@ -120,13 +120,13 @@ void gri_opaque_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    if (l_x < pi->xr) {
+    if (l_x < pi->noname6.xr) {
         l_dl = pi->dyr;
         test = l_x * l_dl - y_cint * pi->dxr + pi->cr;
         p = grd_bm.bits + l_x + y_cint * grd_bm.row;
-        x = pi->xr - l_x;
+        x = pi->noname6.xr - l_x;
         l_dt = pi->dtr;
-        l_x = pi->xr;
+        l_x = pi->noname6.xr;
         for (; x > 0; x--) {
             if (test >= 0) {
                 k = (l_u >> 16) & l_u_mask;
@@ -148,8 +148,8 @@ void gri_opaque_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->y_fix = l_y_fix;
-    pi->x = l_x;
+    pi->noname1.y_fix = l_y_fix;
+    pi->noname4.x = l_x;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -169,11 +169,11 @@ void gri_opaque_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     gr_row = grd_bm.row;
     bm_bits = bm->bits;
     l_dxr = pi->dxr;
-    l_x_fix = pi->x_fix;
-    l_y = pi->y;
-    l_yr = pi->yr;
-    l_yr0 = pi->yr0;
-    l_yl = pi->yl;
+    l_x_fix = pi->noname1.x_fix;
+    l_y = pi->noname4.y;
+    l_yr = pi->noname6.yr;
+    l_yr0 = pi->noname7.yr0;
+    l_yl = pi->noname5.yl;
     l_dyr = pi->dyr;
     l_dtr = pi->dtr;
     l_dyl = pi->dyl;
@@ -188,7 +188,7 @@ void gri_opaque_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_du = pi->du;
     l_dv = pi->dv;
 
-    l_x_fix = l_y * l_scan_slope + fix_make(pi->xp, 0xffff);
+    l_x_fix = l_y * l_scan_slope + fix_make(pi->noname3.xp, 0xffff);
 
     l_u = pi->u0 + fix_div(pi->unum, pi->denom);
     l_v = pi->v0 + fix_div(pi->vnum, pi->denom);
@@ -261,8 +261,8 @@ void gri_opaque_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->x_fix = l_x_fix;
-    pi->y = l_y;
+    pi->noname1.x_fix = l_x_fix;
+    pi->noname4.y = l_y;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -273,11 +273,13 @@ extern void gri_per_umap_hscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_
 extern void gri_per_umap_vscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_setup *ps);
 
 void gri_opaque_per_umap_hscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
     ps->shell_func = (void (*)())gri_per_umap_hscan;
     ps->scanline_func = (void (*)())gri_opaque_per_umap_hscan_scanline;
 }
 
 void gri_opaque_per_umap_vscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
     ps->shell_func = (void (*)())gri_per_umap_vscan;
     ps->scanline_func = (void (*)())gri_opaque_per_umap_vscan_scanline;
 }
