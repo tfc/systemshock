@@ -46,7 +46,7 @@ void flat8_clut_hflip_flat8_ubitmap(grs_bitmap *bm, short x, short y, uchar *cl)
     short h;    /* height */
     uchar *src; /* pointer into source bitmap */
     uchar *dst; /* pointer into canvas memory */
-    ushort row;
+    //ushort row;
 
     if (cl == NULL)
         cl = gr_get_clut();

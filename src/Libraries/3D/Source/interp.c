@@ -152,6 +152,9 @@ extern char gour_flag; // gour flag for actual polygon drawer
 #define OP_JNORM 1
 
 #define n_ops 40
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
+
     void *opcode_table[n_ops] = {
         do_eof,        do_jnorm,     do_lnres,     do_multires,   do_polyres,    do_setcolor, do_sortnorm,
         do_debug,      do_setshade,  do_goursurf,  do_x_rel,      do_y_rel,      do_z_rel,    do_xy_rel,
@@ -159,6 +162,8 @@ extern char gour_flag; // gour flag for actual polygon drawer
         do_defres,     do_defres_i,  do_getparms,  do_getparms_i, do_gour_p,     do_gour_vc,  do_getvcolor,
         do_getvscolor, do_rgbshades, do_draw_mode, do_getpcolor,  do_getpscolor, do_scaleres, do_vpnt_p,
         do_vpnt_v,     do_setuv,     do_uvlist,    do_tmap_op,    do_dbg};
+
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
 
 #define N_RES_POINTS 1000
 #define PARM_DATA_SIZE 4 * 100
@@ -207,19 +212,19 @@ char _itrp_check_flg = 0;
 // space for temp copy of object
 char obj_space[8000];
 
-// MLA not used, - uchar 	*struct_ptr;
+// MLA not used, - uchar        *struct_ptr;
 
 /*
 // process the next opcode
-next	macro	opsize
-        ifnb	<opsize>
-         add	ebp,opsize	// point at next opcode
+next    macro   opsize
+        ifnb    <opsize>
+         add    ebp,opsize      // point at next opcode
         endif
-        jmp	interpreter_loop
+        jmp     interpreter_loop
         endm
 
-call_next	macro
-        call	interpreter_loop
+call_next       macro
+        call    interpreter_loop
         endm
 */
 
@@ -247,10 +252,17 @@ void g3_interpret_object(ubyte *object_ptr, ...) {
     // set fill type so 2d can light the thang
     if ((_g3d_light_type & (LT_SPEC | LT_DIFF)) != 0) {
         gr_set_fill_type(FILL_CLUT);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
         if (_g3d_light_type == LT_DIFF)
+        {
             opcode_table[OP_JNORM] = &do_ldjnorm;
+        }
         else
+        {
             opcode_table[OP_JNORM] = &do_ljnorm;
+        }
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
     }
 
 // clang-format off
@@ -335,12 +347,13 @@ g3_interpret_object_raw:
 #endif
         // clang-format on
 
-        va_start(parm_ptr, object_ptr); // get addr of stack parms
+      //va_start(parm_ptr, object_ptr); // get addr of stack parms
+        va_start(*(va_list *)parm_ptr, object_ptr); // get addr of stack parms
 
     // MLA- not used ever?
     /*
-            mov	eax,16[esp]	// get angle
-            mov	struct_ptr,eax*/
+            mov eax,16[esp]     // get angle
+            mov struct_ptr,eax*/
 
     // mark res points as free
     LG_memset(resbuf, 0, N_RES_POINTS * 4);
@@ -350,28 +363,37 @@ g3_interpret_object_raw:
     scale = *(short *)(object_ptr - 2);
     if (scale) {
         if (scale > 0) {
-            _view_position.gX >>= scale;
-            _view_position.gY >>= scale;
-            _view_position.gZ >>= scale;
+            _view_position.noname2.gX >>= scale;
+            _view_position.noname2.gY >>= scale;
+            _view_position.noname2.gZ >>= scale;
         } else {
             int temp;
 
             scale = -scale;
 
-            temp = (((ulong)_view_position.gX) >> 16); // get high 16 bits
+            temp = (((ulong)_view_position.noname2.gX) >> 16); // get high 16 bits
             // FIXME: DG: I guess they meant &, not &&
-            if (((temp << scale) && 0xffff0000) != 0)
+            //if (((temp << scale) && 0xffff0000) != 0)
+            if (((temp << scale) & 0xffff0000) != 0)
+            {
                 goto Exit;                             // overflow
-            temp = (((ulong)_view_position.gY) >> 16); // get high 16 bits
-            if (((temp << scale) && 0xffff0000) != 0)
+            }
+            temp = (((ulong)_view_position.noname2.gY) >> 16); // get high 16 bits
+            //if (((temp << scale) && 0xffff0000) != 0)
+            if (((temp << scale) & 0xffff0000) != 0)
+            {
                 goto Exit;                             // overflow
-            temp = (((ulong)_view_position.gZ) >> 16); // get high 16 bits
-            if (((temp << scale) && 0xffff0000) != 0)
+            }
+            temp = (((ulong)_view_position.noname2.gZ) >> 16); // get high 16 bits
+            //if (((temp << scale) && 0xffff0000) != 0)
+            if (((temp << scale) & 0xffff0000) != 0)
+            {
                 goto Exit; // overflow
+            }
 
-            _view_position.gX <<= scale;
-            _view_position.gY <<= scale;
-            _view_position.gZ <<= scale;
+            _view_position.noname2.gX <<= scale;
+            _view_position.noname2.gY <<= scale;
+            _view_position.noname2.gZ <<= scale;
         }
     }
 
@@ -385,7 +407,10 @@ g3_interpret_object_raw:
     // set lighting back to how it was
     if ((_g3d_light_type & (LT_SPEC | LT_DIFF)) != 0) {
         gr_set_fill_type(FILL_NORM);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
         opcode_table[OP_JNORM] = &do_jnorm;
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
     }
 
 Exit:
@@ -397,15 +422,23 @@ Exit:
 void interpreter_loop(uchar *object) {
     do {
         FlipShort((short *)object);
+#pragma GCC diagnostic push                 // Save actual diagnostics state.
+#pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
         object = ((uchar * (*)(uchar *)) opcode_table[*(short *)object])(object);
+#pragma GCC diagnostic pop                  // Restore diagnostics state.
     } while (object);
 }
 
 // opcodes.  [ebp] points at op on entry
-uchar *do_debug(uchar *opcode) { return 0; }
+uchar *do_debug(uchar *opcode)
+{
+    (void)opcode;
+    return 0;
+}
 
 uchar *do_eof(uchar *opcode) // and return extra level
 {
+    (void)opcode;
     return 0;
 }
 
@@ -451,13 +484,15 @@ uchar *do_multires(uchar *opcode) {
 //  and if you bore me, you lose your soul to me       - "Gepetto", Belly,
 //  _Star_
 uchar *do_scaleres(uchar *opcode) {
+    (void)opcode;
+
     // MLA - this routine appears to be buggy and can't possibly work, so I'm not
     // doing it yet.
     DebugString("Call Mark!");
 
-    /* 	int					count,scale;
-            long				temp_pnt[3];
-            g3s_phandle	temp_hand;
+    /*  int                                     count,scale;
+            long                                temp_pnt[3];
+            g3s_phandle temp_hand;
 
             count = * (unsigned short *) (opcode+2);
             scale = * (unsigned short *) (opcode+4);
@@ -473,12 +508,12 @@ uchar *do_scaleres(uchar *opcode) {
             return opcode;
              */
     /*
-           movzx	ecx,w 2[ebp]	// get count
-           movzx	eax,w 4[ebp]	// get scale factor
-           movzx	ebx,w 6[ebp]	// get dest start num
+           movzx        ecx,w 2[ebp]    // get count
+           movzx        eax,w 4[ebp]    // get scale factor
+           movzx        ebx,w 6[ebp]    // get dest start num
            mov     eax,d parm_data [eax]
            add     ebp,8
-   //	lea	esi,[ebp]	// get vector array start
+   //   lea     esi,[ebp]       // get vector array start
    do_sr_loop:
            push    eax
            push    ecx
@@ -672,7 +707,7 @@ uchar *do_rgbshades(uchar *opcode) {
         FlipLong((long *)(new_opcode + 2));
 
         temphand = resbuf[*(unsigned short *)new_opcode]; // get point handle
-        temphand->rgb = *(long *)(new_opcode + 2);
+        temphand->noname3.rgb = *(long *)(new_opcode + 2);
         temphand->p3_flags |= PF_RGB;
         new_opcode += 10;
     }
@@ -687,8 +722,8 @@ uchar *do_setuv(uchar *opcode) {
     FlipLong((long *)(opcode + 8));
 
     temphand = resbuf[*(unsigned short *)(opcode + 2)]; // get point handle
-    temphand->uv.u = (*(unsigned long *)(opcode + 4)) >> 8;
-    temphand->uv.v = (*(unsigned long *)(opcode + 8)) >> 8;
+    temphand->noname3.uv.u = (*(unsigned long *)(opcode + 4)) >> 8;
+    temphand->noname3.uv.v = (*(unsigned long *)(opcode + 8)) >> 8;
     temphand->p3_flags |= PF_U | PF_V;
 
     return opcode + 12;
@@ -708,8 +743,8 @@ uchar *do_uvlist(uchar *opcode) {
         FlipLong((long *)(opcode + 6));
 
         temphand = resbuf[*(unsigned short *)opcode]; // get point handle
-        temphand->uv.u = (*(unsigned long *)(opcode + 2)) >> 8;
-        temphand->uv.v = (*(unsigned long *)(opcode + 6)) >> 8;
+        temphand->noname3.uv.u = (*(unsigned long *)(opcode + 2)) >> 8;
+        temphand->noname3.uv.v = (*(unsigned long *)(opcode + 6)) >> 8;
         temphand->p3_flags |= PF_U | PF_V;
         opcode += 10;
     }
@@ -920,8 +955,8 @@ uchar *do_dbg(uchar *opcode) {
   cmp     ax,_pgon_id_high
   jle     dbg_end
 pgon_skip:
-  movsx	eax,w 2[ebp]    // skip whatever
-  next	eax
+  movsx eax,w 2[ebp]    // skip whatever
+  next  eax
 dbg_nxt1:
   cmp     ax, DBG_POLY_MAX
   jnz     dbg_end
@@ -1030,6 +1065,7 @@ g3_light_check_normal_facing:
 */
 
 void FlipShort(short *sh) {
+    (void)sh;
     /*uchar temp;
     uchar *src = (uchar *) sh;
 
@@ -1039,8 +1075,9 @@ void FlipShort(short *sh) {
 }
 
 void FlipLong(long *lng) {
+    (void)lng;
     /*short *src = (short *) lng;
-    short	temp;
+    short       temp;
 
     temp = src[0];
     src[0] = src[1];
@@ -1051,7 +1088,9 @@ void FlipLong(long *lng) {
 }
 
 void FlipVector(short n, g3s_vector *vec) {
-    /*int		i,j;
+    (void)n;
+    (void)vec;
+    /*int               i,j;
 
     for (i=0; i<n; i++, vec++)
             for (j=0; j<3; j++)

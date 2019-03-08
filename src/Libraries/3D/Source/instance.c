@@ -86,9 +86,9 @@ uchar g3_start_object(g3s_vector *p) // position only (no orientation)
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     return -1; // success
 }
@@ -119,9 +119,9 @@ uchar start_obj_common(g3s_vector *p, g3s_angvec *o, int rotation_order) {
     g3s_matrix temp_matrix;
 
     // compute new context
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     // copy obj offset to world to obj structure
     // used for lighting, dude
@@ -161,9 +161,9 @@ uchar g3_start_object_angles_y(g3s_vector *p, fixang ty) {
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     return (instance_y(ty));
 }
@@ -177,13 +177,13 @@ uchar instance_y(fixang ty) {
     fix_sincos(ty, &sin_y, &cos_y);
 
     // rotate viewer vars
-    r = fix64_mul(_view_position.gX, cos_y) - fix64_mul(_view_position.gZ, sin_y);
+    r = fix64_mul(_view_position.noname2.gX, cos_y) - fix64_mul(_view_position.noname2.gZ, sin_y);
     temp1 = fix64_to_fix(r);
 
-    r = fix64_mul(_view_position.gX, sin_y) + fix64_mul(_view_position.gZ, cos_y);
+    r = fix64_mul(_view_position.noname2.gX, sin_y) + fix64_mul(_view_position.noname2.gZ, cos_y);
 
-    _view_position.gX = temp1;
-    _view_position.gZ = fix64_to_fix(r);
+    _view_position.noname2.gX = temp1;
+    _view_position.noname2.gZ = fix64_to_fix(r);
 
     // now modify matrix
     temp1 = update_ms(cos_y, vm1, sin_y, vm7);
@@ -207,9 +207,9 @@ uchar g3_start_object_angles_x(g3s_vector *p, fixang tx) {
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     return (instance_x(tx));
 }
@@ -223,12 +223,12 @@ uchar instance_x(fixang tx) {
     fix_sincos(tx, &sin_x, &cos_x);
 
     // rotate viewer vars
-    r = fix64_mul(_view_position.gZ, sin_x) + fix64_mul(_view_position.gY, cos_x);
+    r = fix64_mul(_view_position.noname2.gZ, sin_x) + fix64_mul(_view_position.noname2.gY, cos_x);
     temp1 = fix64_to_fix(r);
 
-    r = fix64_mul(_view_position.gZ, cos_x) - fix64_mul(_view_position.gY, sin_x);
-    _view_position.gY = temp1;
-    _view_position.gZ = fix64_to_fix(r);
+    r = fix64_mul(_view_position.noname2.gZ, cos_x) - fix64_mul(_view_position.noname2.gY, sin_x);
+    _view_position.noname2.gY = temp1;
+    _view_position.noname2.gZ = fix64_to_fix(r);
 
     // now modify matrix
 
@@ -253,9 +253,9 @@ uchar g3_start_object_angles_z(g3s_vector *p, fixang tz) {
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     return (instance_z(tz));
 }
@@ -269,12 +269,12 @@ uchar instance_z(fixang tz) {
     fix_sincos(tz, &sin_z, &cos_z);
 
     // rotate viewer vars
-    r = fix64_mul(_view_position.gY, sin_z) + fix64_mul(_view_position.gX, cos_z);
+    r = fix64_mul(_view_position.noname2.gY, sin_z) + fix64_mul(_view_position.noname2.gX, cos_z);
     temp1 = fix64_to_fix(r);
 
-    r = fix64_mul(_view_position.gY, cos_z) - fix64_mul(_view_position.gX, sin_z);
-    _view_position.gX = temp1;
-    _view_position.gY = fix64_to_fix(r);
+    r = fix64_mul(_view_position.noname2.gY, cos_z) - fix64_mul(_view_position.noname2.gX, sin_z);
+    _view_position.noname2.gX = temp1;
+    _view_position.noname2.gY = fix64_to_fix(r);
 
     // now modify matrix
     temp1 = update_m(cos_z, vm1, sin_z, vm4);
@@ -297,9 +297,9 @@ uchar g3_start_object_angles_xy(g3s_vector *p, fixang tx, fixang ty, int rotatio
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     if ((rotation_order & 1) == 0) // check xy order
     {
@@ -317,9 +317,9 @@ uchar g3_start_object_angles_xz(g3s_vector *p, fixang tx, fixang tz, int rotatio
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     if ((rotation_order & 2) == 0) // check xz order
     {
@@ -337,9 +337,9 @@ uchar g3_start_object_angles_yz(g3s_vector *p, fixang ty, fixang tz, int rotatio
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     if ((rotation_order & 4) == 0) // check yz order
     {
@@ -353,13 +353,17 @@ uchar g3_start_object_angles_yz(g3s_vector *p, fixang ty, fixang tz, int rotatio
 
 // rotate around the specified axes. angles = ebx edx. esi=position
 uchar g3_start_object_angles_zy(g3s_vector *p, fixang ty, fixang tz, int rotation_order) {
+    (void)rotation_order;
+
     if (save_context())
+    {
         return 0;
+    }
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     instance_z(tz);
     return (instance_y(ty));
@@ -373,9 +377,9 @@ uchar g3_start_object_matrix(g3s_vector *p, g3s_matrix *m) {
         return 0;
 
     // compute new view position
-    _view_position.gX -= p->gX;
-    _view_position.gY -= p->gY;
-    _view_position.gZ -= p->gZ;
+    _view_position.noname2.gX -= p->noname2.gX;
+    _view_position.noname2.gY -= p->noname2.gY;
+    _view_position.noname2.gZ -= p->noname2.gZ;
 
     // rotate view vector through instance matrix
     g3_vec_rotate(&_view_position, &_view_position, m);
@@ -411,9 +415,9 @@ void g3_scale_object(fix s) {
     // scale vm by scale, and divide view_position
     // down by scale
 
-    _view_position.gX = fix_div(_view_position.gX, s);
-    _view_position.gY = fix_div(_view_position.gY, s);
-    _view_position.gZ = fix_div(_view_position.gZ, s);
+    _view_position.noname2.gX = fix_div(_view_position.noname2.gX, s);
+    _view_position.noname2.gY = fix_div(_view_position.noname2.gY, s);
+    _view_position.noname2.gZ = fix_div(_view_position.noname2.gZ, s);
 
     // scale vm up by scale
     vm1 = fix_mul(vm1, s);

@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		AMOV.C		Animfile handler for LG .mov files
-//		Rex E. Bradford (REX)
+//              AMOV.C          Animfile handler for LG .mov files
+//              Rex E. Bradford (REX)
 //
 /*
  * $Header: r:/prj/lib/src/afile/RCS/amov.c 1.6 1994/10/18 16:01:15 rex Exp $
@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "movie.h"
 
-//	Type-specific information
+//      Type-specific information
 
 typedef struct {
     MovieHeader movieHdr;   // movie header
@@ -68,7 +68,7 @@ typedef struct {
     uint8_t newPal;         // new pal flag
 } AmovInfo;
 
-//	Methods
+//      Methods
 
 int32_t AmovReadHeader(Afile *paf);
 int32_t AmovReadFrame(Afile *paf, grs_bitmap *pbm, fix *ptime);
@@ -89,11 +89,11 @@ Amethods movMethods = {
     AmovReadReset,
     AmovReadClose,
 /*
-    AmovWriteBegin,
-    NULL, // f_WriteAudio
-    AmovWriteFrame,
-    NULL, // f_WriteFramePal
-    AmovWriteClose,
+  AmovWriteBegin,
+  NULL, // f_WriteAudio
+  AmovWriteFrame,
+  NULL, // f_WriteFramePal
+  AmovWriteClose,
 */
 };
 
@@ -104,33 +104,33 @@ Amethods movMethods = {
 //assumes count is 1
 int mfread(void *p, int size, MFILE *mf)
 {
-	if (mf->pos < 0 || size <= 0) return 0;
-	if (mf->pos + size > mf->size) size = mf->size - mf->pos;
-	if (size <= 0) return 0;
+    if (mf->pos < 0 || size <= 0) return 0;
+    if (mf->pos + size > mf->size) size = mf->size - mf->pos;
+    if (size <= 0) return 0;
 
-	memcpy(p, mf->p + mf->pos, size);
-	mf->pos += size;
+    memcpy(p, mf->p + mf->pos, size);
+    mf->pos += size;
 
-	return size;
+    return size;
 }
 
 //assumes origin is SEEK_SET
 void mfseek(MFILE *mf, int pos)
 {
-	mf->pos = pos;
+    mf->pos = pos;
 }
 
-//	------------------------------------------------------
-//		READER METHODS
-//	------------------------------------------------------
+//      ------------------------------------------------------
+//              READER METHODS
+//      ------------------------------------------------------
 //
-//	AmovReadHeader() reads in movie file header & verifies.
+//      AmovReadHeader() reads in movie file header & verifies.
 
 int32_t AmovReadHeader(Afile *paf) {
     AmovInfo *pmi;
     MovieChunk *pchunk;
 
-    //	Allocate type-specific info
+    //  Allocate type-specific info
 
     paf->pspec = malloc(sizeof(AmovInfo));
     pmi = (AmovInfo *)paf->pspec;
@@ -184,9 +184,9 @@ int32_t AmovReadHeader(Afile *paf) {
     return (0);
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	AmovReadFrame() reads the next frame.
+//      AmovReadFrame() reads the next frame.
 
 //filled when chunk contains subtitle data; used extern in cutsloop.c
 char EngSubtitle[256];
@@ -208,116 +208,116 @@ int32_t AmovReadFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
 NEXT_CHUNK:
 
     switch (pmi->pcurrChunk->chunkType) {
-    case MOVIE_CHUNK_END:
-        return (-1);
+      case MOVIE_CHUNK_END:
+          return (-1);
 
-    case MOVIE_CHUNK_VIDEO:
-        DEBUG("MOVIE_CHUNK_VIDEO");
-        pbm->type = pmi->pcurrChunk->flags & MOVIE_FVIDEO_BMTMASK;
-        if (pbm->type == MOVIE_FVIDEO_BMF_4X4) {
-            mfseek(paf->mf, pmi->pcurrChunk->offset);
-            len = MovieChunkLength(pmi->pcurrChunk);
-            p = (uint8_t *)malloc(len);
-            mfread(p, len, paf->mf);
-            pbm->type = BMT_FLAT8;
-            pbm->flags = BMF_TRANS;
-            gr_make_canvas(pbm, &cv);
-            gr_push_canvas(&cv);
-            Draw4x4(p, paf->v.width, paf->v.height);
-            gr_pop_canvas();
-            free(p);
-        } else {
-            mfseek(paf->mf, pmi->pcurrChunk->offset + sizeof(LGRect));
-            len = MovieChunkLength(pmi->pcurrChunk) - sizeof(LGRect);
-            mfread(pbm->bits, len, paf->mf);
-        }
-        *ptime = pmi->pcurrChunk->time;
-        pmi->pcurrChunk++;
-        return (len);
+      case MOVIE_CHUNK_VIDEO:
+          DEBUG("MOVIE_CHUNK_VIDEO");
+          pbm->type = pmi->pcurrChunk->flags & MOVIE_FVIDEO_BMTMASK;
+          if (pbm->type == MOVIE_FVIDEO_BMF_4X4) {
+              mfseek(paf->mf, pmi->pcurrChunk->offset);
+              len = MovieChunkLength(pmi->pcurrChunk);
+              p = (uint8_t *)malloc(len);
+              mfread(p, len, paf->mf);
+              pbm->type = BMT_FLAT8;
+              pbm->flags = BMF_TRANS;
+              gr_make_canvas(pbm, &cv);
+              gr_push_canvas(&cv);
+              Draw4x4(p, paf->v.width, paf->v.height);
+              gr_pop_canvas();
+              free(p);
+          } else {
+              mfseek(paf->mf, pmi->pcurrChunk->offset + sizeof(LGRect));
+              len = MovieChunkLength(pmi->pcurrChunk) - sizeof(LGRect);
+              mfread(pbm->bits, len, paf->mf);
+          }
+          *ptime = pmi->pcurrChunk->time;
+          pmi->pcurrChunk++;
+          return (len);
 
-    case MOVIE_CHUNK_TABLE:
-        DEBUG("MOVIE_CHUNK_TABLE");
-        mfseek(paf->mf, pmi->pcurrChunk->offset);
-        switch (pmi->pcurrChunk->flags) {
-        case MOVIE_FTABLE_COLORSET:
-            if (pColorSet)
-                free(pColorSet);
-            pColorSet = (uint8_t *)malloc(MovieChunkLength(pmi->pcurrChunk));
-            mfread(pColorSet, MovieChunkLength(pmi->pcurrChunk), paf->mf);
-            break;
+      case MOVIE_CHUNK_TABLE:
+          DEBUG("MOVIE_CHUNK_TABLE");
+          mfseek(paf->mf, pmi->pcurrChunk->offset);
+          switch (pmi->pcurrChunk->flags) {
+            case MOVIE_FTABLE_COLORSET:
+                if (pColorSet)
+                    free(pColorSet);
+                pColorSet = (uint8_t *)malloc(MovieChunkLength(pmi->pcurrChunk));
+                mfread(pColorSet, MovieChunkLength(pmi->pcurrChunk), paf->mf);
+                break;
 
-        case MOVIE_FTABLE_HUFFTAB: {
-            uint32_t len, *pl;
-            pHuffTabComp = (uint8_t *)malloc(MovieChunkLength(pmi->pcurrChunk));
-            mfread(pHuffTabComp, MovieChunkLength(pmi->pcurrChunk), paf->mf);
-            pl = (uint32_t *)pHuffTabComp;
-            len = *pl++;
-            if (pHuffTab)
-                free(pHuffTab);
-            pHuffTab = (uint8_t *)malloc(len);
-            HuffExpandFlashTables(pHuffTab, len, pl, 3);
-            Draw4x4Reset(pColorSet, pHuffTab);
-            free(pHuffTabComp);
-        } break;
-        }
-        pmi->pcurrChunk++;
-        goto NEXT_CHUNK;
+            case MOVIE_FTABLE_HUFFTAB: {
+                uint32_t len, *pl;
+                pHuffTabComp = (uint8_t *)malloc(MovieChunkLength(pmi->pcurrChunk));
+                mfread(pHuffTabComp, MovieChunkLength(pmi->pcurrChunk), paf->mf);
+                pl = (uint32_t *)pHuffTabComp;
+                len = *pl++;
+                if (pHuffTab)
+                    free(pHuffTab);
+                pHuffTab = (uint8_t *)malloc(len);
+                HuffExpandFlashTables(pHuffTab, len, pl, 3);
+                Draw4x4Reset(pColorSet, pHuffTab);
+                free(pHuffTabComp);
+            } break;
+          }
+          pmi->pcurrChunk++;
+          goto NEXT_CHUNK;
 
-    case MOVIE_CHUNK_PALETTE:
-        DEBUG("MOVIE_CHUNK_PALETTE");
-        if (pmi->pcurrChunk->flags == MOVIE_FPAL_SET) {
-            mfseek(paf->mf, pmi->pcurrChunk->offset);
-            mfread(pmi->pal, 768, paf->mf);
-            pmi->newPal = TRUE;
-        }
+      case MOVIE_CHUNK_PALETTE:
+          DEBUG("MOVIE_CHUNK_PALETTE");
+          if (pmi->pcurrChunk->flags == MOVIE_FPAL_SET) {
+              mfseek(paf->mf, pmi->pcurrChunk->offset);
+              mfread(pmi->pal, 768, paf->mf);
+              pmi->newPal = TRUE;
+          }
 
-        *EngSubtitle = 0;
-        *FrnSubtitle = 0;
-        *GerSubtitle = 0;
+          *EngSubtitle = 0;
+          *FrnSubtitle = 0;
+          *GerSubtitle = 0;
 
-        pmi->pcurrChunk++;
-        goto NEXT_CHUNK;
+          pmi->pcurrChunk++;
+          goto NEXT_CHUNK;
 
-    case MOVIE_CHUNK_TEXT:
-    {
-        DEBUG("MOVIE_CHUNK_TEXT");
-        mfseek(paf->mf, pmi->pcurrChunk->offset);
+      case MOVIE_CHUNK_TEXT:
+      {
+          DEBUG("MOVIE_CHUNK_TEXT");
+          mfseek(paf->mf, pmi->pcurrChunk->offset);
 
-        char tag[4];
-        uint32_t offset;
-        char string[256], ch;
-        int i;
+          char tag[4];
+          uint32_t offset;
+          char string[256], ch;
+          int i;
 
-        mfread(tag, sizeof(tag), paf->mf);
-        mfread(&offset, sizeof(offset), paf->mf);
-        mfseek(paf->mf, pmi->pcurrChunk->offset + offset);
+          mfread(tag, sizeof(tag), paf->mf);
+          mfread(&offset, sizeof(offset), paf->mf);
+          mfseek(paf->mf, pmi->pcurrChunk->offset + offset);
 
-        for (i=0; i<sizeof(string)-1; i++)
-        {
-            mfread(&ch, sizeof(ch), paf->mf);
-            if (ch == 0) break;
-            string[i] = ch;
-        }
-        string[i] = 0;
+          for (i=0; (unsigned)i<sizeof(string)-1; i++)
+          {
+              mfread(&ch, sizeof(ch), paf->mf);
+              if (ch == 0) break;
+              string[i] = ch;
+          }
+          string[i] = 0;
 
-        if (!memcmp(tag, "AREA", 4)) {} // "# # # # CLR" : left, top, right, bottom
-        else if (!memcmp(tag, "STD ", 4)) strcpy(EngSubtitle, string);
-        else if (!memcmp(tag, "FRN ", 4)) strcpy(FrnSubtitle, string);
-        else if (!memcmp(tag, "GER ", 4)) strcpy(GerSubtitle, string);
+          if (!memcmp(tag, "AREA", 4)) {} // "# # # # CLR" : left, top, right, bottom
+          else if (!memcmp(tag, "STD ", 4)) strcpy(EngSubtitle, string);
+          else if (!memcmp(tag, "FRN ", 4)) strcpy(FrnSubtitle, string);
+          else if (!memcmp(tag, "GER ", 4)) strcpy(GerSubtitle, string);
 
-        pmi->pcurrChunk++;
-        goto NEXT_CHUNK;
-    }
+          pmi->pcurrChunk++;
+          goto NEXT_CHUNK;
+      }
 
-    default:
-        pmi->pcurrChunk++;
-        goto NEXT_CHUNK;
+      default:
+          pmi->pcurrChunk++;
+          goto NEXT_CHUNK;
     }
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	AmovReadFramePal() reads pal for this frame just read.
+//      AmovReadFramePal() reads pal for this frame just read.
 
 int32_t AmovReadFramePal(Afile *paf, Apalette *ppal) {
     AmovInfo *pmi = (AmovInfo *)paf->pspec;
@@ -349,28 +349,28 @@ int32_t AmovReadAudio(Afile *paf, void *paudio) {
             // TRACE("%s: got audio chunk in 0x%08x offset", __FUNCTION__, pmi->pcurrChunk->offset);
             mfseek(paf->mf, pmi->pcurrChunk->offset);
             size = mfread(p, MOVIE_DEFAULT_BLOCKLEN, paf->mf);
-            memcpy(paudio + i, p, size);
-			if (size < MOVIE_DEFAULT_BLOCKLEN)
-				memset(paudio + i + size, 128, MOVIE_DEFAULT_BLOCKLEN - size); //fill rest with silence (128)
+            memcpy((uint8_t *)paudio + i, p, size);
+            if (size < MOVIE_DEFAULT_BLOCKLEN)
+                memset((uint8_t *)paudio + i + size, 128, MOVIE_DEFAULT_BLOCKLEN - size); //fill rest with silence (128)
             i += size;
         }
         pmi->pcurrChunk++;
     }
     free(p);
 
-	//prevent pop at end of audio playback
-	float vol = 1.0;
-	size = i;
-	i -= 512; if (i >= size) i = 0;
-	for (; i < size; i++, vol *= 0.8)
-		*((uint8_t *)paudio + i) = 128 + (uint8_t)((*((uint8_t *)paudio + i) - 128) * vol);
+    //prevent pop at end of audio playback
+    float vol = 1.0;
+    size = i;
+    i -= 512; if (i >= size) i = 0;
+    for (; i < size; i++, vol *= 0.8)
+        *((uint8_t *)paudio + i) = 128 + (uint8_t)((*((uint8_t *)paudio + i) - 128) * vol);
 
     return 0;
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	AmovReadReset() resets the movie for reading.
+//      AmovReadReset() resets the movie for reading.
 
 int32_t AmovReadReset(Afile *paf) {
     AmovInfo *pmi = (AmovInfo *)paf->pspec;
@@ -380,9 +380,9 @@ int32_t AmovReadReset(Afile *paf) {
     return (0);
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	AmovReadClose() does cleanup and closes file.
+//      AmovReadClose() does cleanup and closes file.
 
 int32_t AmovReadClose(Afile *paf) {
     AmovInfo *pmi = (AmovInfo *)paf->pspec;
@@ -390,24 +390,24 @@ int32_t AmovReadClose(Afile *paf) {
     free(pmi->pmc);
     free(pmi);
 
-	free(paf->mf->p);
-	free(paf->mf);
+    free(paf->mf->p);
+    free(paf->mf);
 
     return (0);
 }
 
 /*
 
-//	------------------------------------------------------
-//		WRITER METHODS
-//	------------------------------------------------------
+//      ------------------------------------------------------
+//              WRITER METHODS
+//      ------------------------------------------------------
 //
-//	AmovWriteBegin() starts up writer.
+//      AmovWriteBegin() starts up writer.
 
 int32_t AmovWriteBegin(Afile *paf) {
     AmovInfo *pmi;
 
-    //	Allocate type-specific info
+    //  Allocate type-specific info
 
     paf->pspec = calloc(1, sizeof(AmovInfo));
     pmi = paf->pspec;
@@ -430,9 +430,9 @@ int32_t AmovWriteBegin(Afile *paf) {
     return (0);
 }
 
-//	------------------------------------------------------
+//      ------------------------------------------------------
 //
-//	AmovWriteFrame() writes out next frame.
+//      AmovWriteFrame() writes out next frame.
 
 int32_t AmovWriteFrame(Afile *paf, grs_bitmap *pbm, int32_t bmlength, fix time) {
     AmovInfo *pmi;
@@ -453,7 +453,7 @@ int32_t AmovWriteFrame(Afile *paf, grs_bitmap *pbm, int32_t bmlength, fix time) 
     pmi->pcurrChunk->flags = pbm->type;
     pmi->pcurrChunk->offset = ftell(pmi->fpTemp);
 
-    //	Write update area
+    //  Write update area
     area.ul.x = 0;
     area.ul.y = 0;
     area.lr.x = pbm->w;
@@ -468,9 +468,9 @@ int32_t AmovWriteFrame(Afile *paf, grs_bitmap *pbm, int32_t bmlength, fix time) 
     return (0);
 }
 
-//	-------------------------------------------------------
+//      -------------------------------------------------------
 //
-//	AmovWriteClose() closes output .mov
+//      AmovWriteClose() closes output .mov
 
 int32_t AmovWriteClose(Afile *paf) {
     AmovInfo *pmi;

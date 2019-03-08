@@ -51,35 +51,35 @@ void g3_compute_normal_quick(g3s_vector *v, g3s_vector *v0, g3s_vector *v1, g3s_
 
 // adds two vectors:  edi = esi + ebx
 void g3_vec_add(g3s_vector *dest, g3s_vector *src1, g3s_vector *src2) {
-    dest->gX = src1->gX + src2->gX;
-    dest->gY = src1->gY + src2->gY;
-    dest->gZ = src1->gZ + src2->gZ;
+    dest->noname2.gX = src1->noname2.gX + src2->noname2.gX;
+    dest->noname2.gY = src1->noname2.gY + src2->noname2.gY;
+    dest->noname2.gZ = src1->noname2.gZ + src2->noname2.gZ;
 }
 
 // subtracts two vectors:  edi = esi - ebx. trashes eax
 void g3_vec_sub(g3s_vector *dest, g3s_vector *src1, g3s_vector *src2) {
-    dest->gX = src1->gX - src2->gX;
-    dest->gY = src1->gY - src2->gY;
-    dest->gZ = src1->gZ - src2->gZ;
+    dest->noname2.gX = src1->noname2.gX - src2->noname2.gX;
+    dest->noname2.gY = src1->noname2.gY - src2->noname2.gY;
+    dest->noname2.gZ = src1->noname2.gZ - src2->noname2.gZ;
 }
 
 // scale a vector in place. takes edi=dest vector, esi=src vector, ebx=scale
 void g3_vec_scale(g3s_vector *dest, g3s_vector *src, fix s) {
-    dest->gX = fix_mul(src->gX, s);
-    dest->gY = fix_mul(src->gY, s);
-    dest->gZ = fix_mul(src->gZ, s);
+    dest->noname2.gX = fix_mul(src->noname2.gX, s);
+    dest->noname2.gY = fix_mul(src->noname2.gY, s);
+    dest->noname2.gZ = fix_mul(src->noname2.gZ, s);
 }
 
 // fix mag(vector *v)
 // takes esi = v. returns mag in eax. trashes all but ebp
 fix g3_vec_mag(g3s_vector *v) {
-    int64_t result = fix64_mul(v->gX, v->gX) + fix64_mul(v->gY, v->gY) + fix64_mul(v->gZ, v->gZ);
+    int64_t result = fix64_mul(v->noname2.gX, v->noname2.gX) + fix64_mul(v->noname2.gY, v->noname2.gY) + fix64_mul(v->noname2.gZ, v->noname2.gZ);
     return (fix)sqrtl(result);
 }
 
 // compute dot product of vectors at [esi] & [edi]
 fix g3_vec_dotprod(g3s_vector *v0, g3s_vector *v1) {
-    int64_t result = fix64_mul(v0->gX, v1->gX) + fix64_mul(v0->gY, v1->gY) + fix64_mul(v0->gZ, v1->gZ);
+    int64_t result = fix64_mul(v0->noname2.gX, v1->noname2.gX) + fix64_mul(v0->noname2.gY, v1->noname2.gY) + fix64_mul(v0->noname2.gZ, v1->noname2.gZ);
 
     return fix64_to_fix(result);
 }
@@ -98,9 +98,9 @@ void g3_vec_normalize(g3s_vector *v) {
 
     temp = g3_vec_mag(v);
 
-    v->gX = fix_div(v->gX, temp);
-    v->gY = fix_div(v->gY, temp);
-    v->gZ = fix_div(v->gZ, temp);
+    v->noname2.gX = fix_div(v->noname2.gX, temp);
+    v->noname2.gY = fix_div(v->noname2.gY, temp);
+    v->noname2.gZ = fix_div(v->noname2.gZ, temp);
 }
 
 // compute surface normal from three points. DOES NOT NORMALIZE!
@@ -118,16 +118,16 @@ void g3_compute_normal_quick(g3s_vector *v, g3s_vector *v0, g3s_vector *v1, g3s_
     g3_vec_sub(&temp_v1, v2, v1);
 
     // dest->x = v1z * v0y - v1y * v0z;
-    r[0] = fix64_mul(temp_v1.gZ, temp_v0.gY) - fix64_mul(temp_v1.gY, temp_v0.gZ);
-    v->gX = fix64_frac(r[0]);
+    r[0] = fix64_mul(temp_v1.noname2.gZ, temp_v0.noname2.gY) - fix64_mul(temp_v1.noname2.gY, temp_v0.noname2.gZ);
+    v->noname2.gX = fix64_frac(r[0]);
 
     // dest->y = v1x * v0z - v1z * v0x;
-    r[1] = fix64_mul(temp_v1.gX, temp_v0.gZ) - fix64_mul(temp_v1.gZ, temp_v0.gX);
-    v->gY = fix64_frac(r[1]);
+    r[1] = fix64_mul(temp_v1.noname2.gX, temp_v0.noname2.gZ) - fix64_mul(temp_v1.noname2.gZ, temp_v0.noname2.gX);
+    v->noname2.gY = fix64_frac(r[1]);
 
     // dest->z = v1y * v0x - v1x * v0y;
-    r[2] = fix64_mul(temp_v1.gY, temp_v0.gX) - fix64_mul(temp_v1.gX, temp_v0.gY);
-    v->gZ = fix64_frac(r[2]);
+    r[2] = fix64_mul(temp_v1.noname2.gY, temp_v0.noname2.gX) - fix64_mul(temp_v1.noname2.gX, temp_v0.noname2.gY);
+    v->noname2.gZ = fix64_frac(r[2]);
 
     // see if fit into a longword
     for(int i = 0; i < 3; i++) {
@@ -150,6 +150,6 @@ void g3_compute_normal_quick(g3s_vector *v, g3s_vector *v0, g3s_vector *v1, g3s_
     // now get the results
     for (int i = 0; i < 3; i++) {
         r[i] >>= shiftcount;
-        v->xyz[i] = fix64_frac(r[i]);
+        v->noname2.xyz[i] = fix64_frac(r[i]);
     }
 }

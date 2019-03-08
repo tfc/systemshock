@@ -6,15 +6,15 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 /*
  * $Source: n:/project/lib/src/input/RCS/mouse.c $
@@ -28,13 +28,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 //    This file only vaguely resembles the freefall mouse code from
-//    which it descended.  It supports some very-low-level input routines 
-//    for the mouse.  It provides an interrupt-driven event queue, polling, 
-//    and callbacks from the interrupt handler.  
+//    which it descended.  It supports some very-low-level input routines
+//    for the mouse.  It provides an interrupt-driven event queue, polling,
+//    and callbacks from the interrupt handler.
 
 //	---------------------------------------------------------
 // 6/21/94 ML Added mouse velocity support in mousevel.h so that we can emulate the mouse
-// using other devices.  
+// using other devices.
 //	---------------------------------------------------------
 // For the Mac version I use a TimeManager task to poll the mouse for mouse
 // movement callback routines.  Mouse click events will be handled throught the normal
@@ -77,7 +77,7 @@ MouseTask, *MouseTaskPtr;
 #define HIRES_YRATE 2
 
 //	These are global for fast access from interrupt routine & others
-                                                                                    
+
 short gMouseCritical;						// in critical region?
 */
 #define NUM_MOUSEEVENTS 32
@@ -90,13 +90,13 @@ short mouseInstantX;						// instantaneous mouse xpos (int-based)
 short mouseInstantY;						// instantaneous mouse ypos (int-based)
 short mouseInstantButts;
 /*
-short mouseButtMask;   					// amt to mask to get buttons. 
+short mouseButtMask;   					// amt to mask to get buttons.
 ubyte mouseXshift = 0;  					// Extra bits of mouse resolution
 ubyte mouseYshift = 1;
 */
 ubyte mouseMask = 0xFF; 				// mask of events to put in the queue.
 /*
-uchar  mouseLefty = FALSE; 				// is the user left-handed? 
+uchar  mouseLefty = FALSE; 				// is the user left-handed?
 */
 #define NUM_MOUSE_CALLBACKS 16
 mouse_callfunc mouseCall[NUM_MOUSE_CALLBACKS];
@@ -149,7 +149,7 @@ static void ReadMouseState(mouse_state *pMouseState);
 //---------------------------------------------------------------
 //  The following section is the time manager task for handling mouse movement.
 //---------------------------------------------------------------
-#pragma require_prototypes off
+//#pragma require_prototypes off
 
 // KLC - try calling this from the main timer task.
 //---------------------------------------------------------------
@@ -163,9 +163,9 @@ pascal void MousePollProc(void)
 	//       if the callbacks from mouseCall[] are still needed, could they also be called in pump_events() ?
 	//       if not, could they be the only thing called here, while mouseInstant* is still set in pump_events() ?
 
-	Point 		mp;
+	//Point 		mp;
 	short		i;
-	mouse_event	e;
+	//mouse_event	e;
 
 	extern mouse_event latestMouseEvent;
 	mouseInstantButts = latestMouseEvent.buttons;
@@ -174,7 +174,7 @@ pascal void MousePollProc(void)
 	{
 		mouseInstantX = latestMouseEvent.x;						// save the position
 		mouseInstantY = latestMouseEvent.y;
-		
+
 		mouse_event e = latestMouseEvent;
 		e.type = MOUSE_MOTION;
 
@@ -185,7 +185,7 @@ pascal void MousePollProc(void)
 		if (mouseMask & MOUSE_MOTION)							// Add a mouse-moved event
 		{																			// to the internal queue.
 			short newin = mouseQueueIn, newout = mouseQueueOut;
-			short in = newin;
+			//short in = newin;
 			mouseQueue[newin] = e;
 			newin =  (newin + 1  < mouseQueueSize) ? newin + 1 : 0;
 			if (newin == mouseQueueOut)
@@ -206,8 +206,8 @@ pascal void MousePollProc(void)
 	mp = *(Point *)0x830;												// Get mouse location from low memory.
 	mp.h -= gActiveLeft;													// Convert to "local" screen coordinates.
 	mp.v -= gActiveTop;
-	
-	GetKeys((UInt32 *)pKbdGetKeys);								// Check keys to see if our simulated 
+
+	GetKeys((UInt32 *)pKbdGetKeys);								// Check keys to see if our simulated
 																					// right button is down.
 	if (Button())																// See if the mouse button is down
 	{
@@ -224,7 +224,7 @@ pascal void MousePollProc(void)
 	{
 		mouseInstantX = mp.h;												// save the position
 		mouseInstantY = mp.v;
-		
+
 		e.x = mp.h;																// and inform the callback routines
 		e.y = mp.v;
 		e.type = MOUSE_MOTION;
@@ -254,7 +254,7 @@ pascal void MousePollProc(void)
 */
 }
 
-#pragma require_prototypes on
+//#pragma require_prototypes on
 #if __profile__
 #pragma profile on
 #endif
@@ -269,12 +269,12 @@ errtype mouse_shutdown(void)
 {
 /*	union REGS regs;
 	struct SREGS segregs;
-	
+
 	Spew(DSRC_MOUSE_Shutdown,("entering mouse_shutdown()\n"));
-	
-	
+
+
 	//	Shut down Microsoft mouse driver
-	
+
 	if (mouse_installed)
 	{
 		regs.x.eax = 0x000C;
@@ -283,13 +283,13 @@ errtype mouse_shutdown(void)
 		segregs.es = 0;
 		segregs.ds = 0;
 		int386x(INT_MOUSE, &regs, &regs, &segregs);
-		
+
 		dpmi_unlock_lin_region(MouseHandler,mouseHandlerSize);
 	} */
 //	RmvTime((QElemPtr)&pMousePollTask);							// Stop the mouse polling task
 //	DisposeRoutineDescriptor(pMousePollPtr);						// Dispose its UPP
 
-	return OK; 
+	return OK;
 }
 
 //	---------------------------------------------------------
@@ -303,23 +303,25 @@ errtype mouse_shutdown(void)
 
 errtype mouse_init(short mone, short mtwo)
 {
+    (void)mone;
+    (void)mtwo;
 	mouse_state mstate;
 /*
 	union REGS regs;
 	struct SREGS segregs;
 	Spew(DSRC_MOUSE_Init,("Entering mouse_init()\n"));
-	
+
 	//	Initialize Microsoft mouse driver
-	
+
 	regs.x.eax = 0x0000;
 	int386(INT_MOUSE, &regs, &regs);
 	mouse_installed = (regs.w.ax != 0);
-	
+
 	//	If mouse found, do more initialization
-	
-	if (mouse_installed)     
+
+	if (mouse_installed)
 	{
-	
+
 	DBG(DSRC_MOUSE_Init,
 	{ if (!mouse_installed)
 		Warning(("mouse_init(): Mouse not installed\n"));
@@ -339,26 +341,26 @@ errtype mouse_init(short mone, short mtwo)
 	mouseInstantX = mstate.x;
 	mouseInstantY = mstate.y;
 	mouseInstantButts = mstate.butts;
-/*	
+/*
 	//	Set up mouse interrupt handler
-	
+
 	dpmi_lock_lin_region(MouseHandler,mouseHandlerSize);
-	
+
 	regs.x.eax = 0x000C;
 	regs.w.cx = 0xFF;							// take all mouse events
 	regs.x.edx = FP_OFF(MouseHandler);
 	segregs.es = FP_SEG(MouseHandler);
 	segregs.ds = segregs.es;
 	int386x(INT_MOUSE, &regs, &regs, &segregs);
-	
-	// Do the sensitivity scaling thang.  
+
+	// Do the sensitivity scaling thang.
 	mouse_set_screensize(xsize,ysize);
 	}
-	      
+
 	AtExit(mouse_shutdown);
-	
+
 	//	Return whether or not mouse found
-	
+
 	return(mouse_installed ? OK : ERR_NODEV);
 */
 
@@ -378,7 +380,7 @@ errtype mouse_init(short mone, short mtwo)
 }
 /*
 // ---------------------------------------------------------
-// mouse_set_screensize() sets the screen size, scaling mouse sensitivity.  
+// mouse_set_screensize() sets the screen size, scaling mouse sensitivity.
 errtype mouse_set_screensize(short x, short y)
 {
    short xrate = DEFAULT_XRATE,yrate = DEFAULT_YRATE,t = DEFAULT_ACCEL;
@@ -403,7 +405,7 @@ errtype mouse_set_screensize(short x, short y)
 */
 /*
 //---------------------------------------------------------
-// _mouse_update_vel() updates coordinates based on mouse 
+// _mouse_update_vel() updates coordinates based on mouse
 //  velocity.  Generates a motion event if there's any change to position.
 
 void _mouse_update_vel(void)
@@ -411,7 +413,7 @@ void _mouse_update_vel(void)
    static ulong last_ticks = 0;
 
    ulong ticks = *mouse_ticks;
-   
+
    if (ticks != last_ticks && (mouseVelX != 0 || mouseVelY != 0))
    {
       short newx = mouseInstantX;
@@ -419,13 +421,13 @@ void _mouse_update_vel(void)
       ulong dt = ticks - last_ticks;
       short dx = (mouseVelX*dt) >> MOUSE_VEL_UNIT_SHF;
       short dy = (mouseVelY*dt) >> MOUSE_VEL_UNIT_SHF;
-      
+
       mouse_put_xy(newx+dx,newy+dy);
    }
    last_ticks = ticks;
 }
 */
- 
+
 // --------------------------------------------------------
 // mouse_get_xy() gets coords of mouse
 //	---------------------------------------------------------
@@ -462,29 +464,29 @@ errtype mouse_put_xy(short x, short y)
 
 	mouseInstantX = x;
 	mouseInstantY = y;
-	
+
 	return OK;
 
 	/*Point *RawMouse;
 	char *CrsrNew;
 
 	Point pt;
-  
+
 	pt.h = x;
 	pt.v = y;
-  
+
 	LocalToGlobal(&pt);
-  
+
 	MTemp = (Point *) 0x0828;
 	RawMouse = (Point *) 0x082c;
 	CrsrNew = (char *) 0x08ce;
- 
+
  	MTemp->v = pt.v;
  	MTemp->h = pt.h;
 
 	RawMouse->v = pt.v;
-	RawMouse->h = pt.h; 	
- 
+	RawMouse->h = pt.h;
+
  	*CrsrNew=1;
 
 	return OK;*/
@@ -521,7 +523,7 @@ errtype mouse_put_xy(short x, short y)
 #endif
 
 // --------------------------------------------------------
-// mouse_check_btn checks button state.  
+// mouse_check_btn checks button state.
 //   res = ptr to result
 //   button = button number 0-2
 //	---------------------------------------------------------
@@ -536,7 +538,7 @@ errtype mouse_check_btn(short button, bool* res)
 	else if(button == 2) {
 		*res = SDL_BUTTON(SDL_BUTTON_RIGHT);
 	}
-/*   if (!mouse_installed) 
+/*   if (!mouse_installed)
    {
       Warning(("mouse_get_xy(): mouse not installed.\n"));
       return ERR_NODEV;
@@ -556,6 +558,7 @@ errtype mouse_check_btn(short button, bool* res)
 
 errtype mouse_look_next(mouse_event *res)
 {
+    (void)res;
 	printf("mouse_look_next not implemented.\n");
 
 	/*if (OSEventAvail(eventMask, &theEvent))				// If there is an event,
@@ -564,7 +567,7 @@ errtype mouse_look_next(mouse_event *res)
 		res->x = theEvent.where.h;								// fill in the mouse_event record.
 		res->y = theEvent.where.v;
 		res->timestamp = theEvent.when;
-		if (theEvent.modifiers & optionKey)					// If the option keys is down, send back a 
+		if (theEvent.modifiers & optionKey)					// If the option keys is down, send back a
 		{																	// right-button event.
 			if (theEvent.what == mouseDown)
 				res->type = MOUSE_RDOWN;
@@ -583,7 +586,7 @@ errtype mouse_look_next(mouse_event *res)
 			res->modifiers = (uchar)(theEvent.modifiers >> 8);
 		}
 	}*/
-	
+
 	// If there's not a mouse click event, check the internal queue for mouse
 	// movement events.
 	/*else if (mouseMask & MOUSE_MOTION)
@@ -593,11 +596,11 @@ errtype mouse_look_next(mouse_event *res)
 		else
 	  		*res = mouseQueue[mouseQueueOut];		// Return the event.
 	}
-	
+
 	// If there are no events at all, return an error.
 	else
 		return ERR_NODEV;*/
-	
+
 /*
    Spew(DSRC_MOUSE_LookNext,("entering mouse_look_next()\n"));
    if (mouseQueueOut == mouseQueueIn)
@@ -617,7 +620,7 @@ errtype mouse_look_next(mouse_event *res)
 // and removes the event from the queue.
 // res = ptr to event to be filled.
 //	---------------------------------------------------------
-//  For Mac version: Get event from the normal Mac event queue for mouse events.  
+//  For Mac version: Get event from the normal Mac event queue for mouse events.
 //  The events looked for depend on the 'mouseMask' setting.
 #if 0 // DG: already moved to sdl_events.c
 int btn_right = 0;
@@ -688,10 +691,10 @@ errtype mouse_next(mouse_event *res)
 		return ERR_DUNDERFLOW; // If there are no events at all, return an error.
 
 	return ERR_DUNDERFLOW;
-	
+
 	// First, check to see if we get a simulated right button event.  This occurs for the
 	// space, enter, and return keys.
-	
+
 	/*nowDown = kb_state(0x31) || kb_state(0x4C) || kb_state(0x24);
 	if (!gRBtnWasDown)											// If the right button was not already down
 	{
@@ -747,7 +750,7 @@ errtype mouse_next(mouse_event *res)
 	res->x = theEvent.where.h;								// fill in the mouse_event record.
 	res->y = theEvent.where.v;
 	res->timestamp = theEvent.when;
-	if (theEvent.modifiers & optionKey)					// If the option keys is down, send back a 
+	if (theEvent.modifiers & optionKey)					// If the option keys is down, send back a
 	{																	// right-button event.
 		if (theEvent.what == mouseDown) {
 			printf("MOUSE_RDOWN\n");
@@ -770,7 +773,7 @@ errtype mouse_next(mouse_event *res)
 		res->modifiers = (uchar)(theEvent.modifiers >> 8);
 	}
 		return OK;
-	
+
 checkMotion:
 	// If there's not a mouse click event, check the internal queue for mouse
 	// movement events.
@@ -784,12 +787,12 @@ checkMotion:
 	  		mouseQueueOut = (mouseQueueOut + 1 < mouseQueueSize) ? mouseQueueOut + 1 : 0;
 	  	}
 	}
-	
+
 	// If there are no events at all, return an error.
 	else
 		return ERR_DUNDERFLOW;
-	
-/*
+
+// *
   Spew(DSRC_MOUSE_Next,("entering mouse_next()\n"));
    if (mouseQueueOut == mouseQueueIn)
       _mouse_update_vel();
@@ -801,9 +804,9 @@ checkMotion:
   *res = mouseQueue[mouseQueueOut];
 
   // Hey, keep in mind that mouseQueueOut and In can NEVER be invalid,
-  // not even for a sec, because  the interrupt handler might 
+  // not even for a sec, because  the interrupt handler might
   // discover them in that invalid state and this would be BAD(TM).
-  
+
   mouseQueueOut = (mouseQueueOut + 1 < mouseQueueSize) ? mouseQueueOut + 1 : 0;
 
   return OK;*/
@@ -811,10 +814,10 @@ checkMotion:
 
 
 // -------------------------------------------------------
-// mouse_flush() flushes the mouse event queue. 
+// mouse_flush() flushes the mouse event queue.
 //	---------------------------------------------------------
-//  For Mac version: Flush the Mac event queue of mouse messages.  
-  
+//  For Mac version: Flush the Mac event queue of mouse messages.
+
 errtype mouse_flush(void)
 {
 	//FlushEvents(mouseDown | mouseUp, 0);
@@ -827,9 +830,9 @@ errtype mouse_flush(void)
 /*
 // -------------------------------------------------------
 //
-// mouse_generate() adds an event to the back of the 
-//  mouse event queue.  If this overflows the queue, 
-   
+// mouse_generate() adds an event to the back of the
+//  mouse event queue.  If this overflows the queue,
+
 errtype mouse_generate(mouse_event e)
 {
    short newin = mouseQueueIn, newout = mouseQueueOut;
@@ -852,14 +855,14 @@ errtype mouse_generate(mouse_event e)
    mouseInstantY = e.y;
    mouseInstantButts = e.buttons;
    for (i = 0; i < mouseCalls; i++)
-      if(mouseCall[i] !=NULL) 
-         mouseCall[i](&mouseQueue[in],mouseCallData[i]);   
+      if(mouseCall[i] !=NULL)
+         mouseCall[i](&mouseQueue[in],mouseCallData[i]);
    return result;
 }
 */
 
 // ------------------------------------------------------
-// 
+//
 // mouse_set_callback() registers a callback with the interrupt handler
 // f = func to be called back.
 // data = data to be given to the func when called
@@ -884,7 +887,7 @@ errtype mouse_set_callback(mouse_callfunc f, void* data, int* id)
 }
 
 // -------------------------------------------------------
-// 
+//
 // mouse_unset_callback() un-registers a callback function
 // id = unique id of function to unset
 
@@ -902,11 +905,15 @@ errtype mouse_unset_callback(int id)
 }
 
 // --------------------------------------------------------
-// 
+//
 // mouse_constrain_xy() defines min/max coords
 //  ¥¥¥ don't do anything for now.  Will need to implement some day.
 errtype mouse_constrain_xy(short xl, short yl, short xh, short yh)
 {
+    (void)xl;
+    (void)yl;
+    (void)xh;
+    (void)yh;
 /*
    union REGS regs;
    Spew(DSRC_MOUSE_ConstrainXY,("mouse_constrain_xy(%d,%d,%d,%d)\n",xl,yl,xh,yh));
@@ -929,7 +936,7 @@ errtype mouse_constrain_xy(short xl, short yl, short xh, short yh)
 
 /*
 // --------------------------------------------------------
-// 
+//
 // mouse_set_rate() sets mouse rate, doubling threshhold
 
 errtype mouse_set_rate(short xr, short yr, short thold)
@@ -962,8 +969,8 @@ errtype mouse_get_rate(short* xr, short* yr, short* thold)
    union REGS regs;
    regs.x.eax = 0x001B;
    int386(INT_MOUSE,&regs,&regs);
-   *xr = regs.x.ebx; 
-   *yr = regs.x.ecx; 
+   *xr = regs.x.ebx;
+   *yr = regs.x.ecx;
    *thold = regs.x.edx;
 //   if (mouseXshift > 0) *xr *= mouseXshift;  // why are we multiplying?  Because shifting is too extreme
 //   if (mouseYshift > 0) *yr *= mouseYshift;
@@ -972,8 +979,8 @@ errtype mouse_get_rate(short* xr, short* yr, short* thold)
 
 
 // --------------------------------------------------------
-// 
-// mouse_set_timestamp_register() tells the mouse library where to get 
+//
+// mouse_set_timestamp_register() tells the mouse library where to get
 // timestamps.
 
 errtype mouse_set_timestamp_register(ulong* tstamp)
@@ -1018,7 +1025,7 @@ static void ReadMouseState(mouse_state *pMouseState)
 	if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
 		pMouseState->butts = 2;
 	}
-	
+
 /*	union REGS regs;
 
 	regs.x.eax = 0x0003;

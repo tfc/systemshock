@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		AFILE.C		Read/write anim files
-//		Rex E. Bradford (REX)
+//              AFILE.C         Read/write anim files
+//              Rex E. Bradford (REX)
 //
 /*
  * $Header: r:/prj/lib/src/afile/RCS/afile.c 1.9 1994/10/18 16:00:29 rex Exp $
@@ -76,13 +76,13 @@ static Amethods *methods[] = {
     &movMethods, // AFILE_MOV
 };
 
-//	Allocate enough room in case RSD goes overboard
+//      Allocate enough room in case RSD goes overboard
 
 #define BM_PLENTY_SIZE(szuncomp)  (szuncomp*3)
 
-//	-------------------------------------------------------
-//		GENERAL ACCESS ROUTINES - READING
-//	-------------------------------------------------------
+//      -------------------------------------------------------
+//              GENERAL ACCESS ROUTINES - READING
+//      -------------------------------------------------------
 //
 
 /**
@@ -95,12 +95,12 @@ static Amethods *methods[] = {
 int32_t AfileOpen(Afile *paf, MFILE *mf, AfileType aftype) {
     AfileType type = AFILE_BAD;
     uint8_t bmtype;
-    char *p;
+    //char *p;
 
-    DEBUG("%s: trying to open memory \"file\"", __FUNCTION__);
+    DEBUG("%s: trying to open memory \"file\"", __func__);
 
     // Extract file extension, get type
-    for (int i = 0; i < (sizeof(afTypes)/sizeof(afTypes[0])); i++) {
+    for (int i = 0; (unsigned)i < (sizeof(afTypes)/sizeof(afTypes[0])); i++) {
         if (afTypes[i] == aftype) {
             type = aftype;
             break;
@@ -108,7 +108,7 @@ int32_t AfileOpen(Afile *paf, MFILE *mf, AfileType aftype) {
     }
 
     if (type == AFILE_BAD) {
-        ERROR("%s: unknown file type", __FUNCTION__);
+        ERROR("%s: unknown file type", __func__);
         return (-1);
     }
 
@@ -121,10 +121,10 @@ int32_t AfileOpen(Afile *paf, MFILE *mf, AfileType aftype) {
     paf->currFrame = 0;
 
     // Call method to read header
-    TRACE("%s: reading header", __FUNCTION__);
+    TRACE("%s: reading header", __func__);
 
     if ((*paf->pm->f_ReadHeader)(paf) < 0) {
-        ERROR("%s: bad header", __FUNCTION__);
+        ERROR("%s: bad header", __func__);
         return -3;
     }
 
@@ -137,42 +137,42 @@ int32_t AfileOpen(Afile *paf, MFILE *mf, AfileType aftype) {
         paf->frameLen = (int32_t)paf->v.width * paf->v.height * 3;
     }
 
-    TRACE("%s: numBits: %d  w,h: %d,%d  frameLen: %d", __FUNCTION__, paf->v.numBits, paf->v.width, paf->v.height,
+    TRACE("%s: numBits: %d  w,h: %d,%d  frameLen: %d", __func__, paf->v.numBits, paf->v.width, paf->v.height,
           paf->frameLen);
 
     // Set up work buffer, compose buffer, and prev buffer
-    TRACE("%s: initing work buffer of size: %d", __FUNCTION__, BM_PLENTY_SIZE(paf->frameLen));
+    TRACE("%s: initing work buffer of size: %d", __func__, BM_PLENTY_SIZE(paf->frameLen));
 
     gr_init_bitmap(&paf->bmWork, (uint8_t *)malloc(BM_PLENTY_SIZE(paf->frameLen)), bmtype, 0, paf->v.width,
                    paf->v.height);
 
-    TRACE("%s: initing compose buffer and prev buffer", __FUNCTION__);
+    TRACE("%s: initing compose buffer and prev buffer", __func__);
 
     ComposeInit(&paf->bmCompose, bmtype, paf->v.width, paf->v.height);
     ComposeInit(&paf->bmPrev, bmtype, paf->v.width, paf->v.height);
 
     // Return ok
-    DEBUG("%s: successful open", __FUNCTION__);
+    DEBUG("%s: successful open", __func__);
 
     return 0;
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	AfileReadFullFrame() reads the next frame in the sequence, full style.
+//      AfileReadFullFrame() reads the next frame in the sequence, full style.
 //
-//		paf    = ptr to animfile struct
-//		pbm    = ptr to bitmap struct (if ptr NULL, will alloc)
-//		ptime  = ptr to time field (if ptr NULL, no time returned)
+//              paf    = ptr to animfile struct
+//              pbm    = ptr to bitmap struct (if ptr NULL, will alloc)
+//              ptime  = ptr to time field (if ptr NULL, no time returned)
 //
-//	Returns: size of frame, or -1 if error
+//      Returns: size of frame, or -1 if error
 
 int32_t AfileReadFullFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     int32_t len;
     fix time;
 
     // Hey, did we hit end?
-    TRACE("%s: reading frame: %d", __FUNCTION__, paf->currFrame);
+    TRACE("%s: reading frame: %d", __func__, paf->currFrame);
 
     if (paf->currFrame >= paf->v.numFrames) {
         return (-1);
@@ -183,21 +183,21 @@ int32_t AfileReadFullFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     if (ptime)
         *ptime = time;
     if (len <= 0) {
-        ERROR("%s: problem reading frame", __FUNCTION__);
+        ERROR("%s: problem reading frame", __func__);
         return (len);
     }
-    TRACE("%s: read frame, len: %d", __FUNCTION__, len);
+    TRACE("%s: read frame, len: %d", __func__, len);
 
     // Add to compose buffer
-    TRACE("%s: adding to compose buffer", __FUNCTION__);
+    TRACE("%s: adding to compose buffer", __func__);
     ComposeAdd(&paf->bmCompose, &paf->bmWork);
 
     // Make sure bitmap has memory
     if (pbm->bits == NULL) {
-        TRACE("%s: mallocing bitmap", __FUNCTION__);
+        TRACE("%s: mallocing bitmap", __func__);
         pbm->bits = (uchar *)malloc(paf->frameLen);
         if (pbm->bits == NULL) {
-            ERROR("%s: can't find memory for bitmap", __FUNCTION__);
+            ERROR("%s: can't find memory for bitmap", __func__);
             return -1;
         }
     }
@@ -211,22 +211,22 @@ int32_t AfileReadFullFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     return (paf->frameLen);
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	AfileReadDiffFrame() reads the next frame in the sequence, diff style.
+//      AfileReadDiffFrame() reads the next frame in the sequence, diff style.
 //
-//		paf    = ptr to animfile struct
-//		pbm    = ptr to bitmap struct (if ptr NULL, will alloc)
-//		ptime  = ptr to time field (if ptr NULL, no time returned)
+//              paf    = ptr to animfile struct
+//              pbm    = ptr to bitmap struct (if ptr NULL, will alloc)
+//              ptime  = ptr to time field (if ptr NULL, no time returned)
 //
-//	Returns: size of frame, or -1 if error
+//      Returns: size of frame, or -1 if error
 
 int32_t AfileReadDiffFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     int32_t len;
     fix time;
 
     // Hey, did we hit end?
-    TRACE("%s: reading frame: %d", __FUNCTION__, paf->currFrame);
+    TRACE("%s: reading frame: %d", __func__, paf->currFrame);
 
     if (paf->currFrame >= paf->v.numFrames) {
         return (-1);
@@ -237,10 +237,10 @@ int32_t AfileReadDiffFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     if (ptime)
         *ptime = time;
     if (len <= 0) {
-        WARN("%s: problem reading frame", __FUNCTION__);
+        WARN("%s: problem reading frame", __func__);
         return (len);
     }
-    TRACE("%s: read frame, len: %d", __FUNCTION__, len);
+    TRACE("%s: read frame, len: %d", __func__, len);
 
     // Move compose buffer to previous
     if (paf->currFrame > 0)
@@ -252,7 +252,7 @@ int32_t AfileReadDiffFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     // Make sure bitmap has memory, init it
 
     if (pbm->bits == NULL) {
-        TRACE("%s: mallocing bitmap", __FUNCTION__);
+        TRACE("%s: mallocing bitmap", __func__);
         pbm->bits = malloc(paf->frameLen);
         if (pbm->bits == NULL) {
             WARN("AfileReadDiffFrame: can't find memory for bitmap");
@@ -261,7 +261,7 @@ int32_t AfileReadDiffFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     }
 
     // Extract difference into bitmap
-    TRACE("%s: finding diff with compose buff", __FUNCTION__);
+    TRACE("%s: finding diff with compose buff", __func__);
     len = ComposeDiff(&paf->bmPrev, &paf->bmCompose, pbm);
 
     // Return length
@@ -270,18 +270,18 @@ int32_t AfileReadDiffFrame(Afile *paf, grs_bitmap *pbm, fix *ptime) {
     return (len);
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	AfileGetFramePal() gets a (partial) palette associated with this
-//	frame only.  Call AFTER AfileReadFrame().
+//      AfileGetFramePal() gets a (partial) palette associated with this
+//      frame only.  Call AFTER AfileReadFrame().
 //
-//		paf  = ptr to animfile struct
-//		ppal = ptr to palette struct
+//              paf  = ptr to animfile struct
+//              ppal = ptr to palette struct
 //
-//	Returns: TRUE if palette for this frame, FALSE if none
+//      Returns: TRUE if palette for this frame, FALSE if none
 
 bool AfileGetFramePal(Afile *paf, Apalette *ppal) {
-    TRACE("AfileGetFramePal: getting pal", __FUNCTION__);
+    TRACE("AfileGetFramePal: getting pal", __func__);
 
     if (paf->pm->f_ReadFramePal == NULL)
         return false;
@@ -290,33 +290,33 @@ bool AfileGetFramePal(Afile *paf, Apalette *ppal) {
     return (ppal->numcols != 0);
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	AfileGetAudio() gets giant block of audio for entire animation.
-//	Use AudioFileLength() for sizing when allocate buffer.
+//      AfileGetAudio() gets giant block of audio for entire animation.
+//      Use AudioFileLength() for sizing when allocate buffer.
 //
-//		paf    = ptr to animfile struct
-//		paudio = ptr to audio buffer
+//              paf    = ptr to animfile struct
+//              paudio = ptr to audio buffer
 //
-//	Returns: 0 if ok, -1 if error
+//      Returns: 0 if ok, -1 if error
 
 int AfileGetAudio(Afile *paf, void *paudio) {
-    TRACE("%s: getting audio", __FUNCTION__);
+    TRACE("%s: getting audio", __func__);
 
     if (paf->pm->f_ReadAudio == NULL) {
-        ERROR("%s: anim file format doesn't support audio", __FUNCTION__);
+        ERROR("%s: anim file format doesn't support audio", __func__);
         return (-1);
     }
 
     return ((*paf->pm->f_ReadAudio)(paf, paudio));
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	AfileReadReset() resets to frame 0.
+//      AfileReadReset() resets to frame 0.
 
 int AfileReadReset(Afile *paf) {
-    TRACE("%s: resetting", __FUNCTION__);
+    TRACE("%s: resetting", __func__);
 
     paf->currFrame = 0;
     memset(paf->bmCompose.bits, 0, paf->bmCompose.row * paf->bmCompose.h);
@@ -324,21 +324,21 @@ int AfileReadReset(Afile *paf) {
     return ((*paf->pm->f_ReadReset)(paf));
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	AfileFree() closes animfile.
+//      AfileFree() closes animfile.
 //
-//		paf = ptr to animfile struct
+//              paf = ptr to animfile struct
 
 void AfileFree(Afile *paf) {
     // Close properly based on whether writing or reading
 
-    DEBUG("%s: freeing memory", __FUNCTION__);
+    DEBUG("%s: freeing memory", __func__);
 
     if (paf->writing) {
 /*
-        paf->v.numFrames = paf->currFrame;
-        (*paf->pm->f_WriteClose)(paf);
+  paf->v.numFrames = paf->currFrame;
+  (*paf->pm->f_WriteClose)(paf);
 */
     } else
         (*paf->pm->f_ReadClose)(paf);
@@ -352,11 +352,11 @@ void AfileFree(Afile *paf) {
         free(paf->bmPrev.bits);
 }
 
-//	--------------------------------------------------------------
-//		INFORMATIONAL AND HELPER ROUTINES
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
+//              INFORMATIONAL AND HELPER ROUTINES
+//      --------------------------------------------------------------
 //
-//	AfileLookupType() looks up anim file type given extension.
+//      AfileLookupType() looks up anim file type given extension.
 
 AfileType AfileLookupType(char *ext) {
     int itype = 0;
@@ -368,13 +368,13 @@ AfileType AfileLookupType(char *ext) {
     return (AFILE_BAD);
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	AfileBitmapLength() returns amount of space needed to read bitmaps.
+//      AfileBitmapLength() returns amount of space needed to read bitmaps.
 
 int32_t AfileBitmapLength(Afile *paf) { return (paf->frameLen); }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
 // AfileAudioLength() computes the length of the buffer needed
 // to store audio data.  Hope it all fits into ram!
@@ -388,21 +388,21 @@ int32_t AfileAudioLength(Afile *paf) {
 
 /*
 
-//	-------------------------------------------------------------
-//		GENERAL ACCESS ROUTINES - WRITING
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
+//              GENERAL ACCESS ROUTINES - WRITING
+//      -------------------------------------------------------------
 //
-//	AfileCreate() creates a new anim file.
+//      AfileCreate() creates a new anim file.
 //
-//		paf       = ptr to (unused) animation file struct
-//		filename  = ptr to filename
-//		frameRate = video frame rate
+//              paf       = ptr to (unused) animation file struct
+//              filename  = ptr to filename
+//              frameRate = video frame rate
 //
-//	Returns:
-//				0  = ok
-//				-1 = bad extension
-//				-2 = no writer for this type
-//				-3 = can't open file
+//      Returns:
+//                              0  = ok
+//                              -1 = bad extension
+//                              -2 = no writer for this type
+//                              -3 = can't open file
 
 int AfileCreate(Afile *paf, char *filename, fix frameRate) {
     AfileType aftype;
@@ -410,7 +410,7 @@ int AfileCreate(Afile *paf, char *filename, fix frameRate) {
     char *p;
 
     // Extract file extension, get type
-    DEBUG("%s: creating %s", __FUNCTION__, filename);
+    DEBUG("%s: creating %s", __func__, filename);
 
     aftype = AFILE_BAD;
     p = strchr(filename, '.');
@@ -420,20 +420,20 @@ int AfileCreate(Afile *paf, char *filename, fix frameRate) {
         aftype = AfileLookupType(p);
     }
     if (aftype == AFILE_BAD) {
-        ERROR("%s: unknown extension", __FUNCTION__);
+        ERROR("%s: unknown extension", __func__);
         return (-1);
     }
 
     // Check if writer
     if (methods[aftype]->f_WriteBegin == NULL) {
-        ERROR("%s: anim file format doesn't support writing", __FUNCTION__);
+        ERROR("%s: anim file format doesn't support writing", __func__);
         return (-2);
     }
 
     // Open file
     fp = fopen(filename, "wb");
     if (fp == NULL) {
-        ERROR("%s: can't open file", __FUNCTION__);
+        ERROR("%s: can't open file", __func__);
         return (-3);
     }
 
@@ -445,28 +445,28 @@ int AfileCreate(Afile *paf, char *filename, fix frameRate) {
     paf->pm = methods[paf->type];
     paf->v.frameRate = frameRate;
 
-    //	Call method to begin writing
-    TRACE("%s: initializing anim file", __FUNCTION__);
+    //  Call method to begin writing
+    TRACE("%s: initializing anim file", __func__);
 
     (*paf->pm->f_WriteBegin)(paf);
 
     // Return ok
-    DEBUG("%s: successful create", __FUNCTION__);
+    DEBUG("%s: successful create", __func__);
 
     return 0;
 }
 
-//	-----------------------------------------------------------
+//      -----------------------------------------------------------
 //
-//	AfilePutAudio() hands off audio buffer to writer.
-//	Call this before writing any frames.
+//      AfilePutAudio() hands off audio buffer to writer.
+//      Call this before writing any frames.
 
 int AfilePutAudio(Afile *paf, AaudioInfo *pai, void *paudio) {
     // Can we do audio?
-    TRACE("%s: putting audio", __FUNCTION__);
+    TRACE("%s: putting audio", __func__);
 
     if (*paf->pm->f_WriteAudio == NULL) {
-        ERROR("%s: anim file doesn't support writing audio", __FUNCTION__);
+        ERROR("%s: anim file doesn't support writing audio", __func__);
         return (-1);
     }
 
@@ -477,16 +477,16 @@ int AfilePutAudio(Afile *paf, AaudioInfo *pai, void *paudio) {
     return ((*paf->pm->f_WriteAudio)(paf, paudio));
 }
 
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
 //
-//	AfileWriteFrame() writes frame out to writer.
+//      AfileWriteFrame() writes frame out to writer.
 
 int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
     int32_t bmtype;
     int32_t len;
     int32_t ret;
 
-    TRACE("%s: writing frame: %d", __FUNCTION__, paf->currFrame);
+    TRACE("%s: writing frame: %d", __func__, paf->currFrame);
 
     // If 1st frame, init some vars.
     // Set up work buffer, compose buffer, and prev buffer
@@ -502,7 +502,7 @@ int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
             bmtype = BMT_FLAT24;
             paf->frameLen = (int32_t)paf->v.width * paf->v.height * 3;
         }
-        TRACE("%s: numBits: %d  w,h: %d,%d  frameLen: %d", __FUNCTION__, paf->v.numBits, paf->v.width, paf->v.height,
+        TRACE("%s: numBits: %d  w,h: %d,%d  frameLen: %d", __func__, paf->v.numBits, paf->v.width, paf->v.height,
               paf->frameLen);
 
         TRACE("%s: initing work buffer of size: %d", BM_PLENTY_SIZE(paf->frameLen));
@@ -510,7 +510,7 @@ int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
         gr_init_bitmap(&paf->bmWork, (uchar *)malloc(BM_PLENTY_SIZE(paf->frameLen)), bmtype, 0, paf->v.width,
                        paf->v.height);
 
-        TRACE("%s: initing compose buffers", __FUNCTION__);
+        TRACE("%s: initing compose buffers", __func__);
 
         ComposeInit(&paf->bmCompose, bmtype, paf->v.width, paf->v.height);
         ComposeInit(&paf->bmPrev, bmtype, paf->v.width, paf->v.height);
@@ -518,7 +518,7 @@ int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
     // Else for other frames, copy current to previous
     else {
         if ((pbm->w != paf->v.width) || (pbm->h != paf->v.height)) {
-            WARN("%s: new w,h: %d,%d (was: %d,%d)", __FUNCTION__, pbm->w, pbm->h, paf->v.width, paf->v.height);
+            WARN("%s: new w,h: %d,%d (was: %d,%d)", __func__, pbm->w, pbm->h, paf->v.width, paf->v.height);
         }
         memcpy(paf->bmPrev.bits, paf->bmCompose.bits, paf->frameLen);
         if (time == 0)
@@ -526,19 +526,19 @@ int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
     }
 
     // Now put current frame into compose buffer
-    TRACE("%s: adding to compose buff", __FUNCTION__);
+    TRACE("%s: adding to compose buff", __func__);
 
     ComposeAdd(&paf->bmCompose, pbm);
 
     // If writer wants rsd, give rsd-encoded frame (diff if past frame 0)
     if (paf->writerWantsRsd) {
-        TRACE("%s: converting to rsd", __FUNCTION__);
+        TRACE("%s: converting to rsd", __func__);
 
         if (paf->currFrame == 0) {
             if (paf->bmCompose.type == BMT_FLAT8)
                 paf->bmWork.type = BMT_RSD8;
             else
-                // paf->bmWork.type = BMT_RSD24;		// no rsd24 support yet
+                // paf->bmWork.type = BMT_RSD24;                // no rsd24 support yet
                 paf->bmWork.type = BMT_FLAT24;
             len = ComposeConvert(&paf->bmCompose, &paf->bmWork);
         } else {
@@ -548,40 +548,40 @@ int AfileWriteFrame(Afile *paf, grs_bitmap *pbm, fix time) {
             else
                 len = ComposeDiff(&paf->bmPrev, &paf->bmCompose, &paf->bmWork);
         }
-        TRACE("%s: writing, rsd len = %d", __FUNCTION__, len);
+        TRACE("%s: writing, rsd len = %d", __func__, len);
 
         ret = (*paf->pm->f_WriteFrame)(paf, &paf->bmWork, len, time);
     }
     // Else just write flat frame
     else {
-        TRACE("%s: writing, len = %d", __FUNCTION__, paf->frameLen);
+        TRACE("%s: writing, len = %d", __func__, paf->frameLen);
         ret = (*paf->pm->f_WriteFrame)(paf, &paf->bmCompose, paf->frameLen, time);
     }
 
-    //	Bump frame counter and return
+    //  Bump frame counter and return
 
     if (ret >= 0)
         paf->currFrame++;
     return (ret);
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	AfileSetPal() sets overall anim palette.
-//	Call this before writing any frames.
+//      AfileSetPal() sets overall anim palette.
+//      Call this before writing any frames.
 
 void AfileSetPal(Afile *paf, Apalette *ppal) {
-    TRACE("%s: setting palette", __FUNCTION__);
+    TRACE("%s: setting palette", __func__);
 
     memcpy(&paf->v.pal, ppal, sizeof(Apalette));
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	AfileSetFramePal() sets palette for upcoming frame.
+//      AfileSetFramePal() sets palette for upcoming frame.
 
 int AfileSetFramePal(Afile *paf, Apalette *ppal) {
-    TRACE("%s: setting frame pal", __FUNCTION__);
+    TRACE("%s: setting frame pal", __func__);
 
     if (paf->pm->f_WriteFramePal == NULL)
         return (-1);

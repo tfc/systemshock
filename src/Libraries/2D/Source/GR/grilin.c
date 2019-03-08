@@ -62,7 +62,6 @@ int gr_int_line (short x0, short y0, short x1, short y1)
     v0.x = x0;  v0.y = y0;      /* we don't need no stinking type checking */
     v1.x = x1;  v1.y = y1;
 
-
 #pragma GCC diagnostic push                 // Save actual diagnostics state.
 #pragma GCC diagnostic ignored "-Wpedantic" // Disable pedantic.
     r = grd_iline_clip_fill (gr_get_fcolor(), gr_get_fill_parm(), &v0, &v1);

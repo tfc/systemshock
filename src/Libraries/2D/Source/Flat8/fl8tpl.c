@@ -57,20 +57,20 @@ void gri_trans_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_dxl = pi->dxl;
     l_dtl = pi->dtl;
     l_scan_slope = pi->scan_slope;
-    l_y_fix = pi->y_fix;
+    l_y_fix = pi->noname1.y_fix;
     l_v_shift = pi->v_shift;
     l_v_mask = pi->v_mask;
     l_u_mask = pi->u_mask;
-    l_xr0 = pi->xr0;
-    l_x = pi->x;
-    l_xl = pi->xl;
-    l_xr = pi->xr;
+    l_xr0 = pi->noname7.xr0;
+    l_x = pi->noname4.x;
+    l_xl = pi->noname5.xl;
+    l_xr = pi->noname6.xr;
     l_u = pi->u;
     l_v = pi->v;
     l_du = pi->du;
     l_dv = pi->dv;
 
-    l_y_fix = l_x * l_scan_slope + fix_make(pi->yp, 0xffff);
+    l_y_fix = l_x * l_scan_slope + fix_make(pi->noname3.yp, 0xffff);
 
 #if InvDiv
     k = fix_div(fix_make(1, 0), pi->denom);
@@ -98,8 +98,10 @@ void gri_trans_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
             if (test <= 0) {
                 int k = (l_u >> 16) & l_u_mask;
                 k += (l_v >> l_v_shift) & l_v_mask;
-                if (temp_pix = bm_bits[k])
+                if ((temp_pix = bm_bits[k]))
+                {
                     *p = temp_pix; // gr_fill_upixel(bm_bits[k],l_x,y_cint);
+                }
             }
             temp_y = y_cint;
             y_cint = fix_int(l_y_fix += l_scan_slope);
@@ -118,8 +120,10 @@ void gri_trans_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     for (; l_x < l_xr0; l_x++) {
         int k = (l_u >> 16) & l_u_mask;
         k += (l_v >> l_v_shift) & l_v_mask;
-        if (temp_pix = bm_bits[k])
+        if ((temp_pix = bm_bits[k]))
+        {
             *p = temp_pix; // gr_fill_upixel(bm_bits[k],l_x,y_cint);
+        }
         temp_y = y_cint;
         y_cint = fix_int(l_y_fix += l_scan_slope);
         if (temp_y != y_cint)
@@ -137,8 +141,10 @@ void gri_trans_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
             if (test >= 0) {
                 int k = (l_u >> 16) & l_u_mask;
                 k += (l_v >> l_v_shift) & l_v_mask;
-                if (temp_pix = bm_bits[k])
+                if ((temp_pix = bm_bits[k]))
+                {
                     *p = temp_pix; // gr_fill_upixel(bm_bits[k],l_x,y_cint);
+                }
             }
             temp_y = y_cint;
             y_cint = fix_int(l_y_fix += l_scan_slope);
@@ -154,8 +160,8 @@ void gri_trans_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->y_fix = l_y_fix;
-    pi->x = l_x;
+    pi->noname1.y_fix = l_y_fix;
+    pi->noname4.x = l_x;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -175,11 +181,11 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     gr_row = grd_bm.row;
     bm_bits = bm->bits;
     l_dxr = pi->dxr;
-    l_x_fix = pi->x_fix;
-    l_y = pi->y;
-    l_yr = pi->yr;
-    l_yr0 = pi->yr0;
-    l_yl = pi->yl;
+    l_x_fix = pi->noname1.x_fix;
+    l_y = pi->noname4.y;
+    l_yr = pi->noname6.yr;
+    l_yr0 = pi->noname7.yr0;
+    l_yl = pi->noname5.yl;
     l_dyr = pi->dyr;
     l_dtr = pi->dtr;
     l_dyl = pi->dyl;
@@ -194,7 +200,7 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_du = pi->du;
     l_dv = pi->dv;
 
-    l_x_fix = l_y * l_scan_slope + fix_make(pi->xp, 0xffff);
+    l_x_fix = l_y * l_scan_slope + fix_make(pi->noname3.xp, 0xffff);
 
 #if InvDiv
     k = fix_div(fix_make(1, 0), pi->denom);
@@ -220,7 +226,7 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
             if (test <= 0) {
                 int k = (l_u >> 16) & l_u_mask;
                 k += (l_v >> l_v_shift) & l_v_mask;
-                if (temp_pix = bm_bits[k])
+                if ((temp_pix = bm_bits[k]))
                     *p = temp_pix; // gr_fill_upixel(bm_bits[k],x_cint,l_y);
             }
             temp_x = x_cint;
@@ -240,7 +246,7 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     for (; l_y < l_yr0; l_y++) {
         int k = (l_u >> 16) & l_u_mask;
         k += (l_v >> l_v_shift) & l_v_mask;
-        if (temp_pix = bm_bits[k])
+        if ((temp_pix = bm_bits[k]))
             *p = temp_pix; // gr_fill_upixel(bm_bits[k],x_cint,l_y);
 
         temp_x = x_cint;
@@ -260,7 +266,7 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
             if (test >= 0) {
                 int k = (l_u >> 16) & l_u_mask;
                 k += (l_v >> l_v_shift) & l_v_mask;
-                if (temp_pix = bm_bits[k])
+                if ((temp_pix = bm_bits[k]))
                     *p = temp_pix; // gr_fill_upixel(bm_bits[k],x_cint,l_y);
             }
 
@@ -278,8 +284,8 @@ void gri_trans_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->x_fix = l_x_fix;
-    pi->y = l_y;
+    pi->noname1.x_fix = l_x_fix;
+    pi->noname4.y = l_y;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -290,11 +296,15 @@ extern void gri_per_umap_hscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_
 extern void gri_per_umap_vscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_setup *ps);
 
 void gri_trans_per_umap_hscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
+
     ps->shell_func = (void (*)())gri_per_umap_hscan;
     ps->scanline_func = (void (*)())gri_trans_per_umap_hscan_scanline;
 }
 
 void gri_trans_per_umap_vscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
+
     ps->shell_func = (void (*)())gri_per_umap_vscan;
     ps->scanline_func = (void (*)())gri_trans_per_umap_vscan_scanline;
 }

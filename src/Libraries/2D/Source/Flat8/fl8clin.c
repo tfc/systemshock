@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     } while (0)
 
 void gri_flat8_ucline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
-//#include "fl8clin.h"
+#include "fl8clin.h"
     (void)c;
     (void)parm;
     (void)v0;
@@ -86,7 +86,7 @@ void gri_flat8_ucline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
     } while (0)
 
 void gri_flat8_ucline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
-//#include "fl8clin.h"
+#include "fl8clin.h"
     (void)c;
     (void)parm;
     (void)v0;
@@ -100,7 +100,7 @@ void gri_flat8_ucline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
     } while (0)
 
 void gri_flat8_ucline_xor(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
-//#include "fl8clin.h"
+#include "fl8clin.h"
     (void)c;
     (void)parm;
     (void)v0;
@@ -115,7 +115,7 @@ void gri_flat8_ucline_xor(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
     } while (0)
 
 void gri_flat8_ucline_blend(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
-//#include "fl8clin.h"
+#include "fl8clin.h"
     (void)c;
     (void)parm;
     (void)v0;

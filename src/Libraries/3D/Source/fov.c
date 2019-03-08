@@ -50,14 +50,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 void g3_get_FOV(fixang *x, fixang *y) {
     fix X2, Y2, Z2;
 
-    Z2 = fix_mul(_matrix_scale.gZ, _matrix_scale.gZ); // get z squared
+    Z2 = fix_mul(_matrix_scale.noname2.gZ, _matrix_scale.noname2.gZ); // get z squared
 
     // compute y
-    Y2 = fix_mul(_matrix_scale.gY, _matrix_scale.gY); // get y squared
+    Y2 = fix_mul(_matrix_scale.noname2.gY, _matrix_scale.noname2.gY); // get y squared
     *y = fix_acos(fix_div(Y2 - Z2, Y2 + Z2));
 
     // compute x
-    X2 = fix_mul(_matrix_scale.gX, _matrix_scale.gX); // get z squared
+    X2 = fix_mul(_matrix_scale.noname2.gX, _matrix_scale.noname2.gX); // get z squared
     *x = fix_acos(fix_div(X2 - Z2, X2 + Z2));
 }
 
@@ -70,11 +70,11 @@ fix g3_get_zoom(char axis, fixang angle, int window_width, int window_height) {
     fix unscalezoom, temp1;
     long templong;
 
-    fix_sincos(angle, &sin_val, &cos_val); // call	fix_sincos	;angle in
+    fix_sincos(angle, &sin_val, &cos_val); // call      fix_sincos      ;angle in
                                            // bx
     temp1 = fix_div(f1_0 - cos_val, cos_val + f1_0);
 
-    unscalezoom = fix_sqrt(temp1); // 	call	fix_sqrt_	;eax = unscaled zoom
+    unscalezoom = fix_sqrt(temp1); //   call    fix_sqrt_       ;eax = unscaled zoom
 
     // now, temp1 would be zoom if not for window and pixel matrix scaling.
     // correct for these
@@ -84,10 +84,10 @@ fix g3_get_zoom(char axis, fixang angle, int window_width, int window_height) {
 
     // get matrix scale value for given window size
     templong = fix_mul_div(window_height, pixel_ratio,
-                           window_width); // imul	pixel_ratio	;height * pixrat
-                                          // 	idiv	ebx	;eax = h * pixrat / w
+                           window_width); // imul       pixel_ratio     ;height * pixrat
+                                          //    idiv    ebx     ;eax = h * pixrat / w
     // window and pixrat scaling affects y. see if y FOV requested
-    if (templong <= f1_0) // cmp	eax,f1_0	;< 1.0? jle	scale_x	;scale x
+    if (templong <= f1_0) // cmp        eax,f1_0        ;< 1.0? jle     scale_x ;scale x
     {
         if (axis != 'X')
             return (unscalezoom);

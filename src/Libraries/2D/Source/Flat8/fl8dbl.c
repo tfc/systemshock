@@ -38,29 +38,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ========================================================================
 void flat8_flat8_h_double_ubitmap(grs_bitmap *bm) {
     extern void DebugString(char *msg);
+    (void)bm;
     DebugString("call mark");
-    /* 	int		h,v,endh,endv;
-            uchar *src=bm->bits, *dst=grd_bm.bits;
-            long	srcAdd,dstAdd;
-            uchar	temp;
+    /*  int             h,v,endh,endv;
+        uchar *src=bm->bits, *dst=grd_bm.bits;
+        long        srcAdd,dstAdd;
+        uchar       temp;
 
-            srcAdd = bm->row-bm->w;
-            dstAdd = grd_bm.row - (bm->w<<1);
-            endh = bm->w;
-            endv = bm->h;
+        srcAdd = bm->row-bm->w;
+        dstAdd = grd_bm.row - (bm->w<<1);
+        endh = bm->w;
+        endv = bm->h;
 
-            for (v=0; v<endv; v++)
-             {
-                    for (h=0; h<endh; h++)
-                     {
-                            temp = *(src++);
-                            *(dst++) = temp;
-                            *(dst++) = temp;
-                     }
+        for (v=0; v<endv; v++)
+        {
+        for (h=0; h<endh; h++)
+        {
+        temp = *(src++);
+        *(dst++) = temp;
+        *(dst++) = temp;
+        }
 
-                    src+=srcAdd;
-                    dst+=dstAdd;
-             }*/
+        src+=srcAdd;
+        dst+=dstAdd;
+        }*/
 }
 
 // ========================================================================

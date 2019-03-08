@@ -251,14 +251,14 @@ int g3_clip_line(g3s_point *src[], g3s_point *dest[]) {
         if (_tmp->p3_flags & PF_CLIPPNT) {
             // do x
             if ((_tmp->codes & CC_OFF_X) == 0 || (_tmp->codes & CC_OFF_Y) != 0)
-                _tmp->sx = fix_mul(_scrw, (FIX_UNIT + fix_div(_tmp->gX, _tmp->gZ)));
+                _tmp->sx = fix_mul(_scrw, (FIX_UNIT + fix_div(_tmp->noname2.gX, _tmp->noname2.gZ)));
             else
-                _tmp->sx = (_tmp->gX > 0) ? fix_make(grd_bm.w, 0) : 0;
+                _tmp->sx = (_tmp->noname2.gX > 0) ? fix_make(grd_bm.w, 0) : 0;
             // do y
             if ((_tmp->codes & CC_OFF_Y) == 0 || (_tmp->codes & CC_OFF_X) != 0)
-                _tmp->sy = fix_mul(_scrh, (FIX_UNIT - fix_div(_tmp->gY, _tmp->gZ)));
+                _tmp->sy = fix_mul(_scrh, (FIX_UNIT - fix_div(_tmp->noname2.gY, _tmp->noname2.gZ)));
             else
-                _tmp->sy = (_tmp->gY < 0) ? fix_make(grd_bm.h, 0) : 0;
+                _tmp->sy = (_tmp->noname2.gY < 0) ? fix_make(grd_bm.h, 0) : 0;
         }
     }
 
@@ -266,7 +266,7 @@ int g3_clip_line(g3s_point *src[], g3s_point *dest[]) {
 }
 
 int g3_clip_polygon(int n, g3s_point *src[], g3s_point *dest[]) {
-    int i, j, k;
+    int i, j = 0, k;
     byte cc;
     // assume 10 points max
     g3s_point *tmp0[10];
@@ -443,14 +443,14 @@ int g3_clip_polygon(int n, g3s_point *src[], g3s_point *dest[]) {
         if (_tmp->p3_flags & PF_CLIPPNT) {
             // do x
             if ((_tmp->codes & CC_OFF_X) == 0 || (_tmp->codes & CC_OFF_Y) != 0)
-                _tmp->sx = fix_mul(_scrw, (FIX_UNIT + fix_div(_tmp->gX, _tmp->gZ)));
+                _tmp->sx = fix_mul(_scrw, (FIX_UNIT + fix_div(_tmp->noname2.gX, _tmp->noname2.gZ)));
             else
-                _tmp->sx = (_tmp->gX > 0) ? fix_make(grd_bm.w, 0) : 0;
+                _tmp->sx = (_tmp->noname2.gX > 0) ? fix_make(grd_bm.w, 0) : 0;
             // do y
             if ((_tmp->codes & CC_OFF_Y) == 0 && (_tmp->codes & CC_OFF_X) != 0)
-                _tmp->sy = fix_mul(_scrh, (FIX_UNIT - fix_div(_tmp->gY, _tmp->gZ)));
+                _tmp->sy = fix_mul(_scrh, (FIX_UNIT - fix_div(_tmp->noname2.gY, _tmp->noname2.gZ)));
             else
-                _tmp->sy = (_tmp->gY < 0) ? fix_make(grd_bm.h, 0) : 0;
+                _tmp->sy = (_tmp->noname2.gY < 0) ? fix_make(grd_bm.h, 0) : 0;
         }
     }
 
@@ -466,12 +466,12 @@ void g3_intersect(void) {
     _tmp->p3_flags = s->p3_flags | PF_CLIPPNT | PF_PROJECTED;
 
     if ((_tmp->p3_flags & PF_RGB) != 0) {
-        c = s->rgb;
+        c = s->noname3.rgb;
         rs = (c << 12) & 0x3ff000;
         gs = (c << 1) & 0x3ff000;
         bs = (c >> 10) & 0x3ff000;
 
-        c = e->rgb;
+        c = e->noname3.rgb;
         re = (c << 12) & 0x3ff000;
         ge = (c << 1) & 0x3ff000;
         be = (c >> 10) & 0x3ff000;
@@ -480,16 +480,16 @@ void g3_intersect(void) {
         gs += fix_mul_div(ge - gs, num, den);
         bs += fix_mul_div(be - bs, num, den);
 
-        _tmp->rgb = ((rs & 0x3ff000) >> 12) | ((gs & 0x3ff000) >> 1) | ((bs & 0x3ff000) << 10);
+        _tmp->noname3.rgb = ((rs & 0x3ff000) >> 12) | ((gs & 0x3ff000) >> 1) | ((bs & 0x3ff000) << 10);
 
     } else {
         if ((_tmp->p3_flags & PF_U) != 0)
             // zany shifts for shorts
-            _tmp->uv.u = s->uv.u + fix_mul_div(e->uv.u - s->uv.u, num, den);
+            _tmp->noname3.uv.u = s->noname3.uv.u + fix_mul_div(e->noname3.uv.u - s->noname3.uv.u, num, den);
 
         if ((_tmp->p3_flags & PF_V) != 0)
             // zany shifts for shorts
-            _tmp->uv.v = s->uv.v + fix_mul_div(e->uv.v - s->uv.v, num, den);
+            _tmp->noname3.uv.v = s->noname3.uv.v + fix_mul_div(e->noname3.uv.v - s->noname3.uv.v, num, den);
     }
     if ((_tmp->p3_flags & PF_I) != 0)
         // zany shifts for shorts
@@ -499,18 +499,18 @@ void g3_intersect(void) {
 void g3_back_intersect(void) {
     _tmp = &tbuff[tnum++];
 
-    _a = e->gX - s->gX;
-    _b = e->gY - s->gY;
-    _c = e->gZ - s->gZ;
+    _a = e->noname2.gX - s->noname2.gX;
+    _b = e->noname2.gY - s->noname2.gY;
+    _c = e->noname2.gZ - s->noname2.gZ;
 
-    num = _d - s->gZ;
+    num = _d - s->noname2.gZ;
     den = _c;
-    _tmp->gX = s->gX + fix_mul_div(_a, num, den);
-    _tmp->gY = s->gY + fix_mul_div(_b, num, den);
-    _tmp->gZ = _d;
+    _tmp->noname2.gX = s->noname2.gX + fix_mul_div(_a, num, den);
+    _tmp->noname2.gY = s->noname2.gY + fix_mul_div(_b, num, den);
+    _tmp->noname2.gZ = _d;
 
-    _tmp->codes = ((_tmp->gX >= _tmp->gZ) ? CC_OFF_RIGHT : ((_tmp->gX <= -_tmp->gZ) ? CC_OFF_LEFT : 0)) |
-                  ((_tmp->gY >= _tmp->gZ) ? CC_OFF_TOP : ((_tmp->gY <= -_tmp->gZ) ? CC_OFF_BOT : 0));
+    _tmp->codes = ((_tmp->noname2.gX >= _tmp->noname2.gZ) ? CC_OFF_RIGHT : ((_tmp->noname2.gX <= -_tmp->noname2.gZ) ? CC_OFF_LEFT : 0)) |
+        ((_tmp->noname2.gY >= _tmp->noname2.gZ) ? CC_OFF_TOP : ((_tmp->noname2.gY <= -_tmp->noname2.gZ) ? CC_OFF_BOT : 0));
 
     g3_intersect();
 }
@@ -518,17 +518,17 @@ void g3_back_intersect(void) {
 void g3_left_intersect(void) {
     _tmp = &tbuff[tnum++];
 
-    _a = e->gX - s->gX;
-    _b = e->gY - s->gY;
-    _c = e->gZ - s->gZ;
+    _a = e->noname2.gX - s->noname2.gX;
+    _b = e->noname2.gY - s->noname2.gY;
+    _c = e->noname2.gZ - s->noname2.gZ;
 
-    num = -s->gZ - s->gX;
+    num = -s->noname2.gZ - s->noname2.gX;
     den = _a + _c;
-    _tmp->gY = s->gY + fix_mul_div(_b, num, den);
-    _tmp->gZ = s->gZ + fix_mul_div(_c, num, den);
-    _tmp->gX = -_tmp->gZ;
+    _tmp->noname2.gY = s->noname2.gY + fix_mul_div(_b, num, den);
+    _tmp->noname2.gZ = s->noname2.gZ + fix_mul_div(_c, num, den);
+    _tmp->noname2.gX = -_tmp->noname2.gZ;
 
-    _tmp->codes = ((_tmp->gY >= _tmp->gZ) ? CC_OFF_TOP : ((_tmp->gY <= -_tmp->gZ) ? CC_OFF_BOT : 0)) | CC_OFF_X;
+    _tmp->codes = ((_tmp->noname2.gY >= _tmp->noname2.gZ) ? CC_OFF_TOP : ((_tmp->noname2.gY <= -_tmp->noname2.gZ) ? CC_OFF_BOT : 0)) | CC_OFF_X;
 
     g3_intersect();
 }
@@ -536,17 +536,17 @@ void g3_left_intersect(void) {
 void g3_top_intersect(void) {
     _tmp = &tbuff[tnum++];
 
-    _a = e->gX - s->gX;
-    _b = -e->gY + s->gY;
-    _c = e->gZ - s->gZ;
+    _a = e->noname2.gX - s->noname2.gX;
+    _b = -e->noname2.gY + s->noname2.gY;
+    _c = e->noname2.gZ - s->noname2.gZ;
 
-    num = s->gY - s->gZ;
+    num = s->noname2.gY - s->noname2.gZ;
     den = _b + _c;
-    _tmp->gX = s->gX + fix_mul_div(_a, num, den);
-    _tmp->gZ = s->gZ + fix_mul_div(_c, num, den);
-    _tmp->gY = _tmp->gZ;
+    _tmp->noname2.gX = s->noname2.gX + fix_mul_div(_a, num, den);
+    _tmp->noname2.gZ = s->noname2.gZ + fix_mul_div(_c, num, den);
+    _tmp->noname2.gY = _tmp->noname2.gZ;
 
-    _tmp->codes = ((_tmp->gX >= _tmp->gZ) ? CC_OFF_RIGHT : 0) | CC_OFF_Y | (s->codes & e->codes & CC_OFF_X);
+    _tmp->codes = ((_tmp->noname2.gX >= _tmp->noname2.gZ) ? CC_OFF_RIGHT : 0) | CC_OFF_Y | (s->codes & e->codes & CC_OFF_X);
 
     g3_intersect();
 }
@@ -554,17 +554,17 @@ void g3_top_intersect(void) {
 void g3_right_intersect(void) {
     _tmp = &tbuff[tnum++];
 
-    _a = e->gX - s->gX;
-    _b = e->gY - s->gY;
-    _c = e->gZ - s->gZ;
+    _a = e->noname2.gX - s->noname2.gX;
+    _b = e->noname2.gY - s->noname2.gY;
+    _c = e->noname2.gZ - s->noname2.gZ;
 
-    num = s->gZ - s->gX;
+    num = s->noname2.gZ - s->noname2.gX;
     den = _a - _c;
-    _tmp->gY = s->gY + fix_mul_div(_b, num, den);
-    _tmp->gZ = s->gZ + fix_mul_div(_c, num, den);
-    _tmp->gX = _tmp->gZ;
+    _tmp->noname2.gY = s->noname2.gY + fix_mul_div(_b, num, den);
+    _tmp->noname2.gZ = s->noname2.gZ + fix_mul_div(_c, num, den);
+    _tmp->noname2.gX = _tmp->noname2.gZ;
 
-    _tmp->codes = ((_tmp->gY <= -_tmp->gZ) ? CC_OFF_BOT : 0) | CC_OFF_X | (s->codes & e->codes & CC_OFF_Y);
+    _tmp->codes = ((_tmp->noname2.gY <= -_tmp->noname2.gZ) ? CC_OFF_BOT : 0) | CC_OFF_X | (s->codes & e->codes & CC_OFF_Y);
 
     g3_intersect();
 }
@@ -572,15 +572,15 @@ void g3_right_intersect(void) {
 void g3_bottom_intersect(void) {
     _tmp = &tbuff[tnum++];
 
-    _a = e->gX - s->gX;
-    _b = -e->gY + s->gY;
-    _c = e->gZ - s->gZ;
+    _a = e->noname2.gX - s->noname2.gX;
+    _b = -e->noname2.gY + s->noname2.gY;
+    _c = e->noname2.gZ - s->noname2.gZ;
 
-    num = s->gZ + s->gY;
+    num = s->noname2.gZ + s->noname2.gY;
     den = _b - _c;
-    _tmp->gX = s->gX + fix_mul_div(_a, num, den);
-    _tmp->gZ = s->gZ + fix_mul_div(_c, num, den);
-    _tmp->gY = -_tmp->gZ;
+    _tmp->noname2.gX = s->noname2.gX + fix_mul_div(_a, num, den);
+    _tmp->noname2.gZ = s->noname2.gZ + fix_mul_div(_c, num, den);
+    _tmp->noname2.gY = -_tmp->noname2.gZ;
 
     _tmp->codes = CC_OFF_Y | (s->codes & e->codes & CC_OFF_X);
     g3_intersect();
@@ -600,18 +600,18 @@ void project_point(g3s_point *src[],int n)
       if ( (p->p3_flags&PF_PROJECTED) == 0) {
 
          // subtract, mask sign bit and shift into place
-         if (p->gZ < 0) c |= CC_BEHIND;
-         if (p->gX > p->gZ) c|= CC_OFF_RIGHT;
-         else if (p->gX <= -p->gZ) c|= CC_OFF_LEFT;
-         if (p->gY >= p->gZ) c |= CC_OFF_TOP;
-         else if (p->gY <= -p->gZ) c |= CC_OFF_BOT;
+         if (p->noname2.gZ < 0) c |= CC_BEHIND;
+         if (p->noname2.gX > p->noname2.gZ) c|= CC_OFF_RIGHT;
+         else if (p->noname2.gX <= -p->noname2.gZ) c|= CC_OFF_LEFT;
+         if (p->noname2.gY >= p->noname2.gZ) c |= CC_OFF_TOP;
+         else if (p->noname2.gY <= -p->noname2.gZ) c |= CC_OFF_BOT;
 
          p->codes = c;
 
          // project if inside
          if (c==0) {
-            p->sx = fix_mul(_scrw,(FIX_UNIT+fix_div(p->gX,p->gZ)));
-            p->sy = fix_mul(_scrh,(FIX_UNIT-fix_div(p->gY,p->gZ)));
+            p->sx = fix_mul(_scrw,(FIX_UNIT+fix_div(p->noname2.gX,p->noname2.gZ)));
+            p->sy = fix_mul(_scrh,(FIX_UNIT-fix_div(p->noname2.gY,p->noname2.gZ)));
             p->p3_flags |= PF_PROJECTED;
          }
       }

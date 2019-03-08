@@ -47,11 +47,11 @@ int gri_spoly_loop(grs_tmap_loop_info *ti) {
     uchar *ti_d;
     fix ti_li, ti_ri;
 
-    xl = ti->left.x;
-    xr = ti->right.x;
-    ti_li = ti->left.i;
-    ti_ri = ti->right.i;
-    ti_d = ti->d;
+    xl = ti->noname5.left.x;
+    xr = ti->noname6.right.x;
+    ti_li = ti->noname5.left.i;
+    ti_ri = ti->noname6.right.i;
+    ti_d = ti->noname1.d;
 
     do {
         i = ti_li;
@@ -59,87 +59,87 @@ int gri_spoly_loop(grs_tmap_loop_info *ti) {
         i += fix_mul(fix_ceil(xl) - xl, di);
 
         if ((d = fix_cint(xr) - fix_cint(xl)) > 0) {
-            switch (ti->bm.hlog) {
+            switch (ti->noname4.bm.hlog) {
                 int x;
-            case GRL_OPAQUE:
-                for (x = fix_cint(xl); x < fix_cint(xr); x++) {
-                    ti_d[x] = fix_fint(i);
-                    i += di;
-                }
-                break;
-            case GRL_CLUT:
-                for (x = fix_cint(xl); x < fix_cint(xr); x++) {
-                    ti_d[x] = ti->clut[fix_fint(i)];
-                    i += di;
-                }
-                break;
-            case GRL_TLUC8:
-                for (x = fix_cint(xl); x < fix_cint(xr); x++) {
-                    ti_d[x] = tluc8stab[fix_light(i) + ti_d[x]];
-                    i += di;
-                }
-                break;
-            case GRL_CLUT | GRL_TLUC8:
-                for (x = fix_cint(xl); x < fix_cint(xr); x++) {
-                    ti_d[x] = ti->clut[tluc8stab[fix_light(i) + ti_d[x]]];
-                    i += di;
-                }
-                break;
+              case GRL_OPAQUE:
+                  for (x = fix_cint(xl); x < fix_cint(xr); x++) {
+                      ti_d[x] = fix_fint(i);
+                      i += di;
+                  }
+                  break;
+              case GRL_CLUT:
+                  for (x = fix_cint(xl); x < fix_cint(xr); x++) {
+                      ti_d[x] = ti->clut[fix_fint(i)];
+                      i += di;
+                  }
+                  break;
+              case GRL_TLUC8:
+                  for (x = fix_cint(xl); x < fix_cint(xr); x++) {
+                      ti_d[x] = tluc8stab[fix_light(i) + ti_d[x]];
+                      i += di;
+                  }
+                  break;
+              case GRL_CLUT | GRL_TLUC8:
+                  for (x = fix_cint(xl); x < fix_cint(xr); x++) {
+                      ti_d[x] = ti->clut[tluc8stab[fix_light(i) + ti_d[x]]];
+                      i += di;
+                  }
+                  break;
             }
         } else if (d < 0) {
             return TRUE;
         }
         /* update span extrema and destination. */
         ti_d += grd_bm.row;
-        xl += ti->left.dx;
-        xr += ti->right.dx;
-        ti_li += ti->left.di;
-        ti_ri += ti->right.di;
+        xl += ti->noname5.left.noname.dx;
+        xr += ti->noname6.right.noname.dx;
+        ti_li += ti->noname5.left.di;
+        ti_ri += ti->noname6.right.di;
     } while ((--(ti->n)) > 0);
 
-    ti->d = ti_d;
-    ti->left.x = xl;
-    ti->right.x = xr;
-    ti->left.i = ti_li;
-    ti->right.i = ti_ri;
+    ti->noname1.d = ti_d;
+    ti->noname5.left.x = xl;
+    ti->noname6.right.x = xr;
+    ti->noname5.left.i = ti_li;
+    ti->noname6.right.i = ti_ri;
 
     return FALSE;
 }
 
 void gri_spoly_init(grs_tmap_loop_info *ti) {
-    ti->bm.hlog = GRL_OPAQUE;
-    ti->d = ti->y * grd_bm.row + grd_bm.bits;
+    ti->noname4.bm.hlog = GRL_OPAQUE;
+    ti->noname1.d = ti->noname1.y * grd_bm.row + grd_bm.bits;
     ti->loop_func = (void (*)())gri_spoly_loop;
-    ti->top_edge_func = (void (*)())gri_ix_edge;
-    ti->bot_edge_func = (void (*)())gri_ix_edge;
+    ti->noname8.top_edge_func = (void (*)())gri_ix_edge;
+    ti->noname9.bot_edge_func = (void (*)())gri_ix_edge;
 }
 
 void gri_clut_spoly_init(grs_tmap_loop_info *ti) {
-    ti->bm.hlog = GRL_CLUT;
-    ti->d = ti->y * grd_bm.row + grd_bm.bits;
+    ti->noname4.bm.hlog = GRL_CLUT;
+    ti->noname1.d = ti->noname1.y * grd_bm.row + grd_bm.bits;
     ti->loop_func = (void (*)())gri_spoly_loop;
-    ti->top_edge_func = (void (*)())gri_ix_edge;
-    ti->bot_edge_func = (void (*)())gri_ix_edge;
+    ti->noname8.top_edge_func = (void (*)())gri_ix_edge;
+    ti->noname9.bot_edge_func = (void (*)())gri_ix_edge;
 }
 
 void gri_stpoly_init(grs_tmap_loop_info *ti) {
     if (tluc8stab != NULL)
-        ti->bm.hlog = GRL_TLUC8;
+        ti->noname4.bm.hlog = GRL_TLUC8;
     else
-        ti->bm.hlog = GRL_OPAQUE;
-    ti->d = ti->y * grd_bm.row + grd_bm.bits;
+        ti->noname4.bm.hlog = GRL_OPAQUE;
+    ti->noname1.d = ti->noname1.y * grd_bm.row + grd_bm.bits;
     ti->loop_func = (void (*)())gri_spoly_loop;
-    ti->top_edge_func = (void (*)())gri_ix_edge;
-    ti->bot_edge_func = (void (*)())gri_ix_edge;
+    ti->noname8.top_edge_func = (void (*)())gri_ix_edge;
+    ti->noname9.bot_edge_func = (void (*)())gri_ix_edge;
 }
 
 void gri_clut_stpoly_init(grs_tmap_loop_info *ti) {
     if (tluc8stab != NULL)
-        ti->bm.hlog = GRL_CLUT | GRL_TLUC8;
+        ti->noname4.bm.hlog = GRL_CLUT | GRL_TLUC8;
     else
-        ti->bm.hlog = GRL_CLUT;
-    ti->d = ti->y * grd_bm.row + grd_bm.bits;
+        ti->noname4.bm.hlog = GRL_CLUT;
+    ti->noname1.d = ti->noname1.y * grd_bm.row + grd_bm.bits;
     ti->loop_func = (void (*)())gri_spoly_loop;
-    ti->top_edge_func = (void (*)())gri_ix_edge;
-    ti->bot_edge_func = (void (*)())gri_ix_edge;
+    ti->noname8.top_edge_func = (void (*)())gri_ix_edge;
+    ti->noname9.bot_edge_func = (void (*)())gri_ix_edge;
 }

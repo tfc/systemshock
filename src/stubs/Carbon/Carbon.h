@@ -129,13 +129,13 @@ void SetPort(/*GrafPtr*/ void* port);
     }
 }*/
 // http://mirror.informatimago.com/next/developer.apple.com/documentation/mac/Memory/Memory-42.html
-/*static void BlockMove(const void* srcPtr, void* destPtr, Size byteCount)
+void BlockMove(const void* srcPtr, void* destPtr, Size byteCount)
 {
     if(byteCount > 0)
     {
         memmove(destPtr, srcPtr, byteCount);
     }
-}*/
+}
 
 // the following functions are "implemented" in Stub.c, but don't turn up in any header
 // so I added them here to make my compiler happy

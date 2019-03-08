@@ -59,7 +59,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         p[x] = i;             \
     } while (0)
 
-void gri_flat8_usline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
+void gri_flat8_usline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1)
+{
+    (void)c;
+    (void)parm;
+    (void)v0;
+    (void)v1;
 #include "fl8slin.h"
 }
 
@@ -69,7 +74,12 @@ void gri_flat8_usline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
         p[x] = (long)(((uchar *)parm)[i]); \
     } while (0)
 
-void gri_flat8_usline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
+void gri_flat8_usline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1)
+{
+    (void)c;
+    (void)parm;
+    (void)v0;
+    (void)v1;
 #include "fl8slin.h"
 }
 
@@ -79,7 +89,12 @@ void gri_flat8_usline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
         p[x] = p[x] ^ i;      \
     } while (0)
 
-void gri_flat8_usline_xor(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
+void gri_flat8_usline_xor(long c, long parm, grs_vertex *v0, grs_vertex *v1)
+{
+    (void)c;
+    (void)parm;
+    (void)v0;
+    (void)v1;
 #include "fl8slin.h"
 }
 
@@ -91,6 +106,11 @@ void gri_flat8_usline_xor(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
         p[x] = i;             \
     } while (0)
 
-void gri_flat8_usline_blend(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
+void gri_flat8_usline_blend(long c, long parm, grs_vertex *v0, grs_vertex *v1)
+{
+    (void)c;
+    (void)parm;
+    (void)v0;
+    (void)v1;
 #include "fl8slin.h"
 }

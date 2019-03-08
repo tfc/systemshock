@@ -46,41 +46,42 @@ int gri_trans_solid_lin_umap_loop(grs_tmap_loop_info *tli) {
     uchar *p_dest;
     long *t_vtab;
     uchar *t_bits;
-    uchar *t_clut;
+    //uchar *t_clut;
     uchar t_wlog;
     ulong t_mask;
     long gr_row;
     uchar *start_pdest;
 
-    solid_color = (uchar)tli->clut;
-    u = tli->left.u;
-    du = tli->right.u - u;
-    v = tli->left.v;
-    dv = tli->right.v - v;
-    dx = tli->right.x - tli->left.x;
+    //solid_color = (uchar)tli->clut;
+    solid_color = *(uchar *)tli->clut;
+    u = tli->noname5.left.u;
+    du = tli->noname6.right.u - u;
+    v = tli->noname5.left.v;
+    dv = tli->noname6.right.v - v;
+    dx = tli->noname6.right.x - tli->noname5.left.x;
 
     t_vtab = tli->vtab;
-    t_mask = tli->mask;
-    t_wlog = tli->bm.wlog;
+    t_mask = tli->noname7.mask;
+    t_wlog = tli->noname4.bm.wlog;
 
-    t_bits = tli->bm.bits;
+    t_bits = tli->noname4.bm.bits;
     gr_row = grd_bm.row;
-    start_pdest = grd_bm.bits + (gr_row * (tli->y));
+    start_pdest = grd_bm.bits + (gr_row * (tli->noname1.y));
 
     do {
-        if ((d = fix_ceil(tli->right.x) - fix_ceil(tli->left.x)) > 0) {
-            d = fix_ceil(tli->left.x) - tli->left.x;
+        if ((d = fix_ceil(tli->noname6.right.x) - fix_ceil(tli->noname5.left.x)) > 0) {
+            d = fix_ceil(tli->noname5.left.x) - tli->noname5.left.x;
             du = fix_div(du, dx);
             dv = fix_div(dv, dx);
             u += fix_mul(du, d);
             v += fix_mul(dv, d);
 
             // copy out tli-> stuff into locals
-            t_xl = fix_cint(tli->left.x);
-            t_xr = fix_cint(tli->right.x);
+            t_xl = fix_cint(tli->noname5.left.x);
+            t_xr = fix_cint(tli->noname6.right.x);
             p_dest = start_pdest + t_xl;
 
-            if (tli->bm.hlog == GRL_TRANS) {
+            if (tli->noname4.bm.hlog == GRL_TRANS) {
                 for (x = t_xl; x < t_xr; x++) {
                     if (t_bits[t_vtab[fix_fint(v)] + fix_fint(u)])
                         *p_dest = solid_color; // gr_fill_upixel(t_bits[k],x,y);
@@ -100,16 +101,16 @@ int gri_trans_solid_lin_umap_loop(grs_tmap_loop_info *tli) {
         } else if (d < 0)
             return TRUE; /* punt this tmap */
 
-        u = (tli->left.u += tli->left.du);
-        tli->right.u += tli->right.du;
-        du = tli->right.u - u;
-        v = (tli->left.v += tli->left.dv);
-        tli->right.v += tli->right.dv;
-        dv = tli->right.v - v;
-        tli->left.x += tli->left.dx;
-        tli->right.x += tli->right.dx;
-        dx = tli->right.x - tli->left.x;
-        tli->y++;
+        u = (tli->noname5.left.u += tli->noname5.left.du);
+        tli->noname6.right.u += tli->noname6.right.du;
+        du = tli->noname6.right.u - u;
+        v = (tli->noname5.left.v += tli->noname5.left.dv);
+        tli->noname6.right.v += tli->noname6.right.dv;
+        dv = tli->noname6.right.v - v;
+        tli->noname5.left.x += tli->noname5.left.noname.dx;
+        tli->noname6.right.x += tli->noname6.right.noname.dx;
+        dx = tli->noname6.right.x - tli->noname5.left.x;
+        tli->noname1.y++;
         start_pdest += gr_row;
     } while (--(tli->n) > 0);
 
@@ -117,16 +118,16 @@ int gri_trans_solid_lin_umap_loop(grs_tmap_loop_info *tli) {
 }
 
 void gri_trans_solid_lin_umap_init(grs_tmap_loop_info *tli) {
-    if ((tli->bm.row == (1 << tli->bm.wlog)) && (tli->bm.h == (1 << tli->bm.hlog))) {
-        tli->mask = (1 << (tli->bm.hlog + tli->bm.wlog)) - 1;
-        tli->bm.hlog = GRL_TRANS | GRL_LOG2;
+    if ((tli->noname4.bm.row == (1 << tli->noname4.bm.wlog)) && (tli->noname4.bm.h == (1 << tli->noname4.bm.hlog))) {
+        tli->noname7.mask = (1 << (tli->noname4.bm.hlog + tli->noname4.bm.wlog)) - 1;
+        tli->noname4.bm.hlog = GRL_TRANS | GRL_LOG2;
     } else {
-        tli->vtab = gr_make_vtab(&(tli->bm));
-        tli->bm.hlog = GRL_TRANS;
+        tli->vtab = gr_make_vtab(&(tli->noname4.bm));
+        tli->noname4.bm.hlog = GRL_TRANS;
     }
     tli->loop_func = (void (*)())gri_trans_solid_lin_umap_loop;
-    tli->right_edge_func = (void (*)())gri_uvx_edge;
-    tli->left_edge_func = (void (*)())gri_uvx_edge;
+    tli->noname9.right_edge_func = (void (*)())gri_uvx_edge;
+    tli->noname8.left_edge_func = (void (*)())gri_uvx_edge;
 }
 
 int gri_trans_solid_floor_umap_loop(grs_tmap_loop_info *tli) {
@@ -138,38 +139,41 @@ int gri_trans_solid_floor_umap_loop(grs_tmap_loop_info *tli) {
     long *t_vtab;
     uchar *t_bits;
     uchar *p_dest;
-    uchar temp_pix;
+    //uchar temp_pix;
     uchar t_wlog;
     ulong t_mask;
 
-    solid_color = (uchar)tli->clut;
-    u = fix_div(tli->left.u, tli->w);
-    du = fix_div(tli->right.u, tli->w) - u;
-    v = fix_div(tli->left.v, tli->w);
-    dv = fix_div(tli->right.v, tli->w) - v;
-    dx = tli->right.x - tli->left.x;
+    (void)gr_row;
 
-    t_mask = tli->mask;
-    t_wlog = tli->bm.wlog;
+    //solid_color = (uchar)tli->clut;
+    solid_color = *(uchar *)tli->clut;
+    u = fix_div(tli->noname5.left.u, tli->w);
+    du = fix_div(tli->noname6.right.u, tli->w) - u;
+    v = fix_div(tli->noname5.left.v, tli->w);
+    dv = fix_div(tli->noname6.right.v, tli->w) - v;
+    dx = tli->noname6.right.x - tli->noname5.left.x;
+
+    t_mask = tli->noname7.mask;
+    t_wlog = tli->noname4.bm.wlog;
     t_vtab = tli->vtab;
-    t_bits = tli->bm.bits;
+    t_bits = tli->noname4.bm.bits;
     gr_row = grd_bm.row;
 
     do {
-        if ((d = fix_ceil(tli->right.x) - fix_ceil(tli->left.x)) > 0) {
-            d = fix_ceil(tli->left.x) - tli->left.x;
+        if ((d = fix_ceil(tli->noname6.right.x) - fix_ceil(tli->noname5.left.x)) > 0) {
+            d = fix_ceil(tli->noname5.left.x) - tli->noname5.left.x;
             du = fix_div(du, dx);
             u += fix_mul(du, d);
             dv = fix_div(dv, dx);
             v += fix_mul(dv, d);
 
             // copy out tli-> stuff into locals
-            t_xl = fix_cint(tli->left.x);
-            t_xr = fix_cint(tli->right.x);
-            t_y = tli->y;
+            t_xl = fix_cint(tli->noname5.left.x);
+            t_xr = fix_cint(tli->noname6.right.x);
+            t_y = tli->noname1.y;
             p_dest = grd_bm.bits + (grd_bm.row * t_y) + t_xl;
 
-            if (tli->bm.hlog == GRL_TRANS) {
+            if (tli->noname4.bm.hlog == GRL_TRANS) {
                 for (x = t_xl; x < t_xr; x++) {
                     int k = t_vtab[fix_fint(v)] + fix_fint(u);
                     if (t_bits[k])
@@ -191,31 +195,31 @@ int gri_trans_solid_floor_umap_loop(grs_tmap_loop_info *tli) {
         } else if (d < 0)
             return TRUE; /* punt this tmap */
         tli->w += tli->dw;
-        u = fix_div((tli->left.u += tli->left.du), tli->w);
-        tli->right.u += tli->right.du;
-        du = fix_div(tli->right.u, tli->w) - u;
-        v = fix_div((tli->left.v += tli->left.dv), tli->w);
-        tli->right.v += tli->right.dv;
-        dv = fix_div(tli->right.v, tli->w) - v;
-        tli->left.x += tli->left.dx;
-        tli->right.x += tli->right.dx;
-        dx = tli->right.x - tli->left.x;
-        tli->y++;
+        u = fix_div((tli->noname5.left.u += tli->noname5.left.du), tli->w);
+        tli->noname6.right.u += tli->noname6.right.du;
+        du = fix_div(tli->noname6.right.u, tli->w) - u;
+        v = fix_div((tli->noname5.left.v += tli->noname5.left.dv), tli->w);
+        tli->noname6.right.v += tli->noname6.right.dv;
+        dv = fix_div(tli->noname6.right.v, tli->w) - v;
+        tli->noname5.left.x += tli->noname5.left.noname.dx;
+        tli->noname6.right.x += tli->noname6.right.noname.dx;
+        dx = tli->noname6.right.x - tli->noname5.left.x;
+        tli->noname1.y++;
     } while (--(tli->n) > 0);
     return FALSE; /* tmap OK */
 }
 
 void gri_trans_solid_floor_umap_init(grs_tmap_loop_info *tli) {
-    if ((tli->bm.row == (1 << tli->bm.wlog)) && (tli->bm.h == (1 << tli->bm.hlog))) {
-        tli->mask = (1 << (tli->bm.hlog + tli->bm.wlog)) - 1;
-        tli->bm.hlog = GRL_TRANS | GRL_LOG2;
+    if ((tli->noname4.bm.row == (1 << tli->noname4.bm.wlog)) && (tli->noname4.bm.h == (1 << tli->noname4.bm.hlog))) {
+        tli->noname7.mask = (1 << (tli->noname4.bm.hlog + tli->noname4.bm.wlog)) - 1;
+        tli->noname4.bm.hlog = GRL_TRANS | GRL_LOG2;
     } else {
-        tli->vtab = gr_make_vtab(&(tli->bm));
-        tli->bm.hlog = GRL_TRANS;
+        tli->vtab = gr_make_vtab(&(tli->noname4.bm));
+        tli->noname4.bm.hlog = GRL_TRANS;
     }
     tli->loop_func = (void (*)())gri_trans_solid_floor_umap_loop;
-    tli->left_edge_func = (void (*)())gri_uvwx_edge;
-    tli->right_edge_func = (void (*)())gri_uvwx_edge;
+    tli->noname8.left_edge_func = (void (*)())gri_uvwx_edge;
+    tli->noname9.right_edge_func = (void (*)())gri_uvwx_edge;
 }
 
 int gri_solid_wall_umap_loop(grs_tmap_loop_info *tli) {
@@ -227,41 +231,42 @@ int gri_solid_wall_umap_loop(grs_tmap_loop_info *tli) {
     long *t_vtab;
     uchar *t_bits;
     uchar *p_dest;
-    uchar *t_clut;
+    //uchar *t_clut;
     uchar t_wlog;
     ulong t_mask;
     long gr_row;
     int y;
 
-    solid_color = (uchar)tli->clut;
-    u = fix_div(tli->left.u, tli->w);
-    du = fix_div(tli->right.u, tli->w) - u;
-    v = fix_div(tli->left.v, tli->w);
-    dv = fix_div(tli->right.v, tli->w) - v;
-    dy = tli->right.y - tli->left.y;
+    //solid_color = (uchar)tli->clut;
+    solid_color = *(uchar *)tli->clut;
+    u = fix_div(tli->noname5.left.u, tli->w);
+    du = fix_div(tli->noname6.right.u, tli->w) - u;
+    v = fix_div(tli->noname5.left.v, tli->w);
+    dv = fix_div(tli->noname6.right.v, tli->w) - v;
+    dy = tli->noname6.right.y - tli->noname5.left.y;
 
-    t_bits = tli->bm.bits;
+    t_bits = tli->noname4.bm.bits;
     t_vtab = tli->vtab;
-    t_mask = tli->mask;
-    t_wlog = tli->bm.wlog;
+    t_mask = tli->noname7.mask;
+    t_wlog = tli->noname4.bm.wlog;
 
     gr_row = grd_bm.row;
 
     // handle PowerPC loop
     do {
-        if ((d = fix_ceil(tli->right.y) - fix_ceil(tli->left.y)) > 0) {
+        if ((d = fix_ceil(tli->noname6.right.y) - fix_ceil(tli->noname5.left.y)) > 0) {
 
-            d = fix_ceil(tli->left.y) - tli->left.y;
+            d = fix_ceil(tli->noname5.left.y) - tli->noname5.left.y;
             du = fix_div(du, dy);
             dv = fix_div(dv, dy);
             u += fix_mul(du, d);
             v += fix_mul(dv, d);
 
-            t_yl = fix_cint(tli->left.y);
-            t_yr = fix_cint(tli->right.y);
-            p_dest = grd_bm.bits + (gr_row * t_yl) + tli->x;
+            t_yl = fix_cint(tli->noname5.left.y);
+            t_yr = fix_cint(tli->noname6.right.y);
+            p_dest = grd_bm.bits + (gr_row * t_yl) + tli->noname1.x;
 
-            if (tli->bm.hlog == GRL_TRANS) {
+            if (tli->noname4.bm.hlog == GRL_TRANS) {
                 for (y = t_yl; y < t_yr; y++) {
                     int k = t_vtab[fix_fint(v)] + fix_fint(u);
                     if (t_bits[k])
@@ -284,16 +289,16 @@ int gri_solid_wall_umap_loop(grs_tmap_loop_info *tli) {
             return TRUE; /* punt this tmap */
 
         tli->w += tli->dw;
-        u = fix_div((tli->left.u += tli->left.du), tli->w);
-        tli->right.u += tli->right.du;
-        du = fix_div(tli->right.u, tli->w) - u;
-        v = fix_div((tli->left.v += tli->left.dv), tli->w);
-        tli->right.v += tli->right.dv;
-        dv = fix_div(tli->right.v, tli->w) - v;
-        tli->left.y += tli->left.dy;
-        tli->right.y += tli->right.dy;
-        dy = tli->right.y - tli->left.y;
-        tli->x++;
+        u = fix_div((tli->noname5.left.u += tli->noname5.left.du), tli->w);
+        tli->noname6.right.u += tli->noname6.right.du;
+        du = fix_div(tli->noname6.right.u, tli->w) - u;
+        v = fix_div((tli->noname5.left.v += tli->noname5.left.dv), tli->w);
+        tli->noname6.right.v += tli->noname6.right.dv;
+        dv = fix_div(tli->noname6.right.v, tli->w) - v;
+        tli->noname5.left.y += tli->noname5.left.noname.dy;
+        tli->noname6.right.y += tli->noname6.right.noname.dy;
+        dy = tli->noname6.right.y - tli->noname5.left.y;
+        tli->noname1.x++;
 
     } while (--(tli->n) > 0);
 
@@ -301,16 +306,16 @@ int gri_solid_wall_umap_loop(grs_tmap_loop_info *tli) {
 }
 
 void gri_trans_solid_wall_umap_init(grs_tmap_loop_info *tli) {
-    if ((tli->bm.row == (1 << tli->bm.wlog)) && (tli->bm.h == (1 << tli->bm.hlog))) {
-        tli->mask = (1 << (tli->bm.hlog + tli->bm.wlog)) - 1;
-        tli->bm.hlog = GRL_TRANS | GRL_LOG2;
+    if ((tli->noname4.bm.row == (1 << tli->noname4.bm.wlog)) && (tli->noname4.bm.h == (1 << tli->noname4.bm.hlog))) {
+        tli->noname7.mask = (1 << (tli->noname4.bm.hlog + tli->noname4.bm.wlog)) - 1;
+        tli->noname4.bm.hlog = GRL_TRANS | GRL_LOG2;
     } else {
-        tli->vtab = gr_make_vtab(&(tli->bm));
-        tli->bm.hlog = GRL_TRANS;
+        tli->vtab = gr_make_vtab(&(tli->noname4.bm));
+        tli->noname4.bm.hlog = GRL_TRANS;
     }
     tli->loop_func = (void (*)())gri_solid_wall_umap_loop;
-    tli->left_edge_func = (void (*)())gri_uvwy_edge;
-    tli->right_edge_func = (void (*)())gri_uvwy_edge;
+    tli->noname8.left_edge_func = (void (*)())gri_uvwy_edge;
+    tli->noname9.right_edge_func = (void (*)())gri_uvwy_edge;
 }
 
 void gri_trans_solid_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
@@ -324,7 +329,8 @@ void gri_trans_solid_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     int gr_row, temp_y;
     uchar *bm_bits;
 
-    solid_color = (uchar)pi->clut;
+    //solid_color = (uchar)pi->noname2.clut;
+    solid_color = *(uchar *)pi->noname2.clut;
     gr_row = grd_bm.row;
     bm_bits = bm->bits;
     l_dyr = pi->dyr;
@@ -333,20 +339,20 @@ void gri_trans_solid_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_dxl = pi->dxl;
     l_dtl = pi->dtl;
     l_scan_slope = pi->scan_slope;
-    l_y_fix = pi->y_fix;
+    l_y_fix = pi->noname1.y_fix;
     l_v_shift = pi->v_shift;
     l_v_mask = pi->v_mask;
     l_u_mask = pi->u_mask;
-    l_xr0 = pi->xr0;
-    l_x = pi->x;
-    l_xl = pi->xl;
-    l_xr = pi->xr;
+    l_xr0 = pi->noname7.xr0;
+    l_x = pi->noname4.x;
+    l_xl = pi->noname5.xl;
+    l_xr = pi->noname6.xr;
     l_u = pi->u;
     l_v = pi->v;
     l_du = pi->du;
     l_dv = pi->dv;
 
-    l_y_fix = l_x * l_scan_slope + fix_make(pi->yp, 0xffff);
+    l_y_fix = l_x * l_scan_slope + fix_make(pi->noname3.yp, 0xffff);
     l_u = pi->u0 + fix_div(pi->unum, pi->denom);
     l_v = pi->v0 + fix_div(pi->vnum, pi->denom);
     l_du = fix_div(pi->dunum, pi->denom);
@@ -424,8 +430,8 @@ void gri_trans_solid_per_umap_hscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->y_fix = l_y_fix;
-    pi->x = l_x;
+    pi->noname1.y_fix = l_y_fix;
+    pi->noname4.x = l_x;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -443,15 +449,16 @@ void gri_trans_solid_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     uchar *bm_bits;
     uchar *p;
 
-    solid_color = (uchar)pi->clut;
+    //solid_color = (uchar)pi->noname2.clut;
+    solid_color = *(uchar *)pi->noname2.clut;
     gr_row = grd_bm.row;
     bm_bits = bm->bits;
     l_dxr = pi->dxr;
-    l_x_fix = pi->x_fix;
-    l_y = pi->y;
-    l_yr = pi->yr;
-    l_yr0 = pi->yr0;
-    l_yl = pi->yl;
+    l_x_fix = pi->noname1.x_fix;
+    l_y = pi->noname4.y;
+    l_yr = pi->noname6.yr;
+    l_yr0 = pi->noname7.yr0;
+    l_yl = pi->noname5.yl;
     l_dyr = pi->dyr;
     l_dtr = pi->dtr;
     l_dyl = pi->dyl;
@@ -466,7 +473,7 @@ void gri_trans_solid_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
     l_du = pi->du;
     l_dv = pi->dv;
 
-    l_x_fix = l_y * l_scan_slope + fix_make(pi->xp, 0xffff);
+    l_x_fix = l_y * l_scan_slope + fix_make(pi->noname3.xp, 0xffff);
 
     l_u = pi->u0 + fix_div(pi->unum, pi->denom);
     l_v = pi->v0 + fix_div(pi->vnum, pi->denom);
@@ -541,8 +548,8 @@ void gri_trans_solid_per_umap_vscan_scanline(grs_per_info *pi, grs_bitmap *bm) {
         }
     }
 
-    pi->x_fix = l_x_fix;
-    pi->y = l_y;
+    pi->noname1.x_fix = l_x_fix;
+    pi->noname4.y = l_y;
     pi->u = l_u;
     pi->v = l_v;
     pi->du = l_du;
@@ -553,11 +560,13 @@ extern void gri_per_umap_hscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_
 extern void gri_per_umap_vscan(grs_bitmap *bm, int n, grs_vertex **vpl, grs_per_setup *ps);
 
 void gri_trans_solid_per_umap_hscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
     ps->shell_func = (void (*)())gri_per_umap_hscan;
     ps->scanline_func = (void (*)())gri_trans_solid_per_umap_hscan_scanline;
 }
 
 void gri_trans_solid_per_umap_vscan_init(grs_bitmap *bm, grs_per_setup *ps) {
+    (void)bm;
     ps->shell_func = (void (*)())gri_per_umap_vscan;
     ps->scanline_func = (void (*)())gri_trans_solid_per_umap_vscan_scanline;
 }

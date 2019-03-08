@@ -40,7 +40,8 @@ fix light_dands_raw(g3s_phandle src, g3s_phandle dest);
 // look ma, a zero vector
 g3s_phandle tmp1;
 g3s_phandle tmp2;
-g3s_vector zero_vec = {0, 0, 0};
+//g3s_vector zero_vec = {0, 0, 0};
+g3s_vector zero_vec = { 0 };
 
 // sets a light vector in source space directly
 // this light vector has to be in user space so we can dot it with
@@ -63,9 +64,9 @@ void g3_eval_vec_light(void) {
 // multiply by _g3d_diff_light
 // to set light intensity
 void scale_light_vec(void) {
-    _g3d_light_vec.gX = fix_mul(_g3d_light_vec.gX, _g3d_diff_light);
-    _g3d_light_vec.gY = fix_mul(_g3d_light_vec.gY, _g3d_diff_light);
-    _g3d_light_vec.gZ = fix_mul(_g3d_light_vec.gZ, _g3d_diff_light);
+    _g3d_light_vec.noname2.gX = fix_mul(_g3d_light_vec.noname2.gX, _g3d_diff_light);
+    _g3d_light_vec.noname2.gY = fix_mul(_g3d_light_vec.noname2.gY, _g3d_diff_light);
+    _g3d_light_vec.noname2.gZ = fix_mul(_g3d_light_vec.noname2.gZ, _g3d_diff_light);
 }
 
 // transforms local light source into viewer coords in anticipation
@@ -90,14 +91,14 @@ void g3_eval_loc_light(g3s_phandle pos) {
     // transform light src point to eye coords
 
     // take difference with pos, and unscale them
-    temp = -(pos->gX - _g3d_light_trans.gX);
-    _g3d_light_vec.gX = fix_div(temp, _matrix_scale.gX);
+    temp = -(pos->noname2.gX - _g3d_light_trans.noname2.gX);
+    _g3d_light_vec.noname2.gX = fix_div(temp, _matrix_scale.noname2.gX);
 
-    temp = -(pos->gY - _g3d_light_trans.gY);
-    _g3d_light_vec.gY = fix_div(temp, _matrix_scale.gY);
+    temp = -(pos->noname2.gY - _g3d_light_trans.noname2.gY);
+    _g3d_light_vec.noname2.gY = fix_div(temp, _matrix_scale.noname2.gY);
 
-    temp = -(pos->gZ - _g3d_light_trans.gZ);
-    _g3d_light_vec.gZ = fix_div(temp, _matrix_scale.gZ);
+    temp = -(pos->noname2.gZ - _g3d_light_trans.noname2.gZ);
+    _g3d_light_vec.noname2.gZ = fix_div(temp, _matrix_scale.noname2.gZ);
 
     // normalize vector
     g3_vec_normalize(&_g3d_light_vec);
@@ -114,9 +115,9 @@ void g3_eval_loc_light(g3s_phandle pos) {
 void g3_eval_view(g3s_phandle pos) {
     fix temp;
 
-    _g3d_view_vec.gX = pos->gX - _view_position.gX;
-    _g3d_view_vec.gY = pos->gY - _view_position.gY;
-    _g3d_view_vec.gZ = pos->gZ - _view_position.gZ;
+    _g3d_view_vec.noname2.gX = pos->noname2.gX - _view_position.noname2.gX;
+    _g3d_view_vec.noname2.gY = pos->noname2.gY - _view_position.noname2.gY;
+    _g3d_view_vec.noname2.gZ = pos->noname2.gZ - _view_position.noname2.gZ;
 
     // normalize
     g3_vec_normalize(&_g3d_view_vec);
@@ -129,9 +130,9 @@ void g3_eval_view(g3s_phandle pos) {
     // only if this view vec only gets used once
 
     temp = -_g3d_spec_light;
-    _g3d_view_vec.gX = fix_mul(_g3d_view_vec.gX, temp);
-    _g3d_view_vec.gY = fix_mul(_g3d_view_vec.gY, temp);
-    _g3d_view_vec.gZ = fix_mul(_g3d_view_vec.gZ, temp);
+    _g3d_view_vec.noname2.gX = fix_mul(_g3d_view_vec.noname2.gX, temp);
+    _g3d_view_vec.noname2.gY = fix_mul(_g3d_view_vec.noname2.gY, temp);
+    _g3d_view_vec.noname2.gZ = fix_mul(_g3d_view_vec.noname2.gZ, temp);
 }
 
 // takes the dot product of view and light, for specular light
@@ -166,47 +167,47 @@ void g3_eval_light_obj_cen(void) {
     // through the first test (non_local)
 
     /*    ; is local?
-        test    _g3d_light_type,LT_LOC_LIGHT or LT_SPEC
-        jz     non_local
+          test    _g3d_light_type,LT_LOC_LIGHT or LT_SPEC
+          jz     non_local
 
-        ; find center of object, duh, center is at 0,0,0
-        ;lea     esi,zero_vec
-        ;call    g3_rotate_point; this would be point in viewer space
-        ; returns point in edi
-        ;mov     tmp1,edi
+          ; find center of object, duh, center is at 0,0,0
+          ;lea     esi,zero_vec
+          ;call    g3_rotate_point; this would be point in viewer space
+          ; returns point in edi
+          ;mov     tmp1,edi
 
-        ; evaluate local light
-        test    _g3d_light_type,LT_LOC_LIGHT
-        jz      no_loc
-        mov     eax,edi
-        call    g3_eval_loc_light
-        jmp     test_spec
-        no_loc:
-        call    g3_eval_vec_light
+          ; evaluate local light
+          test    _g3d_light_type,LT_LOC_LIGHT
+          jz      no_loc
+          mov     eax,edi
+          call    g3_eval_loc_light
+          jmp     test_spec
+          no_loc:
+          call    g3_eval_vec_light
 
-        ; is spec set?
-        test_spec:
-        test    _g3d_light_type,LT_SPEC
-        jz     spec_done
+          ; is spec set?
+          test_spec:
+          test    _g3d_light_type,LT_SPEC
+          jz     spec_done
 
-        ; evaluate view
-        ; view vector relative to zero is in _view_position
-        ; already
-        ;mov     eax,tmp1
-        lea     eax,zero_vec    ;in reality should write a diff routine
-        call    g3_eval_view
+          ; evaluate view
+          ; view vector relative to zero is in _view_position
+          ; already
+          ;mov     eax,tmp1
+          lea     eax,zero_vec    ;in reality should write a diff routine
+          call    g3_eval_view
 
-        call    g3_eval_ldotv
+          call    g3_eval_ldotv
 
-        spec_done:
-        ;mov     edi,tmp1
-        ;freepnt edi
-        ret
+          spec_done:
+          ;mov     edi,tmp1
+          ;freepnt edi
+          ret
 
-        non_local:
-        ; assumes you've transformed
-        ; it already
-        jmp    g3_eval_vec_light*/
+          non_local:
+          ; assumes you've transformed
+          ; it already
+          jmp    g3_eval_vec_light*/
 }
 
 // set your view to be straight ahead, use when using specular,
@@ -215,20 +216,22 @@ void g3_eval_light_obj_cen(void) {
 void g3_eval_view_ahead(void) {
     // this is in view coords, need in
     // object coords, this won't work
-    _g3d_view_vec.gX = 0;
-    _g3d_view_vec.gY = 0;
-    _g3d_view_vec.gZ = -0x01000;
+    _g3d_view_vec.noname2.gX = 0;
+    _g3d_view_vec.noname2.gY = 0;
+    _g3d_view_vec.noname2.gZ = -0x01000;
 
     // now eval ldotv, hm.
-    _g3d_ldotv = -_g3d_light_vec.gZ;
+    _g3d_ldotv = -_g3d_light_vec.noname2.gZ;
 }
 
 // check to see if local stuff has to get set and
 // set it if necessary
 // takes args in tmp1,tmp2
 void check_for_near(void) {
-    if ((_g3d_light_type & (LT_NEAR_VIEW | LT_NEAR_LIGHT) == 0))
+    if ((_g3d_light_type & (LT_NEAR_VIEW | LT_NEAR_LIGHT)) == 0)
+    {
         return;
+    }
 
     // if light near, evaluate
     if ((_g3d_light_type & LT_NEAR_LIGHT) != 0)
@@ -342,7 +345,9 @@ fix light_spec_raw(g3s_phandle src, g3s_phandle dest) {
     // check to see if its greater than the max row
     // and truncate if it is
     if (temp >= (LT_TABSIZE << 12))
+    {
         ;
+    }
     temp = (LT_TABSIZE << 12) - 1; // if its over the max, set it to just under max
 
     dest->i = temp >> 4; // convert to sfix, consider row 16 normal
@@ -422,12 +427,12 @@ fix g3_light(g3s_phandle norm, g3s_phandle pos) {
 
     // determine which routine to jump to based on flags
     switch (_g3d_light_type) {
-    case LT_DIFF:
-        return (light_diff_raw(tmp1, temp));
-    case LT_SPEC:
-        return (light_spec_raw(tmp1, temp));
-    default:
-        return (light_dands_raw(tmp1, temp));
+      case LT_DIFF:
+          return (light_diff_raw(tmp1, temp));
+      case LT_SPEC:
+          return (light_spec_raw(tmp1, temp));
+      default:
+          return (light_dands_raw(tmp1, temp));
     }
 }
 
@@ -447,9 +452,9 @@ void g3_light_obj(g3s_phandle norm, g3s_phandle pos) {
     tmp2 = pos;
     getpnt(norm_point);
 
-    norm_point->gX = norm->gX << 1;
-    norm_point->gY = norm->gY << 1;
-    norm_point->gZ = norm->gZ << 1;
+    norm_point->noname2.gX = norm->noname2.gX << 1;
+    norm_point->noname2.gY = norm->noname2.gY << 1;
+    norm_point->noname2.gZ = norm->noname2.gZ << 1;
 
     // Copy position over to its own point
     getpnt(pos_point);
@@ -474,4 +479,9 @@ void g3_light_obj(g3s_phandle norm, g3s_phandle pos) {
 // transformed
 // g3_light_list(int n,g3s_phandle *norm,g3s_phandle *pos)
 //  [eax,edx,ebx]
-void g3_light_list(int n, g3s_phandle *norm, g3s_phandle *pos) {}
+void g3_light_list(int n, g3s_phandle *norm, g3s_phandle *pos)
+{
+    (void)n;
+    (void)norm;
+    (void)pos;
+}

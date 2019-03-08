@@ -86,26 +86,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GlobalV.h"
 #include "lg.h"
 
-/*#define f1_0	 fixmake(1)
-#define f0_5	 fixmake(0,8000h)
-#define f0_25	 fixmake(0,4000h)
+/*#define f1_0   fixmake(1)
+  #define f0_5     fixmake(0,8000h)
+  #define f0_25    fixmake(0,4000h)
 */
 
-fix sinp;   // fix	?
-fix cosp;   // fix	?
-fix sinb;   // fix	?
-fix cosb;   // fix	?
-fix sinh_s; // fix	?
-fix cosh_s; // fix	?
+fix sinp;   // fix      ?
+fix cosp;   // fix      ?
+fix sinb;   // fix      ?
+fix cosb;   // fix      ?
+fix sinh_s; // fix      ?
+fix cosh_s; // fix      ?
 
 // vars for get_view_pyramid
-fix d13; // fix	?
-fix d23; // fix	?
-fix d46; // fix	?
-fix d56; // fix	?
-fix d79; // fix	?
-fix d89; // fix	?
-fix den; // fix	?
+fix d13; // fix ?
+fix d23; // fix ?
+fix d46; // fix ?
+fix d56; // fix ?
+fix d79; // fix ?
+fix d89; // fix ?
+fix den; // fix ?
 
 // prototypes
 void angles_2_matrix(g3s_angvec *angles, g3s_matrix *view_matrix, int rotation_order);
@@ -130,7 +130,7 @@ void (*rotation_table[])(g3s_matrix *) = {compute_XYZ, compute_YXZ,     compute_
 // build the view matrix from view angles, etc.
 // takes esi=pos, ebx=angles, eax=zoom, ecx=rotation order
 void g3_set_view_angles(g3s_vector *pos, g3s_angvec *angles, int rotation_order, fix zoom) {
-    _view_zoom = zoom; // mov	_view_zoom,eax	;save zoom
+    _view_zoom = zoom; // mov   _view_zoom,eax  ;save zoom
     _view_position = *pos;
 
     view_pitch = angles->tx;
@@ -227,16 +227,16 @@ void compute_YXZ(g3s_matrix *view_matrix) {
     view_matrix->m9 = fix_mul(cosh_s, cosp);
 }
 
-void compute_YZX(g3s_matrix *view_matrix) { DebugString("compute_YZX needs to be implemented"); }
+void compute_YZX(g3s_matrix *view_matrix) { (void)view_matrix; DebugString("compute_YZX needs to be implemented"); }
 
-void compute_XZY(g3s_matrix *view_matrix) { DebugString("compute_XZY needs to be implemented"); }
+void compute_XZY(g3s_matrix *view_matrix) { (void)view_matrix; DebugString("compute_XZY needs to be implemented"); }
 
-void compute_ZXY(g3s_matrix *view_matrix) { DebugString("compute_ZXY needs to be implemented"); }
+void compute_ZXY(g3s_matrix *view_matrix) { (void)view_matrix; DebugString("compute_ZXY needs to be implemented"); }
 
-void compute_ZYX(g3s_matrix *view_matrix) { DebugString("compute_ZYX needs to be implemented"); }
+void compute_ZYX(g3s_matrix *view_matrix) { (void)view_matrix; DebugString("compute_ZYX needs to be implemented"); }
 
 // invalid does nothing (and does it well!)
-void compute_invalid(g3s_matrix *view_matrix) {}
+void compute_invalid(g3s_matrix *view_matrix) { (void)view_matrix; }
 
 // scale, fix, etc, the view matrix
 void process_view_matrix(void) {
@@ -259,9 +259,9 @@ void process_view_matrix(void) {
     }
 
     // get vars for horizon drawer
-    horizon_vector.gX = ((fix *)&view_matrix)[up_axis];
-    horizon_vector.gY = ((fix *)&view_matrix)[up_axis + 1];
-    horizon_vector.gZ = ((fix *)&view_matrix)[up_axis + 2];
+    horizon_vector.noname2.gX = ((fix *)&view_matrix)[up_axis];
+    horizon_vector.noname2.gY = ((fix *)&view_matrix)[up_axis + 1];
+    horizon_vector.noname2.gZ = ((fix *)&view_matrix)[up_axis + 2];
 
     // now fix signs
     if ((axis_neg_flag & 1) != 0) {
@@ -292,14 +292,14 @@ void scale_view_matrix(void) {
     fix temp_fix;
 
     // set matrix scale vector based on zoom
-    _matrix_scale.gX = f1_0; // use 1.0 as defaults
-    _matrix_scale.gY = f1_0;
-    _matrix_scale.gZ = f1_0;
+    _matrix_scale.noname2.gX = f1_0; // use 1.0 as defaults
+    _matrix_scale.noname2.gY = f1_0;
+    _matrix_scale.noname2.gZ = f1_0;
 
     if (_view_zoom <= f1_0)
-        _matrix_scale.gZ = _view_zoom;
+        _matrix_scale.noname2.gZ = _view_zoom;
     else
-        _matrix_scale.gY = _matrix_scale.gX = fix_div(f1_0, _view_zoom);
+        _matrix_scale.noname2.gY = _matrix_scale.noname2.gX = fix_div(f1_0, _view_zoom);
 
     // scale set matrix scale vector based on window and pixel ratio
     temp_long = fix_mul_div(window_height, pixel_ratio, window_width);
@@ -309,30 +309,30 @@ void scale_view_matrix(void) {
 #endif
 
     if (temp_long <= f1_0)
-        _matrix_scale.gX = fix_mul(_matrix_scale.gX, temp_long);
+        _matrix_scale.noname2.gX = fix_mul(_matrix_scale.noname2.gX, temp_long);
     else
-        _matrix_scale.gY = fix_div(_matrix_scale.gY, temp_long);
+        _matrix_scale.noname2.gY = fix_div(_matrix_scale.noname2.gY, temp_long);
 
     // now actually scale the matrix
-    temp_fix = _matrix_scale.gX;
+    temp_fix = _matrix_scale.noname2.gX;
     vm1 = fix_mul(vm1, temp_fix);
     vm4 = fix_mul(vm4, temp_fix);
     vm7 = fix_mul(vm7, temp_fix);
 
-    temp_fix = _matrix_scale.gY;
+    temp_fix = _matrix_scale.noname2.gY;
     vm2 = fix_mul(vm2, temp_fix);
     vm5 = fix_mul(vm5, temp_fix);
     vm8 = fix_mul(vm8, temp_fix);
 
-    temp_fix = _matrix_scale.gZ;
+    temp_fix = _matrix_scale.noname2.gZ;
     vm3 = fix_mul(vm3, temp_fix);
     vm6 = fix_mul(vm6, temp_fix);
     vm9 = fix_mul(vm9, temp_fix);
 
     // scale horizon vector
-    horizon_vector.gX = fix_mul(fix_mul(_matrix_scale.gY, _matrix_scale.gZ), horizon_vector.gX);
-    horizon_vector.gY = fix_mul(fix_mul(_matrix_scale.gX, _matrix_scale.gZ), horizon_vector.gY);
-    horizon_vector.gZ = fix_mul(fix_mul(_matrix_scale.gX, _matrix_scale.gY), horizon_vector.gZ);
+    horizon_vector.noname2.gX = fix_mul(fix_mul(_matrix_scale.noname2.gY, _matrix_scale.noname2.gZ), horizon_vector.noname2.gX);
+    horizon_vector.noname2.gY = fix_mul(fix_mul(_matrix_scale.noname2.gX, _matrix_scale.noname2.gZ), horizon_vector.noname2.gY);
+    horizon_vector.noname2.gZ = fix_mul(fix_mul(_matrix_scale.noname2.gX, _matrix_scale.noname2.gY), horizon_vector.noname2.gZ);
 }
 
 // takes point in edi, set codes in point, returns codes in bl
@@ -345,9 +345,9 @@ int code_point(g3s_point *pt) {
     int code;
     int tempX, tempY, tempZ;
 
-    tempX = pt->gX;
-    tempY = pt->gY;
-    tempZ = pt->gZ;
+    tempX = pt->noname2.gX;
+    tempY = pt->noname2.gY;
+    tempZ = pt->noname2.gZ;
     code = 0;
     if (tempX > tempZ)
         code |= CC_OFF_RIGHT;
@@ -373,21 +373,21 @@ void g3_vec_rotate(g3s_vector *dest, g3s_vector *src, g3s_matrix *m) {
     int32_t srcX, srcY, srcZ; // in locals for PPC speed
     int64_t r;
 
-    srcX = src->gX;
-    srcY = src->gY;
-    srcZ = src->gZ;
+    srcX = src->noname2.gX;
+    srcY = src->noname2.gY;
+    srcZ = src->noname2.gZ;
 
     // first column
     r = fix64_mul(srcX, m->m1) + fix64_mul(srcY, m->m4) + fix64_mul(srcZ, m->m7);
-    dest->gX = fix64_to_fix(r);
+    dest->noname2.gX = fix64_to_fix(r);
 
     // second column
     r = fix64_mul(srcX, m->m2) + fix64_mul(srcY, m->m5) + fix64_mul(srcZ, m->m8);
-    dest->gY = fix64_to_fix(r);
+    dest->noname2.gY = fix64_to_fix(r);
 
     // third column
     r = fix64_mul(srcX, m->m3) + fix64_mul(srcY, m->m6) + fix64_mul(srcZ, m->m9);
-    dest->gZ = fix64_to_fix(r);
+    dest->noname2.gZ = fix64_to_fix(r);
 }
 
 // transpose a matrix at esi in place
@@ -424,12 +424,12 @@ fix mxm_mul(fix s1_1, fix s1_2, fix s1_3, fix s2_1, fix s2_2, fix s2_3) {
     return fix64_to_fix(r);
 }
 /*
-#define mxm_mul(dst, s1_1, s1_2, s1_3, s2_1, s2_2, s2_3)        \
+  #define mxm_mul(dst, s1_1, s1_2, s1_3, s2_1, s2_2, s2_3)        \
   {                                                             \
-    int64_t r = fix64_mul(src1->s1_1, src2->s2_1) +             \
-                fix64_mul(src1->s1_2, src2->s2_2) +             \
-                fix64_mul(src1->s1_3, src2->s2_3);              \
-    dest->dst = fix64_to_fix(r);                                \
+  int64_t r = fix64_mul(src1->s1_1, src2->s2_1) +             \
+  fix64_mul(src1->s1_2, src2->s2_2) +             \
+  fix64_mul(src1->s1_3, src2->s2_3);              \
+  dest->dst = fix64_to_fix(r);                                \
   }
 */
 
@@ -468,28 +468,28 @@ void get_pyr_vector(g3s_vector *corners) {
     int64_t den_z = cross(d13, d56, d23, d46);
 
     if (llabs(den_x) >= llabs(den_y) && llabs(den_x) >= llabs(den_z)) {
-        corners->gX = f1_0;
-        corners->gY = den_y / (den_x >> 16);
-        corners->gZ = den_z / (den_x >> 16);
+        corners->noname2.gX = f1_0;
+        corners->noname2.gY = den_y / (den_x >> 16);
+        corners->noname2.gZ = den_z / (den_x >> 16);
     } else if (llabs(den_y) >= llabs(den_x) && llabs(den_y) >= llabs(den_z)) {
-        corners->gX = den_x / (den_y >> 16);
-        corners->gY = f1_0;
-        corners->gZ = den_z / (den_y >> 16);
+        corners->noname2.gX = den_x / (den_y >> 16);
+        corners->noname2.gY = f1_0;
+        corners->noname2.gZ = den_z / (den_y >> 16);
     } else {
-        corners->gX = den_x / (den_z >> 16);
-        corners->gY = den_y / (den_z >> 16);
-        corners->gZ = f1_0;
+        corners->noname2.gX = den_x / (den_z >> 16);
+        corners->noname2.gY = den_y / (den_z >> 16);
+        corners->noname2.gZ = f1_0;
     }
 
     // got_vector
     g3_vec_normalize(corners);
 
     // make sure vector points right way
-    r = fix64_mul(corners->gX, vm3) + fix64_mul(corners->gY, vm6) + fix64_mul(corners->gZ, vm9);
+    r = fix64_mul(corners->noname2.gX, vm3) + fix64_mul(corners->noname2.gY, vm6) + fix64_mul(corners->noname2.gZ, vm9);
     if (fix64_int(r) < 0) {
-        corners->gX = -corners->gX;
-        corners->gY = -corners->gY;
-        corners->gZ = -corners->gZ;
+        corners->noname2.gX = -corners->noname2.gX;
+        corners->noname2.gY = -corners->noname2.gY;
+        corners->noname2.gZ = -corners->noname2.gZ;
     }
 }
 

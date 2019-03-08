@@ -190,20 +190,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define f0_25 fix_make(0, 0x4000)
 
 // gets the next available pnt in reg.
-#define getpnt(res)               \
-    {                             \
-        g3s_point *scratch;       \
-        if ((res = first_free)) { \
-            scratch = res->next;  \
-            first_free = scratch; \
-        }                         \
+#define getpnt(res)                       \
+    {                                     \
+        g3s_point *scratch;               \
+        if ((res = first_free)) {         \
+            scratch = res->noname2.next;  \
+            first_free = scratch;         \
+        }                                 \
     }
 
 // frees the point in the specified register. uses ebx as scratch
 #define freepnt(src)                     \
     {                                    \
         g3s_point *scratch = first_free; \
-        src->next = scratch;             \
+        src->noname2.next = scratch;     \
         first_free = src;                \
     }
 

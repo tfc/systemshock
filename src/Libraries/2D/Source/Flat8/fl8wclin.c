@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // MLA #pragma off (unreferenced)
 void gri_flat8_wire_poly_ucline_norm(long c, long parm, grs_vertex *v0, grs_vertex *v1)
 {
-//#include "fl8wclin.h"
+#include "fl8wclin.h"
     (void)c;
     (void)parm;
     (void)v0;
@@ -88,10 +88,6 @@ void gri_flat8_wire_poly_ucline_norm(long c, long parm, grs_vertex *v0, grs_vert
         } while (x > x_new)
 
 void gri_flat8_wire_poly_ucline_clut(long c, long parm, grs_vertex *v0, grs_vertex *v1) {
-    (void)c;
-    (void)parm;
-    (void)v0;
-    (void)v1;
-    //uchar *clut = (uchar *)parm;
-//#include "fl8wclin.h"
+    uchar *clut = (uchar *)parm;
+#include "fl8wclin.h"
 }

@@ -37,6 +37,7 @@ void opengl_end_sensaround();
 
 #else
 
+/*
 static int init_opengl() { return 0; }
 static void opengl_cache_wall_texture(int idx, int size, grs_bitmap *bm) {}
 static void opengl_clear_texture_cache() {};
@@ -62,6 +63,7 @@ static void opengl_start_frame() {}
 static void opengl_end_frame() {}
 static void opengl_begin_sensaround(uchar version) {}
 static void opengl_end_sensaround() {}
+*/
 
 #endif
 

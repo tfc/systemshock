@@ -111,10 +111,10 @@ grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p);
 //   ebx: u scale factor
 //   ecx: v scale factor
 void g3_set_bitmap_scale(fix u_scale, fix v_scale) {
-    _g3d_bitmap_x_scale = fix_mul(fix_mul(_matrix_scale.gX, u_scale), _scrw);
+    _g3d_bitmap_x_scale = fix_mul(fix_mul(_matrix_scale.noname2.gX, u_scale), _scrw);
     // _g3d_bitmap_x_iscale = fix64_div(fix64_make(1, 0), _g3d_bitmap_x_scale);
 
-    _g3d_bitmap_y_scale = fix_mul(fix_mul(_matrix_scale.gY, v_scale), _scrh);
+    _g3d_bitmap_y_scale = fix_mul(fix_mul(_matrix_scale.noname2.gY, v_scale), _scrh);
     // _g3d_bitmap_y_iscale = fix64_div(fix64_make(1, 0), _g3d_bitmap_y_scale);
 }
 
@@ -169,12 +169,12 @@ grs_vertex **do_bitmap(grs_bitmap *bm, g3s_phandle p) {
 }
 
 grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p) {
-    fix tempF, tempF2;
+    fix tempF;//, tempF2;
     int32_t tempL, tempL2;
-    int16_t tempS, tempS2;
+    //int16_t tempS, tempS2;
     fix sintemp, costemp;
     grs_vertex *tempG1, *tempG2;
-    fix tempResult;
+    //fix tempResult;
     int32_t bm_w, bm_h;
     fix dx, dy;
 
@@ -192,13 +192,13 @@ grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p) {
         edi is point handle pushm edi,
             esi call g3_bitmap_common_raw set_rt_canv
 
-                popm edi,
+            popm edi,
             esi add edi,
             _g3d_stereo_base call g3_bitmap_common_raw set_lt_canv
 
-                ret
+            ret
 
-                    g3_bitmap_common_raw:
+            g3_bitmap_common_raw:
     }
 #endif
 
@@ -213,12 +213,12 @@ grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p) {
     bm_w = bm->w;
     bm_h = bm->h;
 
-    tempL = p->gZ;     //     mov     eax,[edi].z
-    tempL <<= 8;       //     sal     eax,8                   ;should be
-                       //     16-log(max(bitmap_width, bitmap_height))
-    tempF = view_bank; //     mov     ebx,view_bank
+    tempL = p->noname2.gZ;     //     mov     eax,[edi].z
+    tempL <<= 8;               //     sal     eax,8                   ;should be
+                               //     16-log(max(bitmap_width, bitmap_height))
+    tempF = view_bank;         //     mov     ebx,view_bank
 
-    if ((p->gZ & 0xff000000) == 0) // ;skip checks if z large enough
+    if ((p->noname2.gZ & 0xff000000) == 0) // ;skip checks if z large enough
     {
         if (tempL < _g3d_bitmap_x_scale)
             return (0L);
@@ -232,7 +232,7 @@ grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p) {
 
     fix_sincos((fixang)tempF, &sintemp, &costemp); //    call    fix_sincos
 
-    tempL = p->gZ;
+    tempL = p->noname2.gZ;
 
     //  rm0 = cos(bank)*_g3d_bitmap_x_scale/z
     rm0 = fix_mul_div(costemp, _g3d_bitmap_x_scale, tempL);
@@ -392,25 +392,31 @@ grs_vertex **g3_bitmap_common(grs_bitmap *bm, g3s_phandle p) {
                     }
 
                     tmap_info.tmap_type = GRC_POLY;
-                    if (!use_opengl()) {
+                    //if (!use_opengl()) {
+#ifdef USE_OPENGL
                         h_map(bm, 4, _g3d_bitmap_poly, &tmap_info);
-                    } else {
+                    //} else {
+#else
                         int opengl_bitmap(grs_bitmap *bm, int n, grs_vertex **vpl, grs_tmap_info *ti);
                         opengl_bitmap(bm, 4, _g3d_bitmap_poly, &tmap_info);
-                    }
+#endif
+                    //}
                     return (_g3d_bitmap_poly);
                 }
             }
         }
     }
     tmap_info.tmap_type = (_g3d_light_flag << 1) + GRC_BILIN;
-    extern bool use_opengl();
-    if (!use_opengl()) {
+    //extern bool use_opengl();
+    //if (!use_opengl()) {
+#ifdef USE_OPENGL
         h_map(bm, 4, _g3d_bitmap_poly, &tmap_info);
-    } else {
+    //} else {
+#else
         int opengl_bitmap(grs_bitmap *bm, int n, grs_vertex **vpl, grs_tmap_info *ti);
         opengl_bitmap(bm, 4, _g3d_bitmap_poly, &tmap_info);
-    }
+#endif
+    //}
 
     return (_g3d_bitmap_poly);
 }

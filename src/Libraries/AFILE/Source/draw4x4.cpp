@@ -18,7 +18,7 @@
 //
 // DESCRIPTION:
 //      4x4 Drawing routines
-//		Reverse engineered by Alex Reimann Cunha Lima
+//              Reverse engineered by Alex Reimann Cunha Lima
 //
 
 //============================================================================
@@ -71,58 +71,58 @@ static void Draw4x4_InternalAlpha(int* xtab, int b);
 
 extern "C" {
 
-void Draw4x4Reset(uchar* colorset, uchar* hufftab)
-{
-    d4x4_hufftab = hufftab;
-    d4x4_colorset = colorset;
-    if (grd_mode != 0)
+    void Draw4x4Reset(uchar* colorset, uchar* hufftab)
     {
-        if (grd_canvas->bm.type == BMT_DEVICE)
+        d4x4_hufftab = hufftab;
+        d4x4_colorset = colorset;
+        if (grd_mode != 0)
         {
-            if (d4x4_beta)
+            if (grd_canvas->bm.type == BMT_DEVICE)
             {
-                memset(d4x4_beta, 0, 0x3200);
+                if (d4x4_beta)
+                {
+                    memset(d4x4_beta, 0, 0x3200);
+                }
             }
         }
-    }    
-}
+    }
 
 //
 // Draw4x4
 //
 
-void Draw4x4(uchar* p, int width, int height)
-{
-    int xtab[640 / 4];
-
-    int cell_column;
-    int esp_2AC = 0;
-    int row = grd_canvas->bm.row;
-    cell_column = width / 4;
-    bitstream = p + 2;
-    d4x4_gamma = 0;                                     // mov     dword [d4x4_gamma], edx
-    d4x4_kappa = 0;                                     // mov     dword [d4x4_kappa], edx
-    uchar* mask_stream = (p + *((ushort*)(p)));         // mov     dword [esp+0x290], ecx
-
-    uchar* bits = grd_canvas->bm.bits;
-
-    int row4 = row * 4;                                 // mov     dword [esp+0x29C], eax
-    uint aligned_height = height & ~4;                  // mov     dword [esp+0x2A8], eax
-    int esp_2B0 = esp_2AC * 4;                          // mov     dword [esp+0x2B0], eax
-    uint y = 0;                                         // mov     dword [esp+0x2A0], ecx
-    if (aligned_height)
+    void Draw4x4(uchar* p, int width, int height)
     {
-        do
+        int xtab[640 / 4];
+
+        int cell_column;
+        int esp_2AC = 0;
+        int row = grd_canvas->bm.row;
+        cell_column = width / 4;
+        bitstream = p + 2;
+        d4x4_gamma = 0;                                     // mov     dword [d4x4_gamma], edx
+        d4x4_kappa = 0;                                     // mov     dword [d4x4_kappa], edx
+        uchar* mask_stream = (p + *((ushort*)(p)));         // mov     dword [esp+0x290], ecx
+
+        uchar* bits = grd_canvas->bm.bits;
+
+        int row4 = row * 4;                                 // mov     dword [esp+0x29C], eax
+        uint aligned_height = height & ~4;                  // mov     dword [esp+0x2A8], eax
+        int esp_2B0 = esp_2AC * 4;                          // mov     dword [esp+0x2B0], eax
+        uint y = 0;                                         // mov     dword [esp+0x2A0], ecx
+        if (aligned_height)
         {
-            Draw4x4_InternalAlpha(xtab, cell_column);   // call    near Draw4x4_InternalAlpha_
-            mask_stream = Draw4x4_InternalBeta(xtab, cell_column, bits, row, mask_stream);
-                                                        // call    near Draw4x4_InternalBeta_
-            bits += row4;                               // add     esi, dword [esp+0x29C]
-            y += 4;
-        } while (y < aligned_height);
+            do
+            {
+                Draw4x4_InternalAlpha(xtab, cell_column);   // call    near Draw4x4_InternalAlpha_
+                mask_stream = Draw4x4_InternalBeta(xtab, cell_column, bits, row, mask_stream);
+                // call    near Draw4x4_InternalBeta_
+                bits += row4;                               // add     esi, dword [esp+0x29C]
+                y += 4;
+            } while (y < aligned_height);
+        }
+        return;                                             // ret
     }
-    return;                                             // ret
-}
 
 }
 
@@ -137,12 +137,12 @@ static uchar* Draw4x4_InternalGamma(uchar* peax)
     int edx;
     int ebx;
     int eax;
-    
+
     ebx = d4x4_gamma;                                   // mov     ebx, dword [_d4x4_gamma]
     esi = d4x4_hufftab;                                 // mov     esi, dword [_d4x4_hufftab]
     d4x4_kappa -= 0x0C;                                 // sub     dword [_d4x4_kappa], byte 0x0C
 L0026AA24:
-    
+
     eax = *((int*)peax);                                // mov     eax, dword [eax]
     eax &= 0x00FFFFFF;                                  // and     eax, dword 0x00FFFFFF
     eax = eax * 3;                                      // lea     eax, [eax+eax*2]
@@ -153,7 +153,7 @@ L0026AA24:
     {
         uchar* pedx;
         int edi;
-        
+
         pedx = bitstream;                               // mov     edx, dword [_d4x4_epsilon]
         edi = d4x4_kappa;                               // mov     edi, dword [_d4x4_kappa]
         ebx <<= 8;                                      // shl     ebx, 0x08
@@ -197,10 +197,10 @@ static void Draw4x4_InternalAlpha(int* xtab, int b)
     int ebx, esi, edi, ecx, ebp;
     int eax = (int)xtab;
     int edx = b;
-    
+
     char stack[0x08];
     int esp = (int)stack;
-    
+
     //pushra();
     //push(ebx);                                        // push    ebx
     //push(ecx);                                        // push    ecx
@@ -216,7 +216,7 @@ static void Draw4x4_InternalAlpha(int* xtab, int b)
     movsd();                                            // movsd
     movsd();                                            // movsd
 L0026AABF:
-                                                        // test    edx, edx
+    // test    edx, edx
     if (edx <= 0) goto L0026ACE6;                       // jle     near L0026ACE6
                                                         // cmp     edx, byte 0x01
     if (edx <= 0x01) goto L0026AAD5;                    // jle     short L0026AAD5
@@ -306,7 +306,7 @@ L0026AB7A:
     *((int*)(ebx-0x4)) = edi;                           // mov     dword [ebx-0x4], edi
                                                         // cmp     ecx, dword 0x000A0000
     if ((uint)(ecx) >= (uint)(0x000A0000)) goto L0026ABEA;// jnc     short L0026ABEA
-                                                        // test    edx, edx
+    // test    edx, edx
     if (edx == 0) goto L0026ABEA;                       // jz      short L0026ABEA
                                                         // cmp     dword [esp+0x4], byte 0x0C
     if (*((int*)(esp+0x4)) >= 0x0C) goto L0026AB7A;     // jge     short L0026AB7A
@@ -350,7 +350,7 @@ L0026AC00:
     *((int*)(ebx-0x4)) = edi;                           // mov     dword [ebx-0x4], edi
                                                         // cmp     ecx, dword 0x000A0000
     if ((uint)(ecx) >= (uint)(0x000A0000)) goto L0026AC6A;// jnc     short L0026AC6A
-                                                        // test    edx, edx
+    // test    edx, edx
     if (edx == 0) goto L0026ACE6;                       // jz      near L0026ACE6
     goto L0026AABF;                                     // jmp     near L0026AABF
 L0026AC6A:
@@ -420,7 +420,7 @@ static uchar* Draw4x4_InternalBeta(int* xtab, int b, uchar* bits, int d, uchar* 
 {
     char cl0, dl0, bl0;
     char al0, ah0;
-    
+
     int esi, edi, ebp;
     int eax = (int)xtab;
     int edx = b;
@@ -428,7 +428,7 @@ static uchar* Draw4x4_InternalBeta(int* xtab, int b, uchar* bits, int d, uchar* 
     int ecx = d;
     char stack[0x38];
     int esp = (int)stack;
-    
+
     //pushra();
     //push(esi);                                        // push    esi
     //push(edi);                                        // push    edi
@@ -468,14 +468,14 @@ outer_loop:
     *((int*)(esp+0x14)) = edx;                          // mov     dword [esp+0x14], edx
     edx = ebp+0x4;                                      // lea     edx, [ebp+0x4]
     *((int*)(esp)) = edx;                               // mov     dword [esp], edx
-    
+
     if (eax == 0)     goto L0026AD9F;
     if (eax == 1)     goto L0026ADD1;
     if (eax == 2)     goto L0026AE92;
     if (eax == 3)     goto L0026AFC3;
     if (eax == 4)     goto L0026B0BE;
     /*if (eax == 5)*/ goto L0026B1EE;
-                                                        // jmp     dword [cs:eax*4+L0026AD04]
+    // jmp     dword [cs:eax*4+L0026AD04]
 L0026AD9F:
     eax = *((int*)(esp+0x4));                           // mov     eax, dword [esp+0x4]
     esi = *((int*)(esp+0x4));                           // mov     esi, dword [esp+0x4]
@@ -539,7 +539,7 @@ L0026AE34:
     esi = *((int*)(esp+0x30));                          // mov     esi, dword [esp+0x30]
     ecx |= ebx;                                         // or      ecx, ebx
 L0026AE4A:
-                                                        // test    dl, byte 0x03
+    // test    dl, byte 0x03
     if ((edx & 0x03) == 0) goto L0026AE65;              // jz      short L0026AE65
                                                         // test    dl, byte 0x01
     if ((edx & 0x01) == 0) goto L0026AE62;              // jz      short L0026AE62
@@ -553,7 +553,7 @@ L0026AE5E:
 L0026AE62:
     *((uchar*)(eax+0x1)) = (uchar)ecx;                  // mov     byte [eax+0x1], cl
 L0026AE65:
-                                                        // test    dl, byte 0x0C
+    // test    dl, byte 0x0C
     if ((edx & 0x0C) == 0) goto L0026AE82;              // jz      short L0026AE82
                                                         // test    dl, byte 0x04
     if ((edx & 0x04) == 0) goto L0026AE7F;              // jz      short L0026AE7F

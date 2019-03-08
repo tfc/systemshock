@@ -28,7 +28,7 @@ if(ENABLE_DEBUG_BLIT)
 	add_definitions(-DDEBUGGING_BLIT)
 endif()
 
-add_compile_options(-fsigned-char -fno-strict-aliasing -Werror=implicit-function-declaration)
+add_compile_options(-pedantic-errors -Wall -Werror -Wextra)
 
 # Find OpenGL
 find_package(OpenGL)
