@@ -20,21 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * $Header: n:/project/lib/src/edms/RCS/soliton.cc 1.6 1994/04/20 18:44:56 roadkill Exp $
  */
 
-//	Soliton.CPP - the core of EDMS, the Emetic Dynamics Modeling System (tm).
+//      Soliton.CPP - the core of EDMS, the Emetic Dynamics Modeling System (tm).
 
-//	"Real time stiff equations are such a joy that hey, let's solve whole systems of them
-//	at once."  -Jon Blackley, prior to choking self on mousepad.
+//      "Real time stiff equations are such a joy that hey, let's solve whole systems of them
+//      at once."  -Jon Blackley, prior to choking self on mousepad.
 
-//	Soliton and soliton_lite are heavily modified, tuned, and stoked versions of the previous
-//	solvers, which are based on MASA internal memo #AF34-DE-3030 1991.  It has been modified to
-//	be faster and better suited to stiff and nonlinear problems.  Nota Bene: There IS NO
-//	SOLUTION ORDER.	Which means that all system coordinates are treated as quasi independent
-//	degrees of freedom of the same well posed problem and are thus approximated simultaneously.
-//	=====================================================================
+//      Soliton and soliton_lite are heavily modified, tuned, and stoked versions of the previous
+//      solvers, which are based on MASA internal memo #AF34-DE-3030 1991.  It has been modified to
+//      be faster and better suited to stiff and nonlinear problems.  Nota Bene: There IS NO
+//      SOLUTION ORDER. Which means that all system coordinates are treated as quasi independent
+//      degrees of freedom of the same well posed problem and are thus approximated simultaneously.
+//      =====================================================================
 
-//	Who is responsible:
-//	===================
-//	Jon Blackley, Oct. 25, 1991
+//      Who is responsible:
+//      ===================
+//      Jon Blackley, Oct. 25, 1991
 
 //#include <iostream>
 #include "edms_int.h" //Object types, END conventions, etc.
@@ -53,9 +53,9 @@ extern "C" {
 extern void EDMS_kill_object(physics_handle ph);
 }
 
-//	==============
-//	INTERNAL STUFF
-//	==============
+//      ==============
+//      INTERNAL STUFF
+//      ==============
 
 // Why does this get set to 100 and then immediately reset to .02
 // in soliton_lite? - DS
@@ -107,10 +107,10 @@ int32_t active_objects = 0;
 // and thus using A[][][] instead of S[][][]?
 bool A_is_active = false;
 
-//	Here is a slower converging, albeit hopefully equally stable integrator, soliton_light, which
-//	we'll subject to some speed trials.  This could be used for certain applications, such as
-//	out-of scope models or complex aggregate or articulated objects.  Well, let's see...
-//	====================================================================================
+//      Here is a slower converging, albeit hopefully equally stable integrator, soliton_light, which
+//      we'll subject to some speed trials.  This could be used for certain applications, such as
+//      out-of scope models or complex aggregate or articulated objects.  Well, let's see...
+//      ====================================================================================
 void soliton_lite(Q timestep) {
     extern void robot_idof(int32_t), pelvis_idof(int32_t);
 
@@ -467,12 +467,12 @@ void soliton_lite_holistic(Q /*timestep*/) {}
 // =========================================
 void soliton_vector_holistic(Q /*timestep*/) {}
 
-//	Have some utility routines...
-//	=============================
+//      Have some utility routines...
+//      =============================
 
-//	Initialize the state stream and do whatever else deems itself to be essential to
-//	get soliton running...
-//	======================
+//      Initialize the state stream and do whatever else deems itself to be essential to
+//      get soliton running...
+//      ======================
 void EDMS_initialize(EDMS_data *D) {
     extern uint32_t data[EDMS_DATA_SIZE][EDMS_DATA_SIZE];
     int32_t object = 0, coord = 0, deriv = 0;
@@ -531,8 +531,8 @@ void EDMS_initialize(EDMS_data *D) {
     }
 }
 
-//	Kill object number deadguy and perform garbage collection.
-//	==========================================================
+//      Kill object number deadguy and perform garbage collection.
+//      ==========================================================
 int32_t EDMS_kill(int32_t deadguy) {
     int32_t error_code = -1;
     int32_t object;
@@ -633,11 +633,11 @@ int32_t EDMS_kill(int32_t deadguy) {
     return error_code;
 }
 
-//	Wow.  The following is amazing.  An amazing following.
-//	======================================================
+//      Wow.  The following is amazing.  An amazing following.
+//      ======================================================
 
-//	Collision wakeup...
-//	===================
+//      Collision wakeup...
+//      ===================
 void collision_wakeup(int32_t object) {
     Q idof_state[DOF_MAX], state[7][4], arg[7][4];
 
@@ -723,9 +723,9 @@ void collision_wakeup(int32_t object) {
         I[I[new_object][IDOF_COLLIDE].to_int()][IDOF_COLLIDE] = new_object;
 }
 
-#pragma require_prototypes off
-//	This guy is the thing that models without the full six degrees of freedom get as
-//	their ignorable coordinates.
-//	============================
+//#pragma require_prototypes off
+//      This guy is the thing that models without the full six degrees of freedom get as
+//      their ignorable coordinates.
+//      ============================
 void null_function(int32_t /*dummy*/) {}
-#pragma require_prototypes on
+//#pragma require_prototypes on

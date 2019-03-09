@@ -1,5 +1,6 @@
 PROJECT=systemshock
 
+GPP=g++
 OUT=$PROJECT
 TOOLCHAIN=local
 UNAME_S := $(shell uname -s)
@@ -9,7 +10,7 @@ LIBS=\
 	-lSDL2\
 	-lSDL2_mixer
 
-CFLAGS=\
+BASE_CFLAGS=\
 	-D_REENTRANT\
 	-DSVGA_SUPPORT\
 	-Isrc/Libraries/2D/Source\
@@ -22,6 +23,7 @@ CFLAGS=\
 	-Isrc/Libraries/AFILE/Source\
 	-Isrc/Libraries/DSTRUCT/Source\
 	-Isrc/Libraries/EDMS/Source\
+	-Isrc/Libraries/EDMS/Source/MODELS\
 	-Isrc/Libraries/FIXPP/Source\
 	-Isrc/Libraries/INPUT/Source\
 	-Isrc/Libraries/PALETTE/Source\
@@ -39,16 +41,34 @@ CFLAGS=\
 	-Isrc/MacSrc\
 	-Isrc/MusicSrc\
 	-Isrc/stubs\
-	-isystem $(INCPATH)/libxml2\
 	-isystem $(INCPATH)/SDL2\
 	-O2\
 	-pedantic-errors\
-	-std=c99\
 	-Wall\
 	-Werror\
 	-Wextra
 
-SRCS=\
+CFLAGS   = $(BASE_CFLAGS) -std=c99
+CXXFLAGS = $(BASE_CFLAGS) -std=c++11 -fpermissive
+
+OBJS=\
+	$(MAIN_OBJS)\
+	$(2D_OBJS)\
+	$(3D_OBJS)\
+	$(AFILE_OBJS)\
+	$(AFILE_CPP_OBJS)\
+	$(DSTRUCT_OBJS)\
+	$(FIX_OBJS)\
+	$(FIX_CPP_OBJS)\
+	$(INPUT_OBJS)\
+	$(LG_OBJS)\
+	$(PALETTE_OBJS)\
+	$(RES_OBJS)\
+	$(UI_OBJS)\
+	$(EDMS_OBJS)\
+	$(VOX_OBJS)
+
+MAIN_SRCS=\
 	src/MacSrc/Stub.c\
 	src/MacSrc/ShockBitmap.c\
 	src/MacSrc/MoviePlay.c\
@@ -177,7 +197,7 @@ SRCS=\
 	src/GameSrc/gamerend.c\
 	src/GameSrc/mouselook.c
 
-OBJS=$(patsubst %.c, %.o, $(SRCS))
+MAIN_OBJS=$(patsubst %.c, %.o, $(SRCS))
 
 2D_SRCS=\
 	src/Libraries/2D/Source/bit.c\
@@ -431,16 +451,6 @@ RES_OBJS=$(patsubst %.c, %.o, $(RES_SRCS))
 
 RND_SRCS=src/Libraries/2D/Source/RND/rnd.c
 RND_OBJS=$(patsubst %.c, %.o, $(RND_SRCS))
-
-SND_SRCS=\
-	src/Libraries/SND/Source/dig_init.c\
-	src/Libraries/SND/Source/dig_ops.c\
-	src/Libraries/SND/Source/master.c\
-	src/Libraries/SND/Source/mid_init.c\
-	src/Libraries/SND/Source/mid_ops.c\
-	src/Libraries/SND/Source/snd_util.c
-
-SND_OBJS=$(patsubst %.c, %.o, $(SND_SRCS))
 
 UI_SRCS=\
 	src/Libraries/UI/Source/butarray.c\

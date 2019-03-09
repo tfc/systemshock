@@ -16,11 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//	Collision intersection code for EDMS models...
-//	==============================================
+//      Collision intersection code for EDMS models...
+//      ==============================================
 
-//	Seamus, "in Prozac we trust," 1994
-//	==================================
+//      Seamus, "in Prozac we trust," 1994
+//      ==================================
 
 #include "edms_int.h"
 #include "idof.h"
@@ -39,8 +39,8 @@ bool do_work(int32_t object, int32_t other_object, Q my_rad, Q your_rad, Fixpoin
 
 void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2);
 
-//	Call me instead of having special code everywhere...
-//	====================================================
+//      Call me instead of having special code everywhere...
+//      ====================================================
 void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2) {
     int32_t other_object;
 
@@ -48,14 +48,14 @@ void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2) {
 
     Q my_position[3], your_position[3];
 
-    //	Collision B/C...
-    //	----------------
+    //  Collision B/C...
+    //  ----------------
     result0 = result1 = result2 = 0; // B/C...
 
-    //	Here we assume that all hits are encompassed by the projection of the
-    //	default radius.  If this is not true, then special care must be taken
-    //	in the design of the model...
-    //	-----------------------------
+    //  Here we assume that all hits are encompassed by the projection of the
+    //  default radius.  If this is not true, then special care must be taken
+    //  in the design of the model...
+    //  -----------------------------
 
     // mask contains the bits corresponding to the objects that could be
     // intersecting object.
@@ -71,11 +71,11 @@ void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2) {
 
                 if (other_object != object && I[object][IDOF_COLLIDE].to_int() != other_object) {
 
-                    //	Okay, now we have a confirmed hash hit...
-                    //	-----------------------------------------
+                    //  Okay, now we have a confirmed hash hit...
+                    //  -----------------------------------------
 
-                    //	Do the regular guy, workaday collision...
-                    //	-----------------------------------------
+                    //  Do the regular guy, workaday collision...
+                    //  -----------------------------------------
                     my_position[0] = A[object][0][0];
                     my_position[1] = A[object][1][0];
                     my_position[2] = A[object][2][0];
@@ -98,10 +98,10 @@ void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2) {
                     do_work(object, other_object, my_radius, your_radius, my_position, your_position, result0, result1,
                             result2);
 
-                    int32_t you_are_special = 0, I_am_special = 0;
+                    //int32_t you_are_special = 0, I_am_special = 0;
 
-                    //	Are YOU special???
-                    //	------------------
+                    //  Are YOU special???
+                    //  ------------------
                     if (I[other_object][IDOF_MODEL] == PELVIS) {
                         Q offset_x = I[other_object][0] * sin(A[other_object][4][0]),
                           offset_y = -1.5 * I[other_object][0] * sin(A[other_object][5][0]),
@@ -173,8 +173,8 @@ void shall_we_dance(int32_t object, Q &result0, Q &result1, Q &result2) {
 
 Q dx, dy, dz;
 
-//	Here's the meat of the sutuation...
-//	===================================
+//      Here's the meat of the sutuation...
+//      ===================================
 bool do_work(int32_t object, int32_t other_object, Q my_rad, Q your_rad, Fixpoint *my_pos, Fixpoint *other_pos,
              Q &result0, Q &result1, Q &result2) {
     Q cm_radius = (my_rad + your_rad);
@@ -199,8 +199,8 @@ bool do_work(int32_t object, int32_t other_object, Q my_rad, Q your_rad, Fixpoin
         if (test_radius < .03)
             test_radius = .03;
 
-        //	Callback...
-        //	-----------
+        //      Callback...
+        //      -----------
         physics_handle C = on2ph[object], V = on2ph[other_object];
 
         int32_t badness = (20 * (1. - test_radius / cm_radius)).to_int();
@@ -232,11 +232,11 @@ bool do_work(int32_t object, int32_t other_object, Q my_rad, Q your_rad, Fixpoin
         if (result1 < -my_rad)
             result1 = -my_rad;
 
-        //	Wakeup...
-        //	=========
+        //      Wakeup...
+        //      =========
         if (no_no_not_me[other_object] == 0) {
             //       mout << "Other guy was asleep: " << other_object << "\n";
-            //   		collision_wakeup( other_object );
+            //                  collision_wakeup( other_object );
             alarm_clock[other_object] = 1;
         }
 

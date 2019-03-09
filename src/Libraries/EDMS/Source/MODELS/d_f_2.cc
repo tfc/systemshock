@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//	Mechanical model for frame...
-//	=============================
+//      Mechanical model for frame...
+//      =============================
 
 #include <iostream>
 #include "edms_int.h"
@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //      -----------------
 #include "ss_flet.h"
 
-//	Utilities...
-//	============
+//      Utilities...
+//      ============
 static Q n = 0, r = 0, e = 0, mag = 0, roll_delta = 0, kappa = 0, delta = 0, sin_wheel, cos_wheel;
 
 static Q X[3], XD[3], Z[3], FW[3], D[3];
@@ -39,13 +39,13 @@ int32_t counter, dummy1, dummy2;
 //      --------------
 static Q e0, e1, e2, e3, ed0, ed1, ed2, ed3;
 
-//	Terrain returns...
-//	------------------
+//      Terrain returns...
+//      ------------------
 static Q B_C_return[3];
 static Q BC_test = 0;
 
-//	Go for it, just go for it!
-//	==========================
+//      Go for it, just go for it!
+//      ==========================
 void dirac_mechanicals(int object, Q F[3], Q T[3]) {
 
     void mech_globalize(Q &, Q &, Q &), mech_localize(Q &, Q &, Q &);
@@ -55,9 +55,10 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
     Q kappa, delta, mechanical_drag;
 
     Q *sc;
+    (void)sc;
 
-    //	The points in question, note that the 4th column is steerage...
-    //	===============================================================
+    //  The points in question, note that the 4th column is steerage...
+    //  ===============================================================
     Q structure[6][4] = {{0, 0, 0, 0}, {0, .1, 0, 0}, {-.1, 0, 0, 0}, {0, -.1, 0, 0}, {0, 0, .1, 0}, {0, 0, -.1, 0}};
 
     //      Get the orientation...
@@ -71,43 +72,43 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
     ed2 = A[object][5][1];
     ed3 = A[object][6][1];
 
-    //	From the actual model...
-    //	------------------------
-    Q beta_dot = 2 * (e0 * ed1 + e3 * ed2 - e2 * ed3 - e1 * ed0);
-    Q alpha_dot = 2 * (-e3 * ed1 + e0 * ed2 + e1 * ed3 - e2 * ed0);
+    //  From the actual model...
+    //  ------------------------
+    //Q beta_dot = 2 * (e0 * ed1 + e3 * ed2 - e2 * ed3 - e1 * ed0);
+    //Q alpha_dot = 2 * (-e3 * ed1 + e0 * ed2 + e1 * ed3 - e2 * ed0);
     Q gamma_dot = 2 * (e2 * ed1 - e1 * ed2 + e0 * ed3 - e3 * ed0);
 
     //      Steering...
     //      -----------
     sincos(0 /*I[object][xxx]*/, &sin_wheel, &cos_wheel);
 
-    int32_t count = 0;
+    //int32_t count = 0;
 
-    //	Check every @#!$ point...
-    //	=========================
-    //	for ( counter = 0; counter < 1/*6*/; counter++ ) {
+    //  Check every @#!$ point...
+    //  =========================
+    //  for ( counter = 0; counter < 1/*6*/; counter++ ) {
 
     sc = structure[counter]; // Isn't this clever?
 
-    //	Take the structure point and find the terrain intersection...
-    //	-------------------------------------------------------------
-    //		X[0] = sc[0];
-    //		X[1] = sc[1];
-    //		X[2] = sc[2];
+    //  Take the structure point and find the terrain intersection...
+    //  -------------------------------------------------------------
+    //          X[0] = sc[0];
+    //          X[1] = sc[1];
+    //          X[2] = sc[2];
     //
-    //		mech_globalize( X[0], X[1], X[2] );
+    //          mech_globalize( X[0], X[1], X[2] );
 
     X[0] = A[object][0][0];
     X[1] = A[object][1][0];
     X[2] = A[object][2][0];
 
-    //	Now find the moments of the structure elements...
-    //	-------------------------------------------------
-    //		XD[0] = -XPT_0( sc );			//Fucking angular velocity...
-    //		XD[1] = -XPT_1( sc );
-    //		XD[2] = -XPT_2( sc );
+    //  Now find the moments of the structure elements...
+    //  -------------------------------------------------
+    //          XD[0] = -XPT_0( sc );                   //Fucking angular velocity...
+    //          XD[1] = -XPT_1( sc );
+    //          XD[2] = -XPT_2( sc );
 
-    //		mech_globalize( XD[0], XD[1], XD[2] );	//Need it at home...
+    //          mech_globalize( XD[0], XD[1], XD[2] );  //Need it at home...
 
     //              Notice notice notice...
     //              -----------------------
@@ -117,8 +118,8 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
 
     B_C_return[0] = B_C_return[1] = B_C_return[2] = 0;
 
-    //	Get the terrain information, and project it to useful axes...
-    //	-------------------------------------------------------------
+    //  Get the terrain information, and project it to useful axes...
+    //  -------------------------------------------------------------
     get_boundary_conditions(object, .15, X, XD);
 
     FW[0] = B_C_return[0]; // global...
@@ -127,39 +128,39 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
 
     mech_localize(FW[0], FW[1], FW[2]); // now local...
 
-    //		Wheels or drag?
-    //		---------------
-    //		roll_delta = 0;//-( I[object][25] );
+    //          Wheels or drag?
+    //          ---------------
+    //          roll_delta = 0;//-( I[object][25] );
 
     D[0] = 0; // roll_delta*XD[0];
     D[1] = 0; // roll_delta*XD[1];
-    D[2] = 0; // roll_delta*XD[2];		//Oleo damping...
+    D[2] = 0; // roll_delta*XD[2];              //Oleo damping...
 
     mech_localize(D[0], D[1], D[2]);
 
-    //		Steerable...
-    //		------------
-    //		if ( sc[3] == 2 ) {
-    //			D[0] *= sin_wheel;
-    //			D[1] *= cos_wheel;
-    //			}
+    //          Steerable...
+    //          ------------
+    //          if ( sc[3] == 2 ) {
+    //                  D[0] *= sin_wheel;
+    //                  D[1] *= cos_wheel;
+    //                  }
 
-    //		Not...
-    //		------
-    //		if ( sc[3] == 1 ) D[0] *= .07;		//X direction wheels...
+    //          Not...
+    //          ------
+    //          if ( sc[3] == 1 ) D[0] *= .07;          //X direction wheels...
 
     //                D[0] *= .5;
-    //		Z[0] = 	FW[0] + D[0];			//Temp for torques...
-    //		Z[1] = 	FW[1] + D[1];
-    //		Z[2] = 	FW[2] + D[2];
+    //          Z[0] =  FW[0] + D[0];                   //Temp for torques...
+    //          Z[1] =  FW[1] + D[1];
+    //          Z[2] =  FW[2] + D[2];
 
     F[0] += FW[0]; // This is local...
     F[1] += FW[1];
     F[2] += FW[2];
 
-    //		T[0] -= XP_0( sc, Z );			//Beta,
-    //		T[1] -= XP_1( sc, Z );			//Alpha,
-    //		T[2] -= XP_2( sc, Z );			//Gamma...
+    //          T[0] -= XP_0( sc, Z );                  //Beta,
+    //          T[1] -= XP_1( sc, Z );                  //Alpha,
+    //          T[2] -= XP_2( sc, Z );                  //Gamma...
 
     //              PRINT3D( T )
     //              PRINT3D( F )
@@ -167,7 +168,7 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
     //              Auto alignment...
     //              -----------------
     // FIXME Error?
-    if (!ss_edms_bcd_flags & SS_BCD_CURR_ON) {
+    if (!(ss_edms_bcd_flags & SS_BCD_CURR_ON)) {
         //              if ( (EDMS_BCD < 10) || (EDMS_BCD > 27) ) {
 
         if (FW[0] > 10)
@@ -186,7 +187,7 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
         T[1] *= 1 - 2 * (FW[2] <= 0);
     }
 
-    //	}
+    //  }
 
     //              Controls...
     //              -----------
@@ -196,14 +197,14 @@ void dirac_mechanicals(int object, Q F[3], Q T[3]) {
     T[1] += -1.5 * gamma_dot + I[object][3]; //           + .1*FW[0];
     T[2] += -.8 * I[object][2];
 
-    //	So be it...
-    //	===========
+    //  So be it...
+    //  ===========
 }
 
-//	We need to transform from global coordinates to the local airplane
-//	coordinaates, a simple rotation.  The order is left up to this routine
-//	which MODIFIES ITS ARGUMENTS...
-//	===============================
+//      We need to transform from global coordinates to the local airplane
+//      coordinaates, a simple rotation.  The order is left up to this routine
+//      which MODIFIES ITS ARGUMENTS...
+//      ===============================
 void mech_globalize(Q &X, Q &Y, Q &Z) {
 
     Q x = X, y = Y, z = Z;
@@ -215,9 +216,9 @@ void mech_globalize(Q &X, Q &Y, Q &Z) {
     Z = x * (2 * (-e0 * e2 + e1 * e3)) + y * (2 * (e2 * e3 + e0 * e1)) + z * (e0 * e0 - e1 * e1 - e2 * e2 + e3 * e3);
 }
 
-//	We need to transform from local coordinates back to the global coordinates
-//	for the actual EDMS model...
-//	============================
+//      We need to transform from local coordinates back to the global coordinates
+//      for the actual EDMS model...
+//      ============================
 void mech_localize(Q &X, Q &Y, Q &Z) {
 
     Q x = X, y = Y, z = Z;
@@ -230,12 +231,12 @@ void mech_localize(Q &X, Q &Y, Q &Z) {
 }
 
 //      Get the Real story based on the novella (System shock version), returning
-//	the result in the B_C_return[3] and BC_test global variables...
+//      the result in the B_C_return[3] and BC_test global variables...
 //      ==============================================================
 void get_boundary_conditions(int object, Q radius, Q position[3], Q derivatives[3]) {
 
-    //	Schmeck...
-    //	----------
+    //  Schmeck...
+    //  ----------
     Q vec0, vec1, vec2, mul, vv0, vv1, vv2, dmag, kmag;
 
     //        if (position[0] != A[object][0][0] ) mout << position[0] << " : " << A[object][0][0] << "\n";
@@ -246,12 +247,12 @@ void get_boundary_conditions(int object, Q radius, Q position[3], Q derivatives[
     //        if (derivatives[1] != A[object][1][1] ) mout << derivatives[1] << " : " << A[object][1][1] << "\n";
     //        if (derivatives[2] != A[object][2][1] ) mout << derivatives[2] << " : " << A[object][2][1] << "\n";
 
-    //	Find locations...
-    //	-----------------
+    //  Find locations...
+    //  -----------------
     indoor_terrain(position[0], position[1], position[2], radius, on2ph[object]);
 
-    //		Convert-a-tron...
-    //		-----------------
+    //          Convert-a-tron...
+    //          -----------------
     vec0.fix_to(terrain_info.fx + terrain_info.cx + terrain_info.wx);
     vec1.fix_to(terrain_info.fy + terrain_info.cy + terrain_info.wy);
     vec2.fix_to(terrain_info.fz + terrain_info.cz + terrain_info.wz);
@@ -272,8 +273,8 @@ void get_boundary_conditions(int object, Q radius, Q position[3], Q derivatives[
     vv1 = mul * vec1;
     vv2 = mul * vec2;
 
-    //		"rate" magnitude to all you aero-astro guys...
-    //		----------------------------------------------
+    //          "rate" magnitude to all you aero-astro guys...
+    //          ----------------------------------------------
     dmag = I[object][24] * (derivatives[0] * vv0 // Delta_magnitude...
                             + derivatives[1] * vv1 + derivatives[2] * vv2);
 

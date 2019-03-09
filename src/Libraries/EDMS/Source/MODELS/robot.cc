@@ -16,12 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//	Robot.cc is a test object for the Citadel physics system.  It uses the Citadel database
-//	for B/C, and should be fairly simple and robust.  Use the vector integrator!
-//	============================================================================
+//      Robot.cc is a test object for the Citadel physics system.  It uses the Citadel database
+//      for B/C, and should be fairly simple and robust.  Use the vector integrator!
+//      ============================================================================
 
-//	Seamus, June 29, 1993...
-//	========================
+//      Seamus, June 29, 1993...
+//      ========================
 
 #include <iostream>
 //#include <conio.h>
@@ -39,41 +39,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ss_flet.h"
 //}
 
-//	State information and utilities...
-//	==================================
+//      State information and utilities...
+//      ==================================
 extern EDMS_Argblock_Pointer A;
 extern Q S[MAX_OBJ][7][4], I[MAX_OBJ][DOF_MAX];
 extern int32_t no_no_not_me[MAX_OBJ];
 
 #define SOLITION_FRAME_CNT
 
-//	Functions...
-//	============
+//      Functions...
+//      ============
 extern void (*idof_functions[MAX_OBJ])(int32_t), (*equation_of_motion[MAX_OBJ][7])(int32_t);
 
-//	Callbacks themselves...
-//	-----------------------
+//      Callbacks themselves...
+//      -----------------------
 extern void (*EDMS_object_collision)(physics_handle caller, physics_handle victim, int32_t badness, int32_t DATA1,
                                      int32_t data2, fix loc[3]),
     (*EDMS_wall_contact)(physics_handle caller);
 
-// extern int	are_you_there( int );			//Collisions...
-// extern int	check_for_hit( int );
+// extern int   are_you_there( int );                   //Collisions...
+// extern int   check_for_hit( int );
 
 static Q fix_one = 1., point_five = .5, two_pi = 6.283185;
 
-//	Just a thought...
-//	=================
+//      Just a thought...
+//      =================
 static Q object0, object1, object2, object3, object4, // Howzat??
     object5, object6, object7, object8, object9, object10, object11, object12, object13, object14, object15, object16,
     object17, object18, object19;
 
-//	First, here are the equations of motion (outdated!)...
-//	======================================================
+//      First, here are the equations of motion (outdated!)...
+//      ======================================================
 int32_t EDMS_robot_global_badness_indicator = 0;
 
-//	Variables that are NOT on the stack...
-//	======================================
+//      Variables that are NOT on the stack...
+//      ======================================
 static Q A00, A10, A20, A30, A01, A11, A21, A31;
 
 static Q checker, check0, check1, check2, V_wall0, V_wall1;
@@ -82,14 +82,14 @@ static Q drug, butt;
 
 const Q wt_pos = 0.001, wt_neg = -wt_pos;
 
-#pragma require_prototypes off
+//#pragma require_prototypes off
 
-//	Here are the internal degrees of freedom:
-//	=========================================
+//      Here are the internal degrees of freedom:
+//      =========================================
 void robot_idof(int32_t object) {
 
-    //	Call me instead of having special code everywhere...
-    //	====================================================
+    //  Call me instead of having special code everywhere...
+    //  ====================================================
     extern void shall_we_dance(int object, Q &result0, Q &result1, Q &result2);
 
     A00 = A[object][0][0]; // Dereference NOW!
@@ -121,11 +121,11 @@ void robot_idof(int32_t object) {
     w1.fix_to(terrain_info.wy);
     w2.fix_to(terrain_info.wz);
 
-    //		w3 = sqrt( w0*w0 + w1*w1 + w2*w2 );
-    //		w4 = 2*( w3 - .5*I[object][22] );
-    //		if ( w4 < 0 ) w4 = 0;   //Ouch!
-    //		w4 = w4 / w3;
-    //		w0 *= w4;       w1 *= w4;       w2 *= w4;
+    //          w3 = sqrt( w0*w0 + w1*w1 + w2*w2 );
+    //          w4 = 2*( w3 - .5*I[object][22] );
+    //          if ( w4 < 0 ) w4 = 0;   //Ouch!
+    //          w4 = w4 / w3;
+    //          w0 *= w4;       w1 *= w4;       w2 *= w4;
 
     if (w0 == 0)
         check0 = 1;
@@ -167,8 +167,8 @@ void robot_idof(int32_t object) {
                + A11 * object5 + A21 * object6);
 
     object8 = I[object][20]; // Omega_magnitude...
-    //		if( I[object][10]<0 ) object7 *= 4;
-    //		if( I[object][10]<0 ) object8 *= 2;
+    //          if( I[object][10]<0 ) object7 *= 4;
+    //          if( I[object][10]<0 ) object8 *= 2;
 
     //              mout << "o7: " << object7 << "\n";
     object4 = object7 * object4; // Delta...
@@ -177,8 +177,8 @@ void robot_idof(int32_t object) {
 
     object9 = ((checker > .001) || (I[object][10] > 0)); // Are we in the rub???
 
-    //		Let's not power through the walls anymore...
-    //		--------------------------------------------
+    //          Let's not power through the walls anymore...
+    //          --------------------------------------------
     I[object][18] *= check0;
     I[object][19] *= check1;
 
@@ -190,7 +190,7 @@ void robot_idof(int32_t object) {
         shall_we_dance(object, object10, object11, object12);
         object10 *= I[object][20] * check0; // More general than it was...
         object11 *= I[object][20] * check1;
-        //  	object12 *= I[object][20]*check2;
+        //      object12 *= I[object][20]*check2;
     }
 
     //      Climbing overriden with repulsors...
@@ -242,8 +242,8 @@ void robot_idof(int32_t object) {
 
             I[object][18] = -.3 * I[object][22] * o0 * object8 / checker + .1 * I[object][18];
             I[object][19] = -.3 * I[object][22] * o1 * object8 / checker + .1 * I[object][19];
-            //	        	io18 = -.3*I[object][22]*o0*object8/checker + .1*I[object][18];
-            //		        io19 = -.3*I[object][22]*o1*object8/checker + .1*I[object][19];
+            //                  io18 = -.3*I[object][22]*o0*object8/checker + .1*I[object][18];
+            //                  io19 = -.3*I[object][22]*o1*object8/checker + .1*I[object][19];
 
             //                    Set the mojo...
             //                    ===============
@@ -251,21 +251,21 @@ void robot_idof(int32_t object) {
         }
     }
 
-    //	Angular play (citadel) ...
-    //	==========================
+    //  Angular play (citadel) ...
+    //  ==========================
     if (S[object][3][0] > two_pi)
         S[object][3][0] -= two_pi;
     if (S[object][3][0] < -two_pi)
         S[object][3][0] += two_pi;
 
-    //	Don't be stupid...
-    //	------------------
+    //  Don't be stupid...
+    //  ------------------
     drug = -object9 * I[object][23];
     //      mout << drug << "\n";
     butt = I[object][24];
 
-    //	Try the equations of motion here for grins...
-    //	=============================================
+    //  Try the equations of motion here for grins...
+    //  =============================================
     S[object][2][2] = butt * (object8 * object2 // Elasticity...
                               - object6         // Drag...
                               + I[object][17]   // Control...
@@ -308,12 +308,12 @@ void robot_idof(int32_t object) {
 
     I[object][14] = I[object][IDOF_ROBOT_MASS_RECIP] * (abs(dam0) + abs(dam1) + abs(dam2)); // Damage??
 
-    //	Is there a projectile hit?
-    //	==========================
+    //  Is there a projectile hit?
+    //  ==========================
     if (I[object][35] > 0) {
 
-        //		Let's not power through the walls anymore...
-        //		--------------------------------------------
+        //              Let's not power through the walls anymore...
+        //              --------------------------------------------
         //      mout << "knock " << I[object][32] << " " << I[object][33] << " " << I[object][34] << ": I[24] " <<
         //      I[object][24] << "\n";
 
@@ -343,12 +343,12 @@ void robot_idof(int32_t object) {
         I[object][34] = 0;
     }
 
-    //	That's all, folks...
-    //	====================
+    //  That's all, folks...
+    //  ====================
 }
 
-//	We might for now want to set some external forces on the robot...
-//	==================================================================
+//      We might for now want to set some external forces on the robot...
+//      ==================================================================
 void robot_set_control(int32_t robot, Q thrust_lever, Q attitude_jet, Q jump) {
 
     sincos(S[robot][3][0], &object0, &object1);
@@ -358,23 +358,23 @@ void robot_set_control(int32_t robot, Q thrust_lever, Q attitude_jet, Q jump) {
         mout << "You are an idiot: I'm not a ROBOT!\n";
 #endif
 
-    //	Here's the thrust of the situation...
-    //	-------------------------------------
+    //  Here's the thrust of the situation...
+    //  -------------------------------------
     I[robot][18] = thrust_lever * object1 * I[robot][IDOF_ROBOT_MASS];
     I[robot][19] = thrust_lever * object0 * I[robot][IDOF_ROBOT_MASS];
     I[robot][17] = I[robot][26] * jump;
 
-    //	And the turn of the...
-    //	----------------------
+    //  And the turn of the...
+    //  ----------------------
     I[robot][16] = attitude_jet * I[robot][IDOF_ROBOT_MOI];
 
-    //	Wakee wakee...
-    //	--------------
+    //  Wakee wakee...
+    //  --------------
     no_no_not_me[robot] = (abs(I[robot][18]) + abs(I[robot][19]) + abs(I[robot][16]) + abs(I[robot][17]) > 0);
 }
 
-//	Here is a separate control routine for robots under AI domination...
-//	====================================================================
+//      Here is a separate control routine for robots under AI domination...
+//      ====================================================================
 void robot_set_ai_control(int32_t robot, Q desired_heading, Q desired_speed, Q sidestep, Q urgency, Q &there_yet,
                           Q distance) {
 
@@ -390,35 +390,35 @@ void robot_set_ai_control(int32_t robot, Q desired_heading, Q desired_speed, Q s
     if (desired_heading < 0)
         desired_heading += two_pi;
 
-    //	Nota bene:  Here the desired heading is specified is in the range
-    //		    0 <= desired_heading < 2pi.	Urgency is a number in the range
-    //		    0 <= urgency <= 20.  A zero urgency will produce no control input.
-    //		    ==================================================================
+    //  Nota bene:  Here the desired heading is specified is in the range
+    //              0 <= desired_heading < 2pi. Urgency is a number in the range
+    //              0 <= urgency <= 20.  A zero urgency will produce no control input.
+    //              ==================================================================
 
-    //	Setup...
-    //	--------
+    //  Setup...
+    //  --------
     Q speed = sqrt(S[robot][0][1] * S[robot][0][1] + S[robot][1][1] * S[robot][1][1]),
       direction = desired_heading - S[robot][3][0];
 
     sincos(S[robot][3][0], &object0, &object1);
 
-    //	Heading...
-    //	----------
+    //  Heading...
+    //  ----------
     if (direction > pi)
         direction = -(direction - pi);
     if (direction <= -pi)
         direction = -(direction + pi);
 
-    //	Inform the caller if we're on course yet...
-    //	-------------------------------------------
+    //  Inform the caller if we're on course yet...
+    //  -------------------------------------------
     there_yet = one_by_pi * direction * (1 - 2 * (direction < 0));
 
-    //	Set the control...
-    //	------------------
+    //  Set the control...
+    //  ------------------
     I[robot][16] = .1 * urgency * direction * I[robot][29];
 
-    //	Speed...
-    //	--------
+    //  Speed...
+    //  --------
     I[robot][17] = urgency * (1 / (10 * there_yet + 5)) * (desired_speed - speed); // temporary...
     if (I[robot][17] < 0)
         I[robot][17] = 0;
@@ -430,8 +430,8 @@ void robot_set_ai_control(int32_t robot, Q desired_heading, Q desired_speed, Q s
     I[robot][19] = object0 * I[robot][17] - object1 * sidestep;
     I[robot][17] = 0; // No jumping for AIs
 
-    //	Wakee wakee...
-    //	--------------
+    //  Wakee wakee...
+    //  --------------
     if (no_no_not_me[robot] == 0) {
         no_no_not_me[robot] = (abs(I[robot][18]) + abs(I[robot][19]) + abs(I[robot][16]) > 0);
         //        if ( no_no_not_me[robot] != 0 ) mout << "R: " << robot << ", ph= " << on2ph[robot] << " awoken!  " <<
@@ -439,37 +439,37 @@ void robot_set_ai_control(int32_t robot, Q desired_heading, Q desired_speed, Q s
         //        I[robot][16] ) + abs( I[robot][17] ) ) << "\n"; mout << no_no_not_me[robot] << "\n";
     }
 
-    //	mout << "Robot #" << robot << " with: " << ( abs( I[robot][18] ) + abs( I[robot][19] ) + 50*abs( I[robot][16] )
+    //  mout << "Robot #" << robot << " with: " << ( abs( I[robot][18] ) + abs( I[robot][19] ) + 50*abs( I[robot][16] )
     //+ abs( I[robot][17] ) ) << ".\n";;
 }
 
 int32_t make_robot(Q init_state[6][3], Q params[10]) {
 
-    //	Sets up everything needed to manufacture a robot with initial state vector
-    //	init_state[][] and EDMS motion parameters params[] into soliton. Returns the
-    //	object number, or else a negative error code (see Soliton.CPP for error handling and codes).
-    //	============================================================================================
+    //  Sets up everything needed to manufacture a robot with initial state vector
+    //  init_state[][] and EDMS motion parameters params[] into soliton. Returns the
+    //  object number, or else a negative error code (see Soliton.CPP for error handling and codes).
+    //  ============================================================================================
 
-    //	Have some variables...
-    //	======================
+    //  Have some variables...
+    //  ======================
     int32_t object_number = -1, // Three guesses...
         error_code = -1;    // Guilty until...
 
-    //	We need ignorable coordinates...
-    //	================================
+    //  We need ignorable coordinates...
+    //  ================================
     extern void null_function(int32_t);
 
-    //	First find out which object we're going to be...
-    //	================================================
+    //  First find out which object we're going to be...
+    //  ================================================
     while (S[++object_number][0][0] > END)
         ; // Jon's first C trickie...
 
-    //	Is it an allowed object number?  Are we full? Why are we here? Is there a God?
-    //	==============================================================================
+    //  Is it an allowed object number?  Are we full? Why are we here? Is there a God?
+    //  ==============================================================================
     if (object_number < MAX_OBJ) {
 
-        //		Now we can create the robot:  first dump the initial state vector...
-        //		=====================================================================
+        //              Now we can create the robot:  first dump the initial state vector...
+        //              =====================================================================
         for (int32_t coord = 0; coord < 6; coord++) {
             for (int32_t deriv = 0; deriv < 3; deriv++) { // Has alpha now...
                 S[object_number][coord][deriv] = A[object_number][coord][deriv] =
@@ -477,8 +477,8 @@ int32_t make_robot(Q init_state[6][3], Q params[10]) {
             }
         }
 
-        //		Put in the appropriate robot parameters...
-        //		===========================================
+        //              Put in the appropriate robot parameters...
+        //              ===========================================
         for (int32_t copy = 0; copy < 10; copy++) {
             I[object_number][copy + 20] = params[copy];
         }
@@ -500,8 +500,8 @@ int32_t make_robot(Q init_state[6][3], Q params[10]) {
         // =============================
         I[object_number][16] = I[object_number][18] = I[object_number][19] = I[object_number][17] = 0;
 
-        //		Now tell Soliton where to look for the equations of motion...
-        //		=============================================================
+        //              Now tell Soliton where to look for the equations of motion...
+        //              =============================================================
         idof_functions[object_number] = robot_idof;
 
         equation_of_motion[object_number][0] = equation_of_motion[object_number][1] =
@@ -512,36 +512,36 @@ int32_t make_robot(Q init_state[6][3], Q params[10]) {
         //               for (int tt = 0; tt < 10; tt++ ) mout << params[tt] << " : ";
         //               mout << "\n";
 
-        //		Wakee wakee...
-        //		--------------
+        //              Wakee wakee...
+        //              --------------
         no_no_not_me[object_number] = 1;
 
-        //		Things seem okay...
-        //		===================
+        //              Things seem okay...
+        //              ===================
         error_code = object_number;
     }
 
-    //	Inform the caller...
-    //	====================
+    //  Inform the caller...
+    //  ====================
     return error_code;
 }
 
-#pragma require_prototypes on
+//#pragma require_prototypes on
 
-//	ATTENZIONE:  Los parametros del model son:
-//	==========================================
+//      ATTENZIONE:  Los parametros del model son:
+//      ==========================================
 
-//	Number   |   Comment
-//	--------------------
-//	0        |   K
-//	1        |   d
-//	2        |   Radius
-//	3        |   Rolling Drag
-//	4        |   1/Mass
-//	5        |   gravity
-//	6        |   mass
-//	7	 |   1/moi
-//	8        |   rotational drag
-//	9	 |   moi
-//	==========================================
-//	So there.
+//      Number   |   Comment
+//      --------------------
+//      0        |   K
+//      1        |   d
+//      2        |   Radius
+//      3        |   Rolling Drag
+//      4        |   1/Mass
+//      5        |   gravity
+//      6        |   mass
+//      7        |   1/moi
+//      8        |   rotational drag
+//      9        |   moi
+//      ==========================================
+//      So there.

@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//	Many games require objects which travel faster than the renderer can possibly draw.  The
-//	stuff in this file handles these things in various ways.  For instance, a laser weapon
-//	can be raycast instantaneously, dependant only upon the terrain and object models.
-//	==================================================================================
+//      Many games require objects which travel faster than the renderer can possibly draw.  The
+//      stuff in this file handles these things in various ways.  For instance, a laser weapon
+//      can be raycast instantaneously, dependant only upon the terrain and object models.
+//      ==================================================================================
 
 #include "edms_int.h"
 #include "idof.h"
@@ -35,8 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ss_flet.h"
 //}
 
-//	Here is some stuff that the line finder needs that is stupid to pass around...
-//	==============================================================================
+//      Here is some stuff that the line finder needs that is stupid to pass around...
+//      ==============================================================================
 static Q initial_X[3] = {0, 0, 0}, final_X[3] = {0, 0, 0};
 
 extern int32_t EDMS_integrating;
@@ -46,8 +46,8 @@ extern int32_t alarm_clock[MAX_OBJ];
 physics_handle object_check(uint32_t data_word, Q size, Q range, int32_t exclude, int32_t steps,
                             Q &dist); // Checks for hits...
 
-//	Here is the high velocity weapon primitive...
-//	=============================================
+//      Here is the high velocity weapon primitive...
+//      =============================================
 physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q range, int32_t exclude, int32_t shooter) {
     extern Q PELVIS;
     int32_t stepper = 0,
@@ -69,19 +69,19 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
 
     Q dist; // where did we hit the victim?
 
-    //	Reset the object collisions...
-    //	==============================
+    //  Reset the object collisions...
+    //  ==============================
     int32_t no_dont_do_it = 0;
 
-    //	Looks at terrain...
-    //	===================
+    //  Looks at terrain...
+    //  ===================
     fix checker = 0;
 
     // PRINT3D( X );
     // mout << "Max: " << max_step << " :range: " << range << " : size: " << size << ".\n";
 
-    //	Save the initial vectors for the line finder...
-    //	===============================================
+    //  Save the initial vectors for the line finder...
+    //  ===============================================
     initial_X[0] = X[0];
     initial_X[1] = X[1];
     initial_X[2] = X[2];
@@ -100,8 +100,8 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
         range = .25;
     }
 
-    //	Rescale direction to 1/3 decimeters...
-    //	======================================
+    //  Rescale direction to 1/3 decimeters...
+    //  ======================================
     D_old[0] = D[0];
     D_old[1] = D[1];
     D_old[2] = D[2];
@@ -110,22 +110,22 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
     D[1] *= .5 * size;
     D[2] *= .5 * size;
 
-    //	Make sure we're ON THE MAP before casting into random memory...
-    //	===============================================================
+    //  Make sure we're ON THE MAP before casting into random memory...
+    //  ===============================================================
     if ((X[0] < 0) || (X[1] < 0) || (X[0] > EDMS_DATA_SIZE - 1) || (X[1] > EDMS_DATA_SIZE - 1)) {
         checker = 1000;
         //      mout << "!EDMS: bad raycast start at:\n";
         //      PRINT3D( X )
         //      mout << "!EDMS: raycast excluded physics handle " << exclude << "\n";
-        //		flush( mout );
+        //              flush( mout );
         no_dont_do_it = 1;
     }
 
-    //	Are we good to go?
-    //	==================
+    //  Are we good to go?
+    //  ==================
     if (no_dont_do_it == 0) {
-        //	Find impact point...
-        //	====================
+        //      Find impact point...
+        //      ====================
         for (stepper = 0; (stepper < max_step) && (checker == 0); stepper++) {
             checker = 0;
 
@@ -136,8 +136,8 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
 
             ss_edms_stupid_flag = TFD_FULL;
 
-            //	Check the terrain...
-            //	====================
+            //  Check the terrain...
+            //  ====================
 #ifdef NOT
             checker = (terrain_info.cx) | (terrain_info.cy) | (terrain_info.cz) | (terrain_info.fx) |
                       (terrain_info.fy) | (terrain_info.fz) | (terrain_info.wx) | (terrain_info.wy) | (terrain_info.wz);
@@ -145,8 +145,8 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
             checker = (ss_edms_facelet_cnt != 0);
 #endif
 
-            //	Check for object collisions...
-            //	==============================
+            //  Check for object collisions...
+            //  ==============================
             int32_t hx = floor(hash_scale * X[0]);
             int32_t hy = floor(hash_scale * X[1]);
             test_data = data[hx][hy];
@@ -159,8 +159,8 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
                 last_test_data = test_data;
             }
 
-            //	Move the check point...
-            //	=======================
+            //  Move the check point...
+            //  =======================
             X[0] += D[0];
             X[1] += D[1];
             X[2] += D[2];
@@ -172,8 +172,8 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
             }
         }
 
-        //	Save the final point of the line segment...
-        //	===========================================
+        //      Save the final point of the line segment...
+        //      ===========================================
         final_X[0] = X[0];
         final_X[1] = X[1];
         final_X[2] = X[2];
@@ -222,9 +222,9 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
             }
         }
 
-        //	If we did, in fact, hit a wall, the 3D system precision may be insufficient to sort the hit
-        //	art in front of the wall.  Therefore...
-        //	=======================================
+        //      If we did, in fact, hit a wall, the 3D system precision may be insufficient to sort the hit
+        //      art in front of the wall.  Therefore...
+        //      =======================================
 
         // The EDMS code used to set the endpoint of the beam to the center of the
         // victim if it hit someone.  But in reality, bugs in the code made it
@@ -255,14 +255,14 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
             X[2] -= D[2] * 2;
         }
 
-        //	Did we hit a wall, or did we hit range out?
-        //	===========================================
+        //      Did we hit a wall, or did we hit range out?
+        //      ===========================================
         if ((stepper == max_step) && (victim == -1)) {
             X[0] = X[1] = X[2] = END;
         }
 
-        //	Do the kickback...
-        //	==================
+        //      Do the kickback...
+        //      ==================
         if (shooter != -1) {
             shooter_on = ph2on[shooter];
             iota_c = I[shooter_on][29] * kick;
@@ -273,27 +273,28 @@ physics_handle EDMS_cast_projectile(Q *X, Q D[3], Q kick, Q knock, Q size, Q ran
             }
         }
 
-        //	Were we good to go?
-        //	===================
+        //      Were we good to go?
+        //      ===================
     }
 
-    //	Hit for now...
-    //	==============
+    //  Hit for now...
+    //  ==============
     return return_victim;
 }
 
 //#pragma off (unreferenced)
-//	Here, since we know the line segment we're interested in, we check to make sure that we
-//	didn't hit any objects, and return the one we did...
-//	====================================================
+//      Here, since we know the line segment we're interested in, we check to make sure that we
+//      didn't hit any objects, and return the one we did...
+//      ====================================================
 physics_handle object_check(uint32_t data_word, Q size, Q range, int32_t exclude, int32_t stepper, Q &dist) {
-    //		General purpose...
-    //		==================
+    //          General purpose...
+    //          ==================
     int32_t object;
     physics_handle victim = -1;
+    (void)range;
 
-    //	For the lines...
-    //	================
+    //  For the lines...
+    //  ================
     Q a = initial_X[0] - final_X[0], b = initial_X[1] - final_X[1], c = initial_X[2] - final_X[2], top_1 = 0, top_2 = 0,
       top_3 = 0, bottom = 0, kill_zone = 0, kzdist = 0, kzdisto = 10000;
 
@@ -327,8 +328,8 @@ physics_handle object_check(uint32_t data_word, Q size, Q range, int32_t exclude
                             kzdisto = kzdist;
                             dist = kzdist - I[object][31];
 
-                            //	   			      X[0] = S[object][0][0];	//Provide hit location, naive for
-                            //now... 	   			      X[1] = S[object][1][0]; 	   			      X[2] = S[object][2][0];
+                            //                                X[0] = S[object][0][0];   //Provide hit location, naive for
+                            //now...                                  X[1] = S[object][1][0];                                 X[2] = S[object][2][0];
                         }
                     }
 
