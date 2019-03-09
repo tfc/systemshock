@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		Res.C		Resource Manager primary access routines
-//		Rex E. Bradford (REX)
+//              Res.C           Resource Manager primary access routines
+//              Rex E. Bradford (REX)
 //
-//		See the doc RESOURCE.DOC for information.
+//              See the doc RESOURCE.DOC for information.
 /*
  * $Header: r:/prj/lib/src/res/rcs/res.c 1.24 1994/07/15 18:19:33 xemu Exp $
  * $Log: res.c $
@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#include <memall.h>
 //#include <_res.h>
 
-//	The resource descriptor table
+//      The resource descriptor table
 
 ResDesc *gResDesc;   // ptr to array of resource descriptors
 ResDesc2 *gResDesc2; // secondary array, shared buff with resdesc
@@ -55,17 +55,17 @@ Id resDescMax;       // max id in res desc
 // grow by blocks of 1024 resources must be power of 2!
 #define DEFAULT_RESGROW 32768
 
-//	Some variables
+//      Some variables
 /*
-ResStat resStat;						// stats held
-here static bool resPushedAllocators;	// did we push our allocators?
+  ResStat resStat;                                                // stats held
+  here static bool resPushedAllocators;   // did we push our allocators?
 */
 
-//	---------------------------------------------------------
-//		INITIALIZATION AND TERMINATION
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
+//              INITIALIZATION AND TERMINATION
+//      ---------------------------------------------------------
 //
-//	ResInit() initializes resource manager.
+//      ResInit() initializes resource manager.
 
 void ResInit() {
     int32_t i;
@@ -77,12 +77,14 @@ void ResInit() {
     LzwInit();
 
     // Allocate initial resource descriptor table, default size (can't fail)
-    TRACE("%s: RES system initialization", __FUNCTION__);
+    TRACE("%s: RES system initialization", __func__);
 
     resDescMax = DEFAULT_RESMAX;
     gResDesc = (ResDesc *)calloc(DEFAULT_RESMAX + 1, sizeof(ResDesc) + sizeof(ResDesc2));
     if (gResDesc == NULL)
+    {
         ERROR("ResInit: Can't allocate the global resource descriptor table.");
+    }
     gResDesc2 = (ResDesc2 *)(gResDesc + (DEFAULT_RESMAX + 1));
     gResDesc[ID_HEAD].prev = 0;
     gResDesc[ID_HEAD].next = ID_TAIL;
@@ -92,32 +94,37 @@ void ResInit() {
     // Clear file descriptor array
 
     for (i = 0; i <= MAX_RESFILENUM; i++)
+    {
         resFile[i].fd = NULL;
+    }
 
     // Add directory pointed to by RES env var to search path
 
     /*
-    p = getenv("RES");
-    if (p)
-            ResAddPath(p);
+      p = getenv("RES");
+      if (p)
+      ResAddPath(p);
     */
 
-    TRACE("%s: RES system initialized", __FUNCTION__);
+    TRACE("%s: RES system initialized", __func__);
 
     // Install default pager
     // ResInstallPager(ResDefaultPager);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResTerm() terminates resource manager.
+//      ResTerm() terminates resource manager.
 
 void ResTerm() {
     int32_t i;
     // Close all open resource files
     for (i = 0; i <= MAX_RESFILENUM; i++) {
-        if (resFile[i].fd >= 0)
+        //if (resFile[i].fd >= 0)
+        if (resFile[i].fd != 0) // Not sure about this but an ordered comparison doesn't make sense.
+        {
             ResCloseFile(i);
+        }
     }
 
     // Free up resource descriptor table
@@ -129,18 +136,18 @@ void ResTerm() {
         resDescMax = 0;
     }
     // We're outta here
-    TRACE("%s: RES system terminated", __FUNCTION__);
+    TRACE("%s: RES system terminated", __func__);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResGrowResDescTable() grows resource descriptor table to
-//	handle a new id.
+//      ResGrowResDescTable() grows resource descriptor table to
+//      handle a new id.
 //
-//	This routine is normally called internally, but a client
-//	program may call it directly too.
+//      This routine is normally called internally, but a client
+//      program may call it directly too.
 //
-//		id = id
+//              id = id
 
 void ResGrowResDescTable(Id id) {
     int32_t newAmt, currAmt;
@@ -154,12 +161,12 @@ void ResGrowResDescTable(Id id) {
     // If need to grow, do it, clearing new entries
 
     if (newAmt > currAmt) {
-        WARN("%s: extending to $%x entries", __FUNCTION__, newAmt);
+        WARN("%s: extending to $%x entries", __func__, newAmt);
 
         // Realloc double-array buffer and check for error
         gResDesc = (ResDesc *)realloc(gResDesc, newAmt * (sizeof(ResDesc) + sizeof(ResDesc2)));
         if (gResDesc == NULL) {
-            ERROR("%s: RES DESCRIPTOR TABLE BAD!!!", __FUNCTION__);
+            ERROR("%s: RES DESCRIPTOR TABLE BAD!!!", __func__);
             return;
         }
 
@@ -184,10 +191,10 @@ void ResGrowResDescTable(Id id) {
     }
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResShrinkResDescTable() resizes the descriptor table to be
-//	the minimum allowable size with the currently in-use resources.
+//      ResShrinkResDescTable() resizes the descriptor table to be
+//      the minimum allowable size with the currently in-use resources.
 //
 /*
 void ResShrinkResDescTable()
@@ -202,24 +209,24 @@ void ResShrinkResDescTable()
       id--;
 //   Spew(DSRC_RES_General, ("largest ID in use is %x.\n",id));
 
-//	Calculate size of new table and size of current
+//      Calculate size of new table and size of current
 
         newAmt = (id + DEFAULT_RESGROW) & ~(DEFAULT_RESGROW - 1);
         currAmt = resDescMax + 1;
 
-//	If need to shrink do it
+//      If need to shrink do it
 // note that we don't increase the stat table
 
         if (currAmt > newAmt)
         {
-//		Spew(DSRC_RES_General,
-//			("ResGrowResDescTable: extending to $%x entries\n",
+//              Spew(DSRC_RES_General,
+//                      ("ResGrowResDescTable: extending to $%x entries\n",
 newAmt));
 
                 SetPtrSize(gResDesc, newAmt * sizeof(ResDesc));
                 if (MemError() != noErr)
                 {
-//���			Warning(("ResGrowDescTable: RES DESCRIPTOR TABLE
+//���                   Warning(("ResGrowDescTable: RES DESCRIPTOR TABLE
 BAD!!!\n")); return;
                 }
                 resDescMax = newAmt - 1;

@@ -17,112 +17,112 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 // clang-format off
-//		LZW.C		New improved super-duper LZW compressor & decompressor
-//		This module by Greg Travis and Rex Bradford
+//              LZW.C           New improved super-duper LZW compressor & decompressor
+//              This module by Greg Travis and Rex Bradford
 //
-//		This module implements LZW-based compression and decompression.
-//		It has flexible control over the source and destination of the
-//		data it uses.  Data is read from a "source" and written to a
-//		"destination".  In the case of compression, the source is uncompressed
-//		and the destination is compressed; for expansion the reverse is true.
-//		Sources and destinations deal in byte values, even though the LZW
-//		routine works in 14-bit compression codes.
+//              This module implements LZW-based compression and decompression.
+//              It has flexible control over the source and destination of the
+//              data it uses.  Data is read from a "source" and written to a
+//              "destination".  In the case of compression, the source is uncompressed
+//              and the destination is compressed; for expansion the reverse is true.
+//              Sources and destinations deal in byte values, even though the LZW
+//              routine works in 14-bit compression codes.
 //
-//		Sources may be one of the following standard types:
+//              Sources may be one of the following standard types:
 //
-//		BUFF		A memory block
-//		FD			A file descriptor (fd = open()), already positioned with seek()
-//		FP			A file ptr (fp = fopen()), already positioned with lseek()
-//		USER		A user-supplied function
+//              BUFF            A memory block
+//              FD                      A file descriptor (fd = open()), already positioned with seek()
+//              FP                      A file ptr (fp = fopen()), already positioned with lseek()
+//              USER            A user-supplied function
 //
-//		Destinations may be any of the above 4 types, plus additionally:
+//              Destinations may be any of the above 4 types, plus additionally:
 //
-//		NULL		The bit-bucket.  Used to determine the size of destination
-//					data without putting it anywhere.
+//              NULL            The bit-bucket.  Used to determine the size of destination
+//                                      data without putting it anywhere.
 //
-//		The LZW module consists of these public routines:
+//              The LZW module consists of these public routines:
 //
-//		LzwInit() - Just sets LzwTerm() to be called on exit.
+//              LzwInit() - Just sets LzwTerm() to be called on exit.
 //
-//		LzwTerm() - Just calls LzwFreeBuffer(), to free lzw buffer if it
-//						has been malloc'ed.
+//              LzwTerm() - Just calls LzwFreeBuffer(), to free lzw buffer if it
+//                                              has been malloc'ed.
 //
-//		LzwSetBuffer() - Sets buffer for lzw compression & expansion routines
-//							to use.  The buffer must be at least LZW_BUFF_SIZE
-//							in size, which for 14-bit lzw is about 91K.
+//              LzwSetBuffer() - Sets buffer for lzw compression & expansion routines
+//                                                      to use.  The buffer must be at least LZW_BUFF_SIZE
+//                                                      in size, which for 14-bit lzw is about 91K.
 //
-//		LzwMallocBuffer() - Allocates buffer for lzw compression & expansion
-//							routines to use.  This routine will be called auto-
-//							matically the first time LzwCompress() or LzwExpand()
-//							is used if a buffer has not been set or allocated.
+//              LzwMallocBuffer() - Allocates buffer for lzw compression & expansion
+//                                                      routines to use.  This routine will be called auto-
+//                                                      matically the first time LzwCompress() or LzwExpand()
+//                                                      is used if a buffer has not been set or allocated.
 //
-//		LzwFreeBuffer() - Frees current buffer if allocated.
+//              LzwFreeBuffer() - Frees current buffer if allocated.
 //
-//		LzwCompress() - Compresses data, reading from an uncompressed source
-//						and writing compressed bytes to a destination.  Returns
-//						the size of the compressed data.  A maximum destination
-//						size may be specified, in which case a destination which
-//						is about to exceed this will be aborted, returning -1.
+//              LzwCompress() - Compresses data, reading from an uncompressed source
+//                                              and writing compressed bytes to a destination.  Returns
+//                                              the size of the compressed data.  A maximum destination
+//                                              size may be specified, in which case a destination which
+//                                              is about to exceed this will be aborted, returning -1.
 //
-//		LzwExpand() - Expands data, reading from a compressed source and
-//						writing decompressed bytes to a destination.  Returns the
-//						size of the decompressed data.  Parameters may be used
-//						to capture a subsection of the uncompressed stream (by
-//						skipping the first n1 destination bytes and then taking
-//						the next n2).
+//              LzwExpand() - Expands data, reading from a compressed source and
+//                                              writing decompressed bytes to a destination.  Returns the
+//                                              size of the decompressed data.  Parameters may be used
+//                                              to capture a subsection of the uncompressed stream (by
+//                                              skipping the first n1 destination bytes and then taking
+//                                              the next n2).
 //
-//		Lzw.h supplies a large set of macros of the form:
+//              Lzw.h supplies a large set of macros of the form:
 //
-//			LzwCompressSrc2Dest(...)  and  LzweExpandSrc2Dest(...)
+//                      LzwCompressSrc2Dest(...)  and  LzweExpandSrc2Dest(...)
 //
-//		which implement all combinations of source and destination types,
-//		such as buffer->buffer, fd->buffer, buffer->null, fp->user, etc.
+//              which implement all combinations of source and destination types,
+//              such as buffer->buffer, fd->buffer, buffer->null, fp->user, etc.
 //
-//		User types are handy when there is a need to transform the data
-//		on its way to or from compression (to enhance the compression, or
-//		just to massage the data into a usable form).  For example, a map
-//		may want to transform elevations to delta format on the way to
-//		and from compression in order to enhance the compression.
+//              User types are handy when there is a need to transform the data
+//              on its way to or from compression (to enhance the compression, or
+//              just to massage the data into a usable form).  For example, a map
+//              may want to transform elevations to delta format on the way to
+//              and from compression in order to enhance the compression.
 //
-//		User sources supply two functions of the form:
+//              User sources supply two functions of the form:
 //
-//		void f_SrcCtrl(long srcLoc, LzwCtrl ctrl);
-//		uchar f_SrcGet();
+//              void f_SrcCtrl(long srcLoc, LzwCtrl ctrl);
+//              uchar f_SrcGet();
 //
-//		The control function is used to set up and tear down the Get()
-//		function, which is used to supply the next byte of data.  Before
-//		any compression or decompression begins, the SrcCtrl() function
-//		is called with the srcLoc argument (supplied at the call to
-//		LzwCompress or LzwExpand, its meaning is user-defined), and the
-//		ctrl argument set to BEGIN.  After all compression and decompression
-//		is done, cleanup is invoked by calling SrcCtrl() with ctrl equal
-//		to END.  Between BEGIN and END, the SrcGet() function is called
-//		repeatedly to get the next byte from the user input stream.
+//              The control function is used to set up and tear down the Get()
+//              function, which is used to supply the next byte of data.  Before
+//              any compression or decompression begins, the SrcCtrl() function
+//              is called with the srcLoc argument (supplied at the call to
+//              LzwCompress or LzwExpand, its meaning is user-defined), and the
+//              ctrl argument set to BEGIN.  After all compression and decompression
+//              is done, cleanup is invoked by calling SrcCtrl() with ctrl equal
+//              to END.  Between BEGIN and END, the SrcGet() function is called
+//              repeatedly to get the next byte from the user input stream.
 //
-//		User destinations work similarly.  Again, two functions:
+//              User destinations work similarly.  Again, two functions:
 //
-//		void f_DestCtrl(long destLoc, LzwCtrl ctrl);
-//		void f_DestPut(uchar byte);
+//              void f_DestCtrl(long destLoc, LzwCtrl ctrl);
+//              void f_DestPut(uchar byte);
 //
-//		The control function is called with BEGIN and END just like the
-//		source function.  The DestPut() function is called repeatedly to
-//		put the next byte to the user output stream.
+//              The control function is called with BEGIN and END just like the
+//              source function.  The DestPut() function is called repeatedly to
+//              put the next byte to the user output stream.
 //
-//		Note that user sources can be used for both compression (source
-//		of uncompressed bytes) and expansion (source of compressed bytes).
-//		Similarly, user destinations can be used for both compression
-//		(destination of compressed bytes) and expansion (destination of
-//		uncompressed bytes).  This is true of standard sources and
-//		destinations as well, of course.
+//              Note that user sources can be used for both compression (source
+//              of uncompressed bytes) and expansion (source of compressed bytes).
+//              Similarly, user destinations can be used for both compression
+//              (destination of compressed bytes) and expansion (destination of
+//              uncompressed bytes).  This is true of standard sources and
+//              destinations as well, of course.
 // clang-format on
 /*
  * $Header: n:/project/lib/src/res/rcs/lzw.c 1.4 1994/02/17 11:24:13 rex Exp $
  * $log$
  */
 
-//	------------------------------------------------------------
-//		HEADER SECTION
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
+//              HEADER SECTION
+//      ------------------------------------------------------------
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -133,7 +133,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "lzw.h"
 #endif
 
-//	Important constants
+//      Important constants
 
 #define MAX_VALUE ((1 << LZW_BITS) - 1) // end-of-compress-data code
 #define MAX_CODE (MAX_VALUE - 2)        // maximum real code allows
@@ -141,12 +141,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HASHING_SHIFT (LZW_BITS - 8)    // # bits to shift when hashing
 #define FLUSH_PAUSE 1000                // wait on full table before flush
 
-//	Overall lzw buffer info
+//      Overall lzw buffer info
 
 void *lzwBuffer;           // total buffer
 uint8_t lzwBufferMalloced; // buffer malloced?
 
-//	Global tables used for compression & expansion
+//      Global tables used for compression & expansion
 
 int16_t *lzwCodeValue;   // code value array
 uint16_t *lzwPrefixCode; // prefix code array
@@ -156,39 +156,39 @@ uint8_t *lzwDecodeStack; // decoded string
 uint8_t *lzwFdReadBuff;  // buffer for file descriptor source
 uint8_t *lzwFdWriteBuff; // buffer for file descriptor dest
 
-//	Prototypes of internal routines
+//      Prototypes of internal routines
 
 int32_t LzwFindMatch(int32_t hash_prefix, uint32_t hash_character);
 uint8_t *LzwDecodeString(uint8_t *buffer, uint32_t code);
 
-//	--------------------------------------------------------
-//		INITIALIZATION AND TERMINATION
-//	--------------------------------------------------------
+//      --------------------------------------------------------
+//              INITIALIZATION AND TERMINATION
+//      --------------------------------------------------------
 //
-//	LzwInit()  needs to be called once before any of the compression
-//	 routines are used.
+//      LzwInit()  needs to be called once before any of the compression
+//       routines are used.
 
 void LzwInit(void) { atexit(LzwTerm); }
 
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
 //
 // LzwTerm() needs to be called once when the lzw compression
-//	 routines are no longer needed.
+//       routines are no longer needed.
 
 void LzwTerm(void) { LzwFreeBuffer(); }
 
-//	------------------------------------------------------------
-//		BUFFER SETTING
-//	--------------------------------------------------------
+//      ------------------------------------------------------------
+//              BUFFER SETTING
+//      --------------------------------------------------------
 //
-//	LzwSetBuffer() inits and sets buffer to use.
+//      LzwSetBuffer() inits and sets buffer to use.
 //
-//	Returns: 0 if ok, -1 if buffer not ok
+//      Returns: 0 if ok, -1 if buffer not ok
 
 int32_t LzwSetBuffer(void *buff, int32_t buffSize) {
     // Check buffer size
 
-    if (buffSize < LZW_BUFF_SIZE) {
+    if (buffSize < (signed)LZW_BUFF_SIZE) {
         // Warning(("LzwSetBuffer: buffer too small!\n"));
         return (-1);
     }
@@ -210,11 +210,11 @@ int32_t LzwSetBuffer(void *buff, int32_t buffSize) {
     return (0);
 }
 
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
 //
-//	LzwMallocBuffer() allocates buffer with Malloc.
+//      LzwMallocBuffer() allocates buffer with Malloc.
 //
-//	Returns: 0 if success, -1 if error.
+//      Returns: 0 if success, -1 if error.
 
 int32_t LzwMallocBuffer() {
     void *buff;
@@ -232,9 +232,9 @@ int32_t LzwMallocBuffer() {
     return (0);
 }
 
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
 //
-//	LzwFreeBuffer() frees buffer.
+//      LzwFreeBuffer() frees buffer.
 
 void LzwFreeBuffer() {
     if (lzwBufferMalloced) {
@@ -244,31 +244,31 @@ void LzwFreeBuffer() {
     }
 }
 // clang-format off
-//	------------------------------------------------------------
-//		COMPRESSION
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
+//              COMPRESSION
+//      ------------------------------------------------------------
 //
-//	LzwCompress() does lzw compression.  It reads uncompressed bytes
-//	from an input source and outputs compressed bytes to an output
-//	destination.  It returns the number of bytes the compressed data
-//	took up, or -1 if the compressed data size exceeds the allowed space.
+//      LzwCompress() does lzw compression.  It reads uncompressed bytes
+//      from an input source and outputs compressed bytes to an output
+//      destination.  It returns the number of bytes the compressed data
+//      took up, or -1 if the compressed data size exceeds the allowed space.
 //
-//		f_ScrCtrl    = routine to call to control source data stream
-//		f_SrcGet     = routine to call to get next input data byte
-//		srcLoc       = source data "location", actual type undefined
-//		srcSize      = size of source (input) data
-//		f_DestCtrl   = routine to call to control destination data stream
-//		f_DestPut    = routine to call to put next output data byte
-//		destLoc      = dest data "location", actual type undefined
-//		destSizeMax  = maximum allowed size of output data
+//              f_ScrCtrl    = routine to call to control source data stream
+//              f_SrcGet     = routine to call to get next input data byte
+//              srcLoc       = source data "location", actual type undefined
+//              srcSize      = size of source (input) data
+//              f_DestCtrl   = routine to call to control destination data stream
+//              f_DestPut    = routine to call to put next output data byte
+//              destLoc      = dest data "location", actual type undefined
+//              destSizeMax  = maximum allowed size of output data
 //
-//	Returns: actual output compressed size, or -1 if exceeded outputSizeMax
-//		(in which case compression has been aborted)
+//      Returns: actual output compressed size, or -1 if exceeded outputSizeMax
+//              (in which case compression has been aborted)
 
-//	This macro is used to accumulate output codes into a bit buffer
-//	and call the destination put routine whenever more than 8 bits
-//	are available.  If the output data size ever exceeds the alloted
-//	size, the source and destination are shut down and -1 is returned.
+//      This macro is used to accumulate output codes into a bit buffer
+//      and call the destination put routine whenever more than 8 bits
+//      are available.  If the output data size ever exceeds the alloted
+//      size, the source and destination are shut down and -1 is returned.
 // clang-format on
 
 typedef struct {
@@ -284,20 +284,20 @@ typedef struct {
 
 LzwC lzwc; // current compress state
 
-#define LzwOutputCode(code)                                                                      \
-    {                                                                                            \
+#define LzwOutputCode(code)                                             \
+    {                                                                   \
         lzwc.lzwOutputBitBuffer |= ((uint32_t)code) << (32 - LZW_BITS - lzwc.lzwOutputBitCount); \
-        lzwc.lzwOutputBitCount += LZW_BITS;                                                      \
-        while (lzwc.lzwOutputBitCount >= 8) {                                                    \
-            (*f_DestPut)(lzwc.lzwOutputBitBuffer >> 24);                                         \
-            if (++lzwc.lzwOutputSize > destSizeMax) {                                            \
-                (*f_SrcCtrl)(srcLoc, END);                                                       \
-                (*f_DestCtrl)(destLoc, END);                                                     \
-                return -1L;                                                                      \
-            }                                                                                    \
-            lzwc.lzwOutputBitBuffer <<= 8;                                                       \
-            lzwc.lzwOutputBitCount -= 8;                                                         \
-        }                                                                                        \
+        lzwc.lzwOutputBitCount += LZW_BITS;                             \
+        while (lzwc.lzwOutputBitCount >= 8) {                           \
+            (*f_DestPut)(lzwc.lzwOutputBitBuffer >> 24);                \
+            if (++lzwc.lzwOutputSize > destSizeMax) {                   \
+                (*f_SrcCtrl)(srcLoc, END);                              \
+                (*f_DestCtrl)(destLoc, END);                            \
+                return -1L;                                             \
+            }                                                           \
+            lzwc.lzwOutputBitBuffer <<= 8;                              \
+            lzwc.lzwOutputBitCount -= 8;                                \
+        }                                                               \
     }
 
 int32_t LzwCompress(void (*f_SrcCtrl)(intptr_t srcLoc, LzwCtrl ctrl),   // func to control source
@@ -308,7 +308,7 @@ int32_t LzwCompress(void (*f_SrcCtrl)(intptr_t srcLoc, LzwCtrl ctrl),   // func 
                     void (*f_DestPut)(uint8_t byte),                    // func to put bytes to dest
                     intptr_t destLoc,                                   // dest "location" (ptr, FILE *, etc.)
                     int32_t destSizeMax                                 // max size of dest (or LZW_MAXSIZE)
-) {
+    ) {
 
     // If not already initialized, do it
     if (lzwBuffer == NULL) {
@@ -388,25 +388,25 @@ int32_t LzwCompress(void (*f_SrcCtrl)(intptr_t srcLoc, LzwCtrl ctrl),   // func 
 }
 
 // clang-format off
-//	-----------------------------------------------------------
-//		EXPANSION
-//	-----------------------------------------------------------
+//      -----------------------------------------------------------
+//              EXPANSION
+//      -----------------------------------------------------------
 //
-//	LzwExpand() does lzw expansion.  It reads compressed bytes
-//	from an input source and outputs uncompressed bytes to an output
-//	destination.  It returns the number of bytes the uncompressed data
-//	took up.
+//      LzwExpand() does lzw expansion.  It reads compressed bytes
+//      from an input source and outputs uncompressed bytes to an output
+//      destination.  It returns the number of bytes the uncompressed data
+//      took up.
 //
-//		f_ScrCtrl    = routine to call to control source data stream
-//		f_SrcGet     = routine to call to get next input data byte
-//		srcLoc       = source data "location", actual type undefined
-//		f_DestCtrl   = routine to call to control destination data stream
-//		f_DestPut    = routine to call to put next output data byte
-//		destLoc      = dest data "location", actual type undefined
-//		destSkip     = # bytes of output to skip over before storing
-//		destSize     = # bytes of output to store (if 0, everything)
+//              f_ScrCtrl    = routine to call to control source data stream
+//              f_SrcGet     = routine to call to get next input data byte
+//              srcLoc       = source data "location", actual type undefined
+//              f_DestCtrl   = routine to call to control destination data stream
+//              f_DestPut    = routine to call to put next output data byte
+//              destLoc      = dest data "location", actual type undefined
+//              destSkip     = # bytes of output to skip over before storing
+//              destSize     = # bytes of output to store (if 0, everything)
 //
-//	Returns: # bytes in uncompressed output
+//      Returns: # bytes in uncompressed output
 // clang-format on
 
 typedef struct {
@@ -447,7 +447,7 @@ int32_t LzwExpand(void (*f_SrcCtrl)(intptr_t srcLoc, LzwCtrl ctrl),   // func to
                   intptr_t destLoc,                                   // dest "location" (ptr, FILE *, etc.)
                   int32_t destSkip,                                   // # dest bytes to skip over (or 0)
                   int32_t destSize                                    // # dest bytes to capture (if 0, all)
-) {
+    ) {
     // If not already initialized, do it
     if (lzwBuffer == NULL) {
         if (LzwMallocBuffer() < 0)
@@ -536,12 +536,12 @@ DONE_EXPAND:
     return (lzwe.outputSize);
 }
 
-//	--------------------------------------------------------------
-//		STANDARD INPUT SOURCES
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
+//              STANDARD INPUT SOURCES
+//      --------------------------------------------------------------
 //
-//	LzwBuffSrcCtrl() and LzwBuffSrcGet() implement a memory buffer
-//	source for lzw compression and expansion.
+//      LzwBuffSrcCtrl() and LzwBuffSrcGet() implement a memory buffer
+//      source for lzw compression and expansion.
 
 static uint8_t *lzwBuffSrcPtr;
 
@@ -552,10 +552,10 @@ void LzwBuffSrcCtrl(intptr_t srcLoc, LzwCtrl ctrl) {
 
 uint8_t LzwBuffSrcGet() { return (*lzwBuffSrcPtr++); }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	LzwFdSrcCtrl() and LzwFdSrcGet() implement a file-descriptor
-//	source (fd = open()) for lzw compression and expansion.
+//      LzwFdSrcCtrl() and LzwFdSrcGet() implement a file-descriptor
+//      source (fd = open()) for lzw compression and expansion.
 
 static FILE *lzwFdSrc;
 static int32_t lzwReadBuffIndex;
@@ -568,17 +568,21 @@ void LzwFdSrcCtrl(intptr_t srcLoc, LzwCtrl ctrl) {
 }
 
 uint8_t LzwFdSrcGet() {
+    int retval = 0;
+
     if (lzwReadBuffIndex == LZW_FD_READ_BUFF_SIZE) {
-        fread(lzwFdReadBuff, LZW_FD_READ_BUFF_SIZE, 1, lzwFdSrc);
+        retval = fread(lzwFdReadBuff, LZW_FD_READ_BUFF_SIZE, 1, lzwFdSrc);
         lzwReadBuffIndex = 0;
     }
+
+    (void)retval;
     return (lzwFdReadBuff[lzwReadBuffIndex++]);
 }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	LzwFpSrcCtrl() and LzwFpSrcGet() implement a file-ptr source
-//	(fp = fopen()) for lzw compression and expansion.
+//      LzwFpSrcCtrl() and LzwFpSrcGet() implement a file-ptr source
+//      (fp = fopen()) for lzw compression and expansion.
 
 static FILE *lzwFpSrc;
 
@@ -589,12 +593,12 @@ void LzwFpSrcCtrl(intptr_t srcLoc, LzwCtrl ctrl) {
 
 uint8_t LzwFpSrcGet() { return (fgetc(lzwFpSrc)); }
 
-//	---------------------------------------------------------------
-//		STANDARD OUTPUT SOURCES
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
+//              STANDARD OUTPUT SOURCES
+//      ---------------------------------------------------------------
 //
-//	LzwBuffDestCtrl() and LzwBuffDestPut() implement a memory
-//	buffer destination for lzw compression and expansion.
+//      LzwBuffDestCtrl() and LzwBuffDestPut() implement a memory
+//      buffer destination for lzw compression and expansion.
 
 static uint8_t *lzwBuffDestPtr;
 
@@ -605,10 +609,10 @@ void LzwBuffDestCtrl(intptr_t destLoc, LzwCtrl ctrl) {
 
 void LzwBuffDestPut(uint8_t byte) { *lzwBuffDestPtr++ = byte; }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	LzwFdDestCtrl() and LzwFdDestPut() implement a file-descriptor
-//	destination (fd = open()) for lzw compression and expansion.
+//      LzwFdDestCtrl() and LzwFdDestPut() implement a file-descriptor
+//      destination (fd = open()) for lzw compression and expansion.
 
 static FILE *lzwFdDest;
 static int32_t lzwWriteBuffIndex;
@@ -631,10 +635,10 @@ void LzwFdDestPut(uint8_t byte) {
     }
 }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	LzwFpDestCtrl() and LzwFpDestPut() implement a file-ptr destination
-//	(fp = fopen()) for lzw compression and expansion.
+//      LzwFpDestCtrl() and LzwFpDestPut() implement a file-ptr destination
+//      (fp = fopen()) for lzw compression and expansion.
 
 static FILE *lzwFpDest;
 
@@ -645,29 +649,36 @@ void LzwFpDestCtrl(intptr_t destLoc, LzwCtrl ctrl) {
 
 void LzwFpDestPut(uint8_t byte) { fputc(byte, lzwFpDest); }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	LzwNullDestCtrl() and LzwNullDestPut() implement a bit-bucket
-//	destination for lzw compression and expansion.  Used to size
-//	results of compression or expansion.
+//      LzwNullDestCtrl() and LzwNullDestPut() implement a bit-bucket
+//      destination for lzw compression and expansion.  Used to size
+//      results of compression or expansion.
 
-void LzwNullDestCtrl(int32_t destLoc, LzwCtrl ctrl) {}
+void LzwNullDestCtrl(int32_t destLoc, LzwCtrl ctrl)
+{
+    (void)destLoc;
+    (void)ctrl;
+}
 
-void LzwNullDestPut(uint8_t byte) {}
+void LzwNullDestPut(uint8_t byte)
+{
+    (void)byte;
+}
 
-//	-----------------------------------------------------------
-//		INTERNAL ROUTINES - COMPRESSION
-//	-----------------------------------------------------------
+//      -----------------------------------------------------------
+//              INTERNAL ROUTINES - COMPRESSION
+//      -----------------------------------------------------------
 //
-//	LzwFindMatch() is the hashing routine.  It tries to find a match
-//	for the prefix+char string in the string table.  If it finds it,
-//	the index is returned.  If the string is not found, the first available
-//	index in the string table is returned instead.
+//      LzwFindMatch() is the hashing routine.  It tries to find a match
+//      for the prefix+char string in the string table.  If it finds it,
+//      the index is returned.  If the string is not found, the first available
+//      index in the string table is returned instead.
 //
-//		hash_prefix    = prefix to this code
-//		hash_character = new character
+//              hash_prefix    = prefix to this code
+//              hash_character = new character
 //
-//	Returns: string table index
+//      Returns: string table index
 
 int32_t LzwFindMatch(int32_t hash_prefix, uint32_t hash_character) {
     int32_t index;
@@ -689,13 +700,13 @@ int32_t LzwFindMatch(int32_t hash_prefix, uint32_t hash_character) {
     }
 }
 
-//	------------------------------------------------------------
-//		INTERNAL ROUTINES - EXPANSION
-//	------------------------------------------------------------
+//      ------------------------------------------------------------
+//              INTERNAL ROUTINES - EXPANSION
+//      ------------------------------------------------------------
 //
-//	LzwDecodeString() decodes a string from the string table,
-//	storing it in a buffer.  The buffer can then be output in
-//	reverse order by the expansion program.
+//      LzwDecodeString() decodes a string from the string table,
+//      storing it in a buffer.  The buffer can then be output in
+//      reverse order by the expansion program.
 
 uint8_t *LzwDecodeString(uint8_t *buffer, uint32_t code) {
 #ifdef DBG_ON

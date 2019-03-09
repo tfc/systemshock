@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		ResFile.C		Resource Manager file access
-//		Rex E. Bradford (REX)
+//              ResFile.C               Resource Manager file access
+//              Rex E. Bradford (REX)
 /*
  * $Header: r:/prj/lib/src/res/rcs/resfile.c 1.5 1994/11/30 20:40:43 xemu Exp $
  * $Log: resfile.c $
@@ -46,15 +46,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "res.h"
 #include "res_.h"
 
-//	Resource files start with this signature
+//      Resource files start with this signature
 
 char resFileSignature[16] = {'L', 'G', ' ', 'R', 'e', 's', ' ', 'F', 'i', 'l', 'e', ' ', 'v', '2', 13, 10};
 
-//	The active resource file info table
+//      The active resource file info table
 
 ResFile resFile[MAX_RESFILENUM + 1];
 
-//	Global datapath for res files, other data modules may piggyback
+//      Global datapath for res files, other data modules may piggyback
 
 // Datapath gDatapath;
 
@@ -70,38 +70,39 @@ void ResCreateDir(ResFile *prf);
 void ResWriteDir(int32_t filenum);
 void ResWriteHeader(int32_t filenum);
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResAddPath() adds a path to the resource manager's list.
+//      ResAddPath() adds a path to the resource manager's list.
 //
-//		path = name of directory to add
+//              path = name of directory to add
 /*
-void ResAddPath(char *path)
-{
-        DatapathAdd(&gDatapath, path);
+  void ResAddPath(char *path)
+  {
+  DatapathAdd(&gDatapath, path);
 
-        Spew(DSRC_RES_General, ("ResAddPath: added %s\n", path));
-}
+  Spew(DSRC_RES_General, ("ResAddPath: added %s\n", path));
+  }
 */
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResOpenResFile() opens for read/edit/create.
+//      ResOpenResFile() opens for read/edit/create.
 //
-//		fname   = ptr to filename
-//		mode    = ROM_XXX (see res.h)
-//		auxinfo = if TRUE, allocate aux info, including directory
-//				  (applies to mode 0, other modes automatically
+//              fname   = ptr to filename
+//              mode    = ROM_XXX (see res.h)
+//              auxinfo = if TRUE, allocate aux info, including directory
+//                                (applies to mode 0, other modes automatically
 // get  it)
 //
-//	Returns:
+//      Returns:
 //
-//		-1 = couldn't find free filenum
-//		-2 = couldn't open, edit, or create file
-//		-3 = invalid resource file
-//		-4 = memory allocation failure
+//              -1 = couldn't find free filenum
+//              -2 = couldn't open, edit, or create file
+//              -3 = invalid resource file
+//              -4 = memory allocation failure
 
 int32_t ResOpenResFile(char *fname, ResOpenMode mode, bool auxinfo) {
+    int retval = 0;
     int32_t filenum;
     FILE *fd;
     ResFile *prf;
@@ -109,22 +110,22 @@ int32_t ResOpenResFile(char *fname, ResOpenMode mode, bool auxinfo) {
     ResDirHeader dirHead;
     // uint8_t cd_spoof = FALSE;
 
-    //	Find free file number, else return -1
+    //  Find free file number, else return -1
 
     filenum = ResFindFreeFilenum();
     if (filenum < 0) {
-        WARN("%s: no free filenum for: %s", __FUNCTION__, fname);
+        WARN("%s: no free filenum for: %s", __func__, fname);
         return (-1);
     }
 
-    //	If any mode but create, open along datapath.  If can't open,
-    //	return error except if mode 2 (edit/create), in which case
-    //	drop thru to create case by faking mode 3.
+    //  If any mode but create, open along datapath.  If can't open,
+    //  return error except if mode 2 (edit/create), in which case
+    //  drop thru to create case by faking mode 3.
 
-    TRACE("%s: %s", __FUNCTION__, fname);
+    TRACE("%s: %s", __func__, fname);
 
     if (mode != ROM_CREATE) {
-        //		fd = DatapathFDOpen(&gDatapath, fname, openMode[mode]);
+        //              fd = DatapathFDOpen(&gDatapath, fname, openMode[mode]);
 
         if (mode == ROM_READ)
             fd = fopen_caseless(fname, "rb");
@@ -132,33 +133,33 @@ int32_t ResOpenResFile(char *fname, ResOpenMode mode, bool auxinfo) {
             fd = fopen_caseless(fname, "rb+");
 
         if (fd != NULL) {
-            fread(&fileHead, sizeof(ResFileHeader), 1, fd);
+            retval = fread(&fileHead, sizeof(ResFileHeader), 1, fd);
             if (strncmp(fileHead.signature, resFileSignature, sizeof(resFileSignature)) != 0) {
                 fclose(fd);
-                WARN("%s: %s is not valid resource file", __FUNCTION__, fname);
+                WARN("%s: %s is not valid resource file", __func__, fname);
                 return (-3);
             }
         } else {
             if (mode == ROM_EDITCREATE)
                 mode = ROM_CREATE;
             else {
-                WARN("%s: can't open file: %s", __FUNCTION__, fname);
+                WARN("%s: can't open file: %s", __func__, fname);
                 return (-2);
             }
         }
     }
 
-    //	If create mode, or edit/create failed, try to open file for creation.
+    //  If create mode, or edit/create failed, try to open file for creation.
 
     if (mode == ROM_CREATE) {
         fd = fopen_caseless(fname, "wb");
         if (fd == NULL) {
-            WARN("%s: Can't create file: %s", __FUNCTION__, fname);
+            WARN("%s: Can't create file: %s", __func__, fname);
             return (-2);
         }
     }
 
-    //	If aux info, allocate space for it
+    //  If aux info, allocate space for it
 
     prf = &resFile[filenum];
     prf->pedit = NULL;
@@ -171,55 +172,56 @@ int32_t ResOpenResFile(char *fname, ResOpenMode mode, bool auxinfo) {
         }
     }
 
-    //	Record resFile[] file descriptor
+    //  Record resFile[] file descriptor
     prf->fd = fd;
-    TRACE("%s: opening: %s at filenum %d",__FUNCTION__, fname, filenum);
+    TRACE("%s: opening: %s at filenum %d",__func__, fname, filenum);
 
     // Switch based on mode
     switch (mode) {
-    // If open existing file, read directory into edit info & process, or
-    // if no edit info then process piecemeal.
-    case ROM_READ:
-    case ROM_EDIT:
-    case ROM_EDITCREATE:
-        if (prf->pedit) {
-            ResReadEditInfo(prf);
-            ResReadDir(prf, filenum);
-        } else {
-            fseek(fd, fileHead.dirOffset, SEEK_SET);
-            fread(&dirHead, 1, sizeof(ResDirHeader), fd);
-            ResReadDirEntries(filenum, &dirHead);
-        }
-        break;
+        // If open existing file, read directory into edit info & process, or
+        // if no edit info then process piecemeal.
+      case ROM_READ:
+      case ROM_EDIT:
+      case ROM_EDITCREATE:
+          if (prf->pedit) {
+              ResReadEditInfo(prf);
+              ResReadDir(prf, filenum);
+          } else {
+              fseek(fd, fileHead.dirOffset, SEEK_SET);
+              retval = fread(&dirHead, 1, sizeof(ResDirHeader), fd);
+              ResReadDirEntries(filenum, &dirHead);
+          }
+          break;
 
-    // If open for create, initialize header & dir
-    case ROM_CREATE:
-        ResCreateEditInfo(prf, filenum);
-        ResCreateDir(prf);
-        break;
+          // If open for create, initialize header & dir
+      case ROM_CREATE:
+          ResCreateEditInfo(prf, filenum);
+          ResCreateDir(prf);
+          break;
     }
 
+    (void)retval;
     // Return filenum
     return (filenum);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResCloseFile() closes an open resource file.
+//      ResCloseFile() closes an open resource file.
 //
-//		filenum = file number used when opening file
+//              filenum = file number used when opening file
 
 void ResCloseFile(int32_t filenum) {
     Id id;
 
     // Make sure file is open
     if (resFile[filenum].fd == NULL) {
-        WARN("%s: filenum %d not in use", __FUNCTION__, filenum);
+        WARN("%s: filenum %d not in use", __func__, filenum);
         return;
     }
 
     // If file being created, flush it
-    TRACE("%s: closing %d", __FUNCTION__, filenum);
+    TRACE("%s: closing %d", __func__, filenum);
     if (resFile[filenum].pedit) {
         ResWriteDir(filenum);
         ResWriteHeader(filenum);
@@ -243,11 +245,11 @@ void ResCloseFile(int32_t filenum) {
     resFile[filenum].fd = NULL;
 }
 
-//	--------------------------------------------------------------
-//		INTERNAL ROUTINES
-//	---------------------------------------------------------
+//      --------------------------------------------------------------
+//              INTERNAL ROUTINES
+//      ---------------------------------------------------------
 //
-//	ResFindFreeFilenum() finds free file number
+//      ResFindFreeFilenum() finds free file number
 
 int32_t ResFindFreeFilenum() {
     int32_t filenum;
@@ -259,18 +261,19 @@ int32_t ResFindFreeFilenum() {
     return (-1);
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	ResReadDirEntries() reads in entries in a directory.
-//		(file seek should be set to 1st directory entry)
+//      ResReadDirEntries() reads in entries in a directory.
+//              (file seek should be set to 1st directory entry)
 //
-//		filenum  = file number
-//		pDirHead = ptr to directory header
+//              filenum  = file number
+//              pDirHead = ptr to directory header
 //    add_flags = additional flags to OR into RDF flags for all
 //                resources in this file.
 
 void ResReadDirEntries(int32_t filenum, ResDirHeader *pDirHead) {
 #define NUM_DIRENTRY_BLOCK 64 // (12 bytes each)
+    int retval = 0;
     FILE *fd;
     int32_t entry;
     int32_t dataOffset;
@@ -287,7 +290,8 @@ void ResReadDirEntries(int32_t filenum, ResDirHeader *pDirHead) {
         // If reached end of local directory buffer, refill it
         if (pDirEntry >= &dirEntries[NUM_DIRENTRY_BLOCK]) {
             // read(fd, dirEntries, sizeof(ResDirEntry) * NUM_DIRENTRY_BLOCK);
-            fread(dirEntries, sizeof(ResDirEntry) * NUM_DIRENTRY_BLOCK, 1, fd);
+            retval = fread(dirEntries, sizeof(ResDirEntry) * NUM_DIRENTRY_BLOCK, 1, fd);
+            (void)retval;
             pDirEntry = &dirEntries[0];
         }
 
@@ -300,13 +304,13 @@ void ResReadDirEntries(int32_t filenum, ResDirHeader *pDirHead) {
     }
 }
 
-//	-----------------------------------------------------------
+//      -----------------------------------------------------------
 //
-//	ResProcDirEntry() processes directory entry, sets res desc.
+//      ResProcDirEntry() processes directory entry, sets res desc.
 //
-//		pDirEntry  = ptr to directory entry
-//		filenum    = file number
-//		dataOffset = offset in file where data lives
+//              pDirEntry  = ptr to directory entry
+//              filenum    = file number
+//              dataOffset = offset in file where data lives
 //    add_flags = additional flags to OR into RDF flags for all
 //                resources in this file.
 
@@ -324,10 +328,10 @@ void ResProcDirEntry(ResDirEntry *pDirEntry, int32_t filenum, int32_t dataOffset
     prd = RESDESC(pDirEntry->id);
     prd2 = RESDESC2(pDirEntry->id);
     if (prd->ptr) {
-        WARN("%s, RESOURCE ID COLLISION AT ID %x!!", __FUNCTION__, pDirEntry->id);
+        WARN("%s, RESOURCE ID COLLISION AT ID %x!!", __func__, pDirEntry->id);
         ResDelete(pDirEntry->id);
     }
-    
+
     // Fill in resource descriptor
     prd->ptr = NULL;
     prd->size = pDirEntry->size;
@@ -351,11 +355,12 @@ void ResProcDirEntry(ResDirEntry *pDirEntry, int32_t filenum, int32_t dataOffset
     }
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	ResReadEditInfo() reads edit info from file.
+//      ResReadEditInfo() reads edit info from file.
 
 void ResReadEditInfo(ResFile *prf) {
+    int retval = 0;
     ResEditInfo *pedit = prf->pedit;
 
     // Init flags to no autopack or anything else
@@ -363,7 +368,8 @@ void ResReadEditInfo(ResFile *prf) {
 
     // Seek to start of file, read in header
     fseek(prf->fd, 0L, SEEK_SET);
-    fread(&pedit->hdr, sizeof(pedit->hdr), 1, prf->fd);
+    retval = fread(&pedit->hdr, sizeof(pedit->hdr), 1, prf->fd);
+    (void)retval;
 
     // Set no directory (yet, anyway)
     pedit->pdir = NULL;
@@ -371,11 +377,12 @@ void ResReadEditInfo(ResFile *prf) {
     pedit->currDataOffset = 0L;
 }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	ResReadDir() reads directory for a file.
+//      ResReadDir() reads directory for a file.
 
 void ResReadDir(ResFile *prf, int32_t filenum) {
+    int retval = 0;
     ResEditInfo *pedit;
     ResFileHeader *phead;
     ResDirHeader *pdir;
@@ -387,7 +394,7 @@ void ResReadDir(ResFile *prf, int32_t filenum) {
     pedit = prf->pedit;
     phead = &pedit->hdr;
     fseek(prf->fd, phead->dirOffset, SEEK_SET);
-    fread(&dirHead, sizeof(ResDirHeader), 1, prf->fd);
+    retval = fread(&dirHead, sizeof(ResDirHeader), 1, prf->fd);
 
     // Allocate space for directory, copy directory header into it
 
@@ -396,7 +403,8 @@ void ResReadDir(ResFile *prf, int32_t filenum) {
     *pdir = dirHead;
 
     // Read in directory into allocated space (past header)
-    fread(RESFILE_DIRENTRY(pdir, 0), dirHead.numEntries * sizeof(ResDirEntry), 1, prf->fd);
+    retval = fread(RESFILE_DIRENTRY(pdir, 0), dirHead.numEntries * sizeof(ResDirEntry), 1, prf->fd);
+    (void)retval;
 
     // Scan directory, setting resource descriptors & counting data bytes
     pedit->currDataOffset = pdir->dataOffset;
@@ -413,9 +421,9 @@ void ResReadDir(ResFile *prf, int32_t filenum) {
     fseek(prf->fd, pedit->currDataOffset, SEEK_SET);
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	ResCreateEditInfo() creates new empty edit info.
+//      ResCreateEditInfo() creates new empty edit info.
 
 void ResCreateEditInfo(ResFile *prf, int32_t filenum) {
     ResEditInfo *pedit = prf->pedit;
@@ -426,9 +434,9 @@ void ResCreateEditInfo(ResFile *prf, int32_t filenum) {
     memset(pedit->hdr.reserved, 0, sizeof(pedit->hdr.reserved));
 }
 
-//	--------------------------------------------------------------
+//      --------------------------------------------------------------
 //
-//	ResCreateDir() creates empty dir.
+//      ResCreateDir() creates empty dir.
 
 void ResCreateDir(ResFile *prf) {
     ResEditInfo *pedit = prf->pedit;
@@ -441,38 +449,38 @@ void ResCreateDir(ResFile *prf) {
     fseek(prf->fd, pedit->currDataOffset, SEEK_SET);
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	ResWriteDir() writes directory to resource file.
+//      ResWriteDir() writes directory to resource file.
 
 void ResWriteDir(int32_t filenum) {
     ResFile *prf;
 
     if (resFile[filenum].pedit == NULL) {
-        WARN("%s: file %d not open for writing", __FUNCTION__, filenum);
+        WARN("%s: file %d not open for writing", __func__, filenum);
         return;
     }
 
-    TRACE("%s: writing directory for filenum %d", __FUNCTION__, filenum);
+    TRACE("%s: writing directory for filenum %d", __func__, filenum);
 
     prf = &resFile[filenum];
     fseek(prf->fd, prf->pedit->currDataOffset, SEEK_SET);
     fwrite(prf->pedit->pdir, sizeof(ResDirHeader) + (prf->pedit->pdir->numEntries * sizeof(ResDirEntry)), 1, prf->fd);
 }
 
-//	--------------------------------------------------------
+//      --------------------------------------------------------
 //
-//	ResWriteHeader() writes header to resource file.
+//      ResWriteHeader() writes header to resource file.
 
 void ResWriteHeader(int32_t filenum) {
     ResFile *prf;
 
     if (resFile[filenum].pedit == NULL) {
-        WARN("%s: file %d not open for writing", __FUNCTION__, filenum);
+        WARN("%s: file %d not open for writing", __func__, filenum);
         return;
     }
 
-    TRACE("%s: writing header for filenum %d", __FUNCTION__, filenum);
+    TRACE("%s: writing header for filenum %d", __func__, filenum);
 
     prf = &resFile[filenum];
     prf->pedit->hdr.dirOffset = prf->pedit->currDataOffset;

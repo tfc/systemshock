@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		ResMake.c		Resource making
-//		Rex E. Bradford
+//              ResMake.c               Resource making
+//              Rex E. Bradford
 /*
  * $Header: n:/project/lib/src/res/rcs/resmake.c 1.2 1994/06/16 11:08:04 rex Exp
  * $
@@ -37,25 +37,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "res.h"
 #include "res_.h"
 
-//	--------------------------------------------------------
+//      --------------------------------------------------------
 //
-//	ResMake() makes a resource from a data block.
+//      ResMake() makes a resource from a data block.
 //
-//		Id      = id of resource
-//		ptr     = ptr to memory block (resource is not copied; this
+//              Id      = id of resource
+//              ptr     = ptr to memory block (resource is not copied; this
 //                should point to storage where the resource can live
 //                indefinitely)
-//		size    = size of resource in bytes
-//		type    = resource type (RTYPE_XXX)
-//		filenum = file number
-//		flags   = flags (RDF_XXX)
-//	--------------------------------------------------------
+//              size    = size of resource in bytes
+//              type    = resource type (RTYPE_XXX)
+//              filenum = file number
+//              flags   = flags (RDF_XXX)
+//      --------------------------------------------------------
 //  For Mac version, use Resource Manager to add the resource to indicated res
 //  file.
 
 void ResMake(Id id, void *ptr, int32_t size, uint8_t type, int32_t filenum, uint8_t flags) {
 
-    TRACE("%s: Making id $%x", __FUNCTION__, id);
+    TRACE("%s: Making id $%x", __func__, id);
     ResDesc *prd;
     ResDesc2 *prd2;
 
@@ -81,21 +81,21 @@ void ResMake(Id id, void *ptr, int32_t size, uint8_t type, int32_t filenum, uint
     prd2->type = type;
 }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	ResMakeCompound() makes an empty compound resource
+//      ResMakeCompound() makes an empty compound resource
 //
-//		id      = id of resource
-//		type    = resource type (RTYPE_XXX)
-//		filenum = file number
-//		flags   = flags (RDF_XXX, RDF_COMPOUND automatically added)
+//              id      = id of resource
+//              type    = resource type (RTYPE_XXX)
+//              filenum = file number
+//              flags   = flags (RDF_XXX, RDF_COMPOUND automatically added)
 
 void ResMakeCompound(Id id, uint8_t type, int32_t filenum, uint8_t flags) {
     RefTable *prt;
     int32_t sizeTable;
 
     // Build empty compound resource in allocated memory
-    TRACE("%s: making compound resource $%x", __FUNCTION__, id);
+    TRACE("%s: making compound resource $%x", __func__, id);
 
     sizeTable = REFTABLESIZE(0);
     prt = (RefTable *)malloc(sizeTable);
@@ -106,15 +106,15 @@ void ResMakeCompound(Id id, uint8_t type, int32_t filenum, uint8_t flags) {
     ResMake(id, prt, sizeTable, type, filenum, flags | RDF_COMPOUND);
 }
 
-//	---------------------------------------------------------------
+//      ---------------------------------------------------------------
 //
-//	ResAddRef() adds an item to a compound resource.
+//      ResAddRef() adds an item to a compound resource.
 //
-//		ref      = reference
-//		pitem    = ptr to item's data (copied from here, unlike simple
-//			resource)
-//		itemSize = size of item
-//	---------------------------------------------------------------
+//              ref      = reference
+//              pitem    = ptr to item's data (copied from here, unlike simple
+//                      resource)
+//              itemSize = size of item
+//      ---------------------------------------------------------------
 
 void ResAddRef(Ref ref, void *pitem, int32_t itemSize) {
     ResDesc *prd;
@@ -127,7 +127,7 @@ void ResAddRef(Ref ref, void *pitem, int32_t itemSize) {
         return;
 
     // Get vital info (and get into memory if not already)
-    TRACE("%s: adding ref $%x\n", __FUNCTION__, ref);
+    TRACE("%s: adding ref $%x\n", __func__, ref);
 
     prd = RESDESC(REFID(ref));
 
@@ -202,17 +202,17 @@ void ResAddRef(Ref ref, void *pitem, int32_t itemSize) {
     }
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	ResUnmake() removes a resource from the LRU list and sets its
-//		ptr to NULL.  In this way, a program may take over management
-//		of the resource data, and the RES system forgets about it.
-//		This is typically done when user-managed data needs to be
-//		written to a resource file, using ResMake(), ResWrite(),
-//		ResUnmake().
+//      ResUnmake() removes a resource from the LRU list and sets its
+//              ptr to NULL.  In this way, a program may take over management
+//              of the resource data, and the RES system forgets about it.
+//              This is typically done when user-managed data needs to be
+//              written to a resource file, using ResMake(), ResWrite(),
+//              ResUnmake().
 //
-//		id = id of resource to unmake
-//	--------------------------------------------------------
+//              id = id of resource to unmake
+//      --------------------------------------------------------
 //  For Mac version: use ReleaseResource to free the handle (the pointer that
 //  the handle was made from will still be around).
 

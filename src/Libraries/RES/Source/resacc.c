@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		ResAcc.c		Resource access
-//		Rex E. Bradford
+//              ResAcc.c                Resource access
+//              Rex E. Bradford
 /*
  * $Header: r:/prj/lib/src/res/rcs/resacc.c 1.4 1994/08/30 15:18:20 rex Exp $
  * $Log: resacc.c $
@@ -42,20 +42,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h> // free()
 #include <string.h>
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResLock() locks a resource and returns ptr.
+//      ResLock() locks a resource and returns ptr.
 //
-//		id = resource id
+//              id = resource id
 //
-//	Returns: ptr to locked resource
-//	---------------------------------------------------------
+//      Returns: ptr to locked resource
+//      ---------------------------------------------------------
 
 void *ResLock(Id id) {
     ResDesc *prd;
 
-    //	Check if valid id
-    //	DBG(DSRC_RES_ChkIdRef, {if (!ResCheckId(id)) return NULL;});
+    //  Check if valid id
+    //  DBG(DSRC_RES_ChkIdRef, {if (!ResCheckId(id)) return NULL;});
 
 
     prd = RESDESC(id);
@@ -79,12 +79,12 @@ void *ResLock(Id id) {
     return (prd->ptr);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResUnlock() unlocks a resource.
+//      ResUnlock() unlocks a resource.
 //
-//		id = resource id
-//	---------------------------------------------------------
+//              id = resource id
+//      ---------------------------------------------------------
 void ResUnlock(Id id) {
     ResDesc *prd;
 
@@ -96,7 +96,7 @@ void ResUnlock(Id id) {
     prd = RESDESC(id);
 
     if (prd->lock == 0) {
-        DEBUG("%s: id $%x already unlocked",  __FUNCTION__, id);
+        DEBUG("%s: id $%x already unlocked",  __func__, id);
         return;
     }
 
@@ -110,15 +110,15 @@ void ResUnlock(Id id) {
     }
 }
 
-//	-------------------------------------------------------------
+//      -------------------------------------------------------------
 //
-//	ResGet() gets a ptr to a resource
+//      ResGet() gets a ptr to a resource
 //
-//		id = resource id
+//              id = resource id
 //
-//	Returns: ptr to resource (ptr only guaranteed until next Malloc(),
-//				Lock(), Get(), etc.
-//	---------------------------------------------------------
+//      Returns: ptr to resource (ptr only guaranteed until next Malloc(),
+//                              Lock(), Get(), etc.
+//      ---------------------------------------------------------
 
 void *ResGet(Id id) {
     ResDesc *prd;
@@ -146,16 +146,16 @@ void *ResGet(Id id) {
     return (prd->ptr);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResExtract() extracts a resource from an open resource file.
+//      ResExtract() extracts a resource from an open resource file.
 //
-//		id   = id
-//		buff = ptr to buffer (use ResSize() to compute needed buffer
+//              id   = id
+//              buff = ptr to buffer (use ResSize() to compute needed buffer
 // size)
 //
-//	Returns: ptr to supplied buffer, or NULL if problem
-//	---------------------------------------------------------
+//      Returns: ptr to supplied buffer, or NULL if problem
+//      ---------------------------------------------------------
 //  For Mac version:  Copies information from resource handle into the buffer.
 
 void *ResExtract(Id id, void *buffer) {
@@ -164,17 +164,17 @@ void *ResExtract(Id id, void *buffer) {
         return (buffer);
     }
 
-    ERROR("%s: failed for %x", __FUNCTION__, id);
+    ERROR("%s: failed for %x", __func__, id);
     // If ResRetreive failed, return NULL ptr
     return (NULL);
 }
 
-//	----------------------------------------------------------
+//      ----------------------------------------------------------
 //
-//	ResDrop() drops a resource from memory for awhile.
+//      ResDrop() drops a resource from memory for awhile.
 //
-//		id = resource id
-//	----------------------------------------------------------
+//              id = resource id
+//      ----------------------------------------------------------
 void ResDrop(Id id) {
     ResDesc *prd;
 
@@ -183,21 +183,21 @@ void ResDrop(Id id) {
 
     prd = RESDESC(id);
     if (prd->lock)
-        WARN("%s: Block $%x is locked, dropping anyway", __FUNCTION__, id);
+        WARN("%s: Block $%x is locked, dropping anyway", __func__, id);
 
     // Remove from LRU chain
     if (prd->lock == 0)
         ResRemoveFromLRU(prd);
 
-    //	Free memory and set ptr to NULL
+    //  Free memory and set ptr to NULL
 
     if (prd->ptr == NULL) {
-        TRACE("%s: Block $%x not in memory, ignoring request\n", __FUNCTION__, id);
+        TRACE("%s: Block $%x not in memory, ignoring request\n", __func__, id);
         return;
     }
 
     if (prd->lock != 0) {
-        TRACE("%s: Dropping resource 0x%x that's in use.", __FUNCTION__, id);
+        TRACE("%s: Dropping resource 0x%x that's in use.", __func__, id);
         prd->lock = 0;
     }
 
@@ -207,12 +207,12 @@ void ResDrop(Id id) {
     }
 }
 
-//	-------------------------------------------------------
+//      -------------------------------------------------------
 //
-//	ResDelete() deletes a resource forever.
+//      ResDelete() deletes a resource forever.
 //
-//		Id = id of resource
-//	-------------------------------------------------------
+//              Id = id of resource
+//      -------------------------------------------------------
 //  For Mac version:  Call ReleaseResource on the handle and set its ref to
 //  null. The next ResLoadResource on the resource will load it back in.
 
@@ -236,23 +236,23 @@ void ResDelete(Id id) {
     }
 }
 
-//	--------------------------------------------------------
-//		INTERNAL ROUTINES
-//	--------------------------------------------------------
+//      --------------------------------------------------------
+//              INTERNAL ROUTINES
+//      --------------------------------------------------------
 //
-//	ResCheckId() checks if id valid.
+//      ResCheckId() checks if id valid.
 //
-//		id = id to be checked
+//              id = id to be checked
 //
-//	Returns: TRUE if id ok, FALSE if invalid & prints warning
+//      Returns: TRUE if id ok, FALSE if invalid & prints warning
 
 bool ResCheckId(Id id) {
     if (id < ID_MIN) {
-        DEBUG("%s: id $%x invalid", __FUNCTION__, id);
+        DEBUG("%s: id $%x invalid", __func__, id);
         return false;
     }
     if (id > resDescMax) {
-        DEBUG("%s: id $%x exceeds table", __FUNCTION__, id);
+        DEBUG("%s: id $%x exceeds table", __func__, id);
         return false;
     }
     return true;

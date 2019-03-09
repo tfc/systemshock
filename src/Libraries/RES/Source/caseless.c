@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <assert.h>
 #include <string.h>
+#include <strings.h> // strcasecmp()
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -48,7 +49,8 @@ size_t DG_strlcpy(char *dst, const char *src, size_t dstsize) {
 size_t DG_strlcat(char *dst, const char *src, size_t dstsize) {
     assert(src && dst && "Don't call strlcat with NULL arguments!");
 
-    size_t dstlen = strnlen(dst, dstsize);
+    //size_t dstlen = strnlen(dst, dstsize);
+    size_t dstlen = strlen(dst);
     size_t srclen = strlen(src);
 
     assert(dstlen != dstsize && "dst must contain null-terminated data with strlen < dstsize!");
@@ -156,7 +158,7 @@ int caselesspath(const char *inpath, char *outpath, int wantdir) {
     if (stat(inpath, &statBuf) == 0) {
         // the file exists, now we only need to make sure it's a directory
         // or not, depending on isdir
-        int isdir = ((statBuf.st_mode & S_IFDIR) != 0);
+        int isdir = ((statBuf.st_mode & __S_IFDIR) != 0);
         if (wantdir == -1 || isdir == wantdir) {
             DG_strlcpy(outpath, inpath, inlen + 1);
             return 1;

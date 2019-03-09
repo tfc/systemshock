@@ -60,10 +60,10 @@ void ResSetComment(int32_t filenum, char *comment) {
 
     ResFileHeader *phead;
     if (resFile[filenum].pedit == NULL) {
-        WARN("%s: file %d not open for writing", __FUNCTION__, filenum);
+        WARN("%s: file %d not open for writing", __func__, filenum);
         return;
     }
-    TRACE("%s: setting comment for filenum %d to: %s", __FUNCTION__, filenum, comment);
+    TRACE("%s: setting comment for filenum %d to: %s", __func__, filenum, comment);
 
 
     phead = &resFile[filenum].pedit->hdr;
@@ -95,7 +95,7 @@ int32_t ResWrite(Id id) {
     void *pcompbuff;
     int32_t compsize, padBytes;
 
-    TRACE("%s: writing", __FUNCTION__);
+    TRACE("%s: writing", __func__);
     if (!ResCheckId(id))
         return -1;
 
@@ -103,7 +103,7 @@ int32_t ResWrite(Id id) {
     prf = &resFile[prd->filenum];
 
     if (prf->pedit == NULL) {
-        ERROR("%s: file %i not open for writing!", __FUNCTION__, prd->filenum);
+        ERROR("%s: file %i not open for writing!", __func__, prd->filenum);
         return -1;
     }
     //});
@@ -113,7 +113,7 @@ int32_t ResWrite(Id id) {
 
     // If directory full, grow it
     if (prf->pedit->pdir->numEntries == prf->pedit->numAllocDir) {
-        TRACE("%s: growing directory of filenum %d", __FUNCTION__, prd->filenum);
+        TRACE("%s: growing directory of filenum %d", __func__, prd->filenum);
 
         prf->pedit->numAllocDir += DEFAULT_RES_GROWDIRENTRIES;
         prf->pedit->pdir =
@@ -132,7 +132,7 @@ int32_t ResWrite(Id id) {
     pDirEntry->type = prd2->type;
     pDirEntry->size = prd->size;
 
-    TRACE("%s: writing $%x\n", __FUNCTION__, id);
+    TRACE("%s: writing $%x\n", __func__, id);
 
     // If compound, write out reftable without compression
     fseek(prf->fd, prf->pedit->currDataOffset, SEEK_SET);
@@ -204,7 +204,7 @@ void ResKill(Id id) {
     // Check for valid id
     if (!ResCheckId(id))
         return;
-    TRACE("%s: killing $%x\n", __FUNCTION__, id);
+    TRACE("%s: killing $%x\n", __func__, id);
 
     // Delete it
     ResDelete(id);
@@ -212,7 +212,7 @@ void ResKill(Id id) {
     // Make sure file is writeable
     prd = RESDESC(id);
     if (resFile[prd->filenum].pedit == NULL) {
-        WARN("%s: file %d not open for writing", __FUNCTION__, prd->filenum);
+        WARN("%s: file %d not open for writing", __func__, prd->filenum);
         return;
     }
 
@@ -230,6 +230,7 @@ void ResKill(Id id) {
 //  Returns: # bytes reclaimed
 
 int32_t ResPack(int32_t filenum) {
+    int retval = 0;
     ResFile *prf;
     ResDirEntry *pDirEntry;
     int32_t numReclaimed, sizeReclaimed;
@@ -240,7 +241,7 @@ int32_t ResPack(int32_t filenum) {
     // Check for errors
     prf = &resFile[filenum];
     if (prf->pedit == NULL) {
-        ERROR("%s: filenum %d not open for editing", __FUNCTION__, filenum);
+        ERROR("%s: filenum %d not open for editing", __func__, filenum);
         return (0);
     }
 
@@ -287,10 +288,11 @@ int32_t ResPack(int32_t filenum) {
     // write directory on closing)
 
     // FIXME Non-portable
-    ftruncate(fileno(prf->fd), dataWrite);
+    retval = ftruncate(fileno(prf->fd), dataWrite);
+    (void)retval;
 
     // Return # bytes reclaimed
-    TRACE("%s: reclaimed %d bytes", __FUNCTION__, sizeReclaimed);
+    TRACE("%s: reclaimed %d bytes", __func__, sizeReclaimed);
 
     return (sizeReclaimed);
 }
@@ -298,6 +300,7 @@ int32_t ResPack(int32_t filenum) {
 #define SIZE_RESCOPY 32768
 
 static void ResCopyBytes(FILE *fd, int32_t writePos, int32_t readPos, int32_t size) {
+    int retval = 0;
     int32_t sizeCopy;
     uint8_t *buff;
 
@@ -306,7 +309,7 @@ static void ResCopyBytes(FILE *fd, int32_t writePos, int32_t readPos, int32_t si
     while (size > 0) {
         sizeCopy = lg_min(SIZE_RESCOPY, size);
         fseek(fd, readPos, SEEK_SET);
-        fread(buff, sizeCopy, 1, fd);
+        retval = fread(buff, sizeCopy, 1, fd);
         fseek(fd, writePos, SEEK_SET);
         fwrite(buff, sizeCopy, 1, fd);
         readPos += sizeCopy;
@@ -314,6 +317,7 @@ static void ResCopyBytes(FILE *fd, int32_t writePos, int32_t readPos, int32_t si
         size -= sizeCopy;
     }
 
+    (void)retval;
     free(buff);
 }
 
@@ -339,7 +343,7 @@ bool ResEraseIfInFile(Id id) {
 
     for (i = 0; i < prf->pedit->pdir->numEntries; i++) {
         if (id == pDirEntry->id) {
-            TRACE("%s: $%x being erased\n", __FUNCTION__, id);
+            TRACE("%s: $%x being erased\n", __func__, id);
             pDirEntry->id = 0;
             prf->pedit->flags |= RFF_NEEDSPACK;
             if (prf->pedit->flags & RFF_AUTOPACK)

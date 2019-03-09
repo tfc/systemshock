@@ -391,6 +391,9 @@ FIX_SRCS=\
 
 FIX_OBJS=$(patsubst %.c, %.o, $(FIX_SRCS))
 
+FIX_CPP_SRCS=src/Libraries/FIXPP/Source/fixpp.cpp
+FIX_CPP_OBJS=$(patsubst %.cpp, %.o, $(FIX_SRCS))
+
 INPUT_SRCS=\
 	src/Libraries/INPUT/Source/kbcook.c\
 	src/Libraries/INPUT/Source/mouse.c\
@@ -398,5 +401,101 @@ INPUT_SRCS=\
 
 INPUT_OBJS=$(patsubst %.c, %.o, $(INPUT_SRCS))
 
+LG_SRCS=\
+	src/Libraries/LG/Source/LOG/src/log.c\
+	src/Libraries/LG/Source/dbg.c\
+	src/Libraries/LG/Source/lgsprntf.c\
+	src/Libraries/LG/Source/memall.c\
+	src/Libraries/LG/Source/stack.c\
+	src/Libraries/LG/Source/tmpalloc.c\
+	src/stubs/Carbon/carbon_stubs.c
+
+LG_OBJS=$(patsubst %.c, %.o, $(LG_SRCS))
+
+PALETTE_SRCS=src/Libraries/PALETTE/Source/palette.c
+PALETTE_OBJS=$(patsubst %.c, %.o, $(PALETTE_SRCS))
+
+RES_SRCS=\
+	src/Libraries/RES/Source/caseless.c\
+	src/Libraries/RES/Source/lzw.c\
+	src/Libraries/RES/Source/refacc.c\
+	src/Libraries/RES/Source/resacc.c\
+	src/Libraries/RES/Source/resbuild.c\
+	src/Libraries/RES/Source/res.c\
+	src/Libraries/RES/Source/resfile.c\
+	src/Libraries/RES/Source/resload.c\
+	src/Libraries/RES/Source/resmake.c\
+	src/Libraries/RES/Source/restypes.c
+
+RES_OBJS=$(patsubst %.c, %.o, $(RES_SRCS))
+
 RND_SRCS=src/Libraries/2D/Source/RND/rnd.c
 RND_OBJS=$(patsubst %.c, %.o, $(RND_SRCS))
+
+SND_SRCS=\
+	src/Libraries/SND/Source/dig_init.c\
+	src/Libraries/SND/Source/dig_ops.c\
+	src/Libraries/SND/Source/master.c\
+	src/Libraries/SND/Source/mid_init.c\
+	src/Libraries/SND/Source/mid_ops.c\
+	src/Libraries/SND/Source/snd_util.c
+
+SND_OBJS=$(patsubst %.c, %.o, $(SND_SRCS))
+
+UI_SRCS=\
+	src/Libraries/UI/Source/butarray.c\
+	src/Libraries/UI/Source/curdrw.c\
+	src/Libraries/UI/Source/cursors.c\
+	src/Libraries/UI/Source/event.c\
+	src/Libraries/UI/Source/gadgets.c\
+	src/Libraries/UI/Source/hotkey.c\
+	src/Libraries/UI/Source/menu.c\
+	src/Libraries/UI/Source/monofont.c\
+	src/Libraries/UI/Source/plain.c\
+	src/Libraries/UI/Source/pushbutt.c\
+	src/Libraries/UI/Source/qboxgadg.c\
+	src/Libraries/UI/Source/realfont.c\
+	src/Libraries/UI/Source/region.c\
+	src/Libraries/UI/Source/slab.c\
+	src/Libraries/UI/Source/slider.c\
+	src/Libraries/UI/Source/textgadg.c\
+	src/Libraries/UI/Source/texttool.c\
+	src/Libraries/UI/Source/tngbarry.c\
+	src/Libraries/UI/Source/tng.c\
+	src/Libraries/UI/Source/tngfont.c\
+	src/Libraries/UI/Source/tngmenu.c\
+	src/Libraries/UI/Source/tngplain.c\
+	src/Libraries/UI/Source/tngpushb.c\
+	src/Libraries/UI/Source/tngqbox.c\
+	src/Libraries/UI/Source/tngslidr.c\
+	src/Libraries/UI/Source/tngtemp.c\
+	src/Libraries/UI/Source/tngtextg.c\
+	src/Libraries/UI/Source/uires.c\
+	src/Libraries/UI/Source/vmouse.c
+
+UI_OBJS=$(patsubst %.c, %.o, $(UI_SRCS))
+
+EDMS_SRCS=\
+	src/Libraries/EDMS/Source/interfac.cc\
+	src/Libraries/EDMS/Source/collide.cc\
+	src/Libraries/EDMS/Source/intrsect.cc\
+	src/Libraries/EDMS/Source/globals.cc\
+	src/Libraries/EDMS/Source/phy_tool.cc\
+	src/Libraries/EDMS/Source/soliton.cc\
+	src/Libraries/EDMS/Source/MODELS/robot.cc\
+	src/Libraries/EDMS/Source/MODELS/pelface.cc\
+	src/Libraries/EDMS/Source/MODELS/ftl.cc\
+	src/Libraries/EDMS/Source/MODELS/pelvis.cc\
+	src/Libraries/EDMS/Source/MODELS/d_frame.cc\
+	src/Libraries/EDMS/Source/MODELS/d_f_face.cc\
+	src/Libraries/EDMS/Source/MODELS/ftlface.cc\
+	src/Libraries/EDMS/Source/MODELS/d_f_2.cc
+
+EDMS_OBJS=$(patsubst %.cc, %.o, $(EDMS_SRCS))
+
+VOX_SRCS=\
+	src/Libraries/VOX/Source/vox2d.c\
+	src/Libraries/VOX/Source/vox3d.c\
+	src/Libraries/VOX/Source/voxinit.c
+
+VOX_OBJS=$(patsubst %.c, %.o, $(VOX_SRCS))

@@ -6,15 +6,15 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 /*
  * $Source: r:/prj/lib/src/vox/RCS/vox3d.c $
@@ -28,20 +28,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * $Log: vox3d.c $
  * Revision 1.5  1994/08/16  05:45:42  jaemz
  * Found fix overflow problem and fixed it
- * 
+ *
  * Revision 1.4  1994/08/11  22:53:20  jaemz
  * Made fill mode work and put pix_size in real 3d points.
- * 
+ *
  * Revision 1.3  1994/07/15  21:13:20  jaemz
  * Added self clipping
- * 
+ *
  * Revision 1.2  1994/04/21  12:00:36  jaemz
  * Changed interface to vox2d to facilitate bounds checking in
  * the debug version.
- * 
+ *
  * Revision 1.1  1994/04/21  10:52:42  jaemz
  * Initial revision
- * 
+ *
  */
 
 
@@ -100,11 +100,11 @@ void vx_render(vxs_vox *vx)
    #endif
 
    // spot to render on screen
-   p[0].gX = p[0].gY = p[0].gZ = 0;
+   p[0].noname2.gX = p[0].noname2.gY = p[0].noname2.gZ = 0;
    // dx's and dy's and stuff
-   p[1].gX = vx->pix_dist; p[1].gY = 0; p[1].gZ = 0;
-   p[2].gX = 0; p[2].gY = vx->pix_dist; p[2].gZ = 0;
-   p[3].gX = 0; p[3].gY = 0; p[3].gZ = vx->pix_dist;
+   p[1].noname2.gX = vx->pix_dist; p[1].noname2.gY = 0; p[1].noname2.gZ = 0;
+   p[2].noname2.gX = 0; p[2].noname2.gY = vx->pix_dist; p[2].noname2.gZ = 0;
+   p[3].noname2.gX = 0; p[3].noname2.gY = 0; p[3].noname2.gZ = vx->pix_dist;
 
    g3_alloc_list(4,tmp);
    g3_transform_list(4,tmp,p);
@@ -115,7 +115,7 @@ void vx_render(vxs_vox *vx)
    // tmp[3] contains dxdz dydz
 
    // return if it's behind you
-   if (tmp[0]->gZ < 0) {
+   if (tmp[0]->noname2.gZ < 0) {
       g3_free_list(4,tmp);
       return;
    }
@@ -147,8 +147,8 @@ void vx_render(vxs_vox *vx)
    gr_bitmap(vx->ht,fix_rint(tmp[0]->sx)-vx->w,fix_rint(tmp[0]->sy)-vx->h);
 #endif
 
-   //calculate pixel size 
-   psy = fix_div(grd_bm.w * vx->pix_size,tmp[0]->gZ)>>1;
+   //calculate pixel size
+   psy = fix_div(grd_bm.w * vx->pix_size,tmp[0]->noname2.gZ)>>1;
    psx = fix_mul(psy,grd_cap->aspect);
 
 //   mprintf("psx = %x psy = %x\n",psx,psy);
@@ -170,9 +170,9 @@ void vx_render(vxs_vox *vx)
    maxdx = maxdx >> 1;
    maxdy = maxdy >> 1;
 
-   tx = fix_abs(tmp[0]->gX);
-   ty = fix_abs(tmp[0]->gY);
-   tz = tmp[0]->gZ;
+   tx = fix_abs(tmp[0]->noname2.gX);
+   ty = fix_abs(tmp[0]->noname2.gY);
+   tz = tmp[0]->noname2.gZ;
 
    // clip if it SEEMS to be out of bounds, or if psx is bigger than 10.  Kind of a hack to compensate
    // for weirdo fixed point saturation.
@@ -186,15 +186,15 @@ void vx_render(vxs_vox *vx)
    mprintf("minus tx/tz = %g ty/tz = %g\n",(float)fix_div(tx- vx->pix_dist * vx->w,tz)/65536.0,
       (float)fix_div(ty- vx->pix_dist * vx->h,tz)/65536.0);
    #endif
-                           
+
    if ( (tx-(vx->pix_dist * vx->w) > tz ) || (ty-(vx->pix_dist * vx->h) > tz)) {
       #ifdef BBOX
       mprintf("vox: punting due to out of view cone\n");
       #endif
       g3_free_list(4,tmp);
-      return;                              
+      return;
    }
-    
+
 #ifdef BBOX
    // different color when clipping
    gr_set_fcolor(0x4c+clip*0x10);
@@ -206,12 +206,12 @@ void vx_render(vxs_vox *vx)
    y[2] = y[1]+(vx->h)*(tmp[2]->sy);
    x[3] = a+(vx->h)*(tmp[2]->sx);
    y[3] = b+(vx->h)*(tmp[2]->sy);
-   
+
    gr_fix_line(x[0],y[0],x[1],y[1]);
    gr_fix_line(x[1],y[1],x[2],y[2]);
    gr_fix_line(x[2],y[2],x[3],y[3]);
    gr_fix_line(x[3],y[3],x[0],y[0]);
-   
+
    for (i=0;i<4;++i) {
       x[i] += (vx->d)*(tmp[3]->sx);
       y[i] += (vx->d)*(tmp[3]->sy);
@@ -239,20 +239,20 @@ void vx_render(vxs_vox *vx)
 
    // find near vertex
    near_ver = 0;
-   min_z = tmp[0]->gZ;
+   min_z = tmp[0]->noname2.gZ;
 
    // check for vertex 1
-   if (tmp[1]->gZ < min_z) {
+   if (tmp[1]->noname2.gZ < min_z) {
       near_ver = 1;
-      min_z = tmp[1]->gZ;
+      min_z = tmp[1]->noname2.gZ;
    }
-   if (tmp[1]->gZ + tmp[2]->gZ < min_z) {
+   if (tmp[1]->noname2.gZ + tmp[2]->noname2.gZ < min_z) {
       near_ver = 2;
-      min_z = tmp[1]->gZ + tmp[2]->gZ;
+      min_z = tmp[1]->noname2.gZ + tmp[2]->noname2.gZ;
    }
-   if (tmp[2]->gZ < min_z) {
+   if (tmp[2]->noname2.gZ < min_z) {
       near_ver = 3;
-      min_z = tmp[2]->gZ;
+      min_z = tmp[2]->noname2.gZ;
    }
 
    //mprintf("near_ver = %d\n",near_ver);
@@ -276,7 +276,7 @@ void vx_render(vxs_vox *vx)
    // f= 0;
 
    //mprintf("clip = %d\n",clip);
-   //mprintf("tmp[0]->gZ = %x\n",tmp[0]->gZ);
+   //mprintf("tmp[0]->noname2.gZ = %x\n",tmp[0]->noname2.gZ);
 
    vmap_dot(a,b,tmp[1]->sx,tmp[1]->sy,tmp[2]->sx,tmp[2]->sy,tmp[3]->sx,tmp[3]->sy,near_ver,vx,fix_rint(psx),fix_rint(psy),clip);
 

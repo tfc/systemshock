@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		ResLoad.c	Load resource from resfile
-//		Rex E. Bradford
+//              ResLoad.c       Load resource from resfile
+//              Rex E. Bradford
 /*
  * $Header: n:/project/lib/src/res/rcs/resload.c 1.5 1994/06/16 11:07:44 rex Exp
  * $ $Log: resload.c $ Revision 1.5  1994/06/16  11:07:44  rex Took LRU list
@@ -50,13 +50,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //  Private Prototypes
 //-------------------------------
 
-//	-----------------------------------------------------------
+//      -----------------------------------------------------------
 //
-//	ResLoadResource() loads a resource object, decompressing it if it is
-//		compressed.
+//      ResLoadResource() loads a resource object, decompressing it if it is
+//              compressed.
 //
-//		id = resource id
-//	-----------------------------------------------------------
+//              id = resource id
+//      -----------------------------------------------------------
 
 void *ResLoadResource(Id id) {
     ResDesc *prd;
@@ -67,7 +67,7 @@ void *ResLoadResource(Id id) {
     if (!ResCheckId(id))
         return NULL;
 
-    TRACE("%s loading $%x", __FUNCTION__, id);
+    TRACE("%s loading $%x", __func__, id);
 
     prd = RESDESC(id);
 
@@ -87,16 +87,17 @@ void *ResLoadResource(Id id) {
     return (prd->ptr);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResRetrieve() retrieves a resource from disk.
+//      ResRetrieve() retrieves a resource from disk.
 //
-//		id     = id of resource
-//		buffer = ptr to buffer to load into (must be big enough)
+//              id     = id of resource
+//              buffer = ptr to buffer to load into (must be big enough)
 //
-//	Returns: TRUE if retrieved, FALSE if problem
+//      Returns: TRUE if retrieved, FALSE if problem
 
 bool ResRetrieve(Id id, void *buffer) {
+    int retval = 0;
     ResDesc *prd;
     ResDesc2 *prd2;
     FILE *fd;
@@ -106,7 +107,7 @@ bool ResRetrieve(Id id, void *buffer) {
 
     // Check id and file number
     if (!ResCheckId(id)) {
-        TRACE("%s: failed ResCheckId! %x\n", __FUNCTION__, id);
+        TRACE("%s: failed ResCheckId! %x\n", __func__, id);
         return false;
     }
 
@@ -115,7 +116,7 @@ bool ResRetrieve(Id id, void *buffer) {
     fd = resFile[prd->filenum].fd;
 
     if (fd == NULL) {
-        WARN("%s: id $%x doesn't exist", __FUNCTION__, id);
+        WARN("%s: id $%x doesn't exist", __func__, id);
         return false;
     }
 
@@ -126,10 +127,10 @@ bool ResRetrieve(Id id, void *buffer) {
 
     // If compound, read in ref table
     if (prd2->flags & RDF_COMPOUND) {
-        fread(p, sizeof(int16_t), 1, fd);
+        retval = fread(p, sizeof(int16_t), 1, fd);
         numRefs = *(uint16_t *)p;
         p += sizeof(int16_t);
-        fread(p, sizeof(int32_t), (numRefs + 1), fd);
+        retval = fread(p, sizeof(int32_t), (numRefs + 1), fd);
         p += sizeof(int32_t) * (numRefs + 1);
         size -= REFTABLESIZE(numRefs);
     }
@@ -138,8 +139,9 @@ bool ResRetrieve(Id id, void *buffer) {
     if (prd2->flags & RDF_LZW) {
         LzwExpandFp2Buff(fd, p, 0, 0);
     } else {
-        fread(p, size, 1, fd);
+        retval = fread(p, size, 1, fd);
     }
+    (void)retval;
 
     return true;
 }

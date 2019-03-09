@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-//		RefAcc.c		Resource reference access
-//		Rex E. Bradford
+//              RefAcc.c                Resource reference access
+//              Rex E. Bradford
 /*
  * $Header: r:/prj/lib/src/res/rcs/refacc.c 1.4 1994/08/30 15:18:38 rex Exp $
  * $Log: refacc.c $
@@ -44,14 +44,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "res.h"
 #include "res_.h"
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	RefLock() locks a compound resource and returns ptr to item.
+//      RefLock() locks a compound resource and returns ptr to item.
 //
-//		ref = resource reference
+//              ref = resource reference
 //
-//	Returns: ptr to item within locked compound resource.
-//	---------------------------------------------------------
+//      Returns: ptr to item within locked compound resource.
+//      ---------------------------------------------------------
 //  For Mac version:  Change 'ptr' refs to 'hdl', lock resource handle and
 //  return ptr.
 
@@ -62,7 +62,7 @@ void *RefLock(Ref ref) {
     RefIndex index;
 
     if (!RefCheckRef(ref)) {
-        ERROR("%s: Bad ref ID!", __FUNCTION__);
+        ERROR("%s: Bad ref ID!", __func__);
         return NULL;
     }
 
@@ -91,21 +91,21 @@ void *RefLock(Ref ref) {
 
     // Return ptr
     if (!RefIndexValid(prt, index)) {
-        ERROR("%s: Invalid Index %x", __FUNCTION__, ref);
+        ERROR("%s: Invalid Index %x", __func__, ref);
         return (NULL);
     } else
         return (((uint8_t *)prt) + (prt->offset[index]));
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	RefGet() gets a ptr to an item in a compound resource (ref).
+//      RefGet() gets a ptr to an item in a compound resource (ref).
 //
-//		ref = resource reference
+//              ref = resource reference
 //
-//	Returns: ptr to item (ptr only guaranteed until next Malloc(),
-//				Lock(), Get(), etc.
-//	---------------------------------------------------------
+//      Returns: ptr to item (ptr only guaranteed until next Malloc(),
+//                              Lock(), Get(), etc.
+//      ---------------------------------------------------------
 //  For Mac version:  Lose debug and stats.  Change 'ptr' refs to 'hdl'.  Locks
 //  the resource handle before returning the ref ptr.
 
@@ -117,7 +117,7 @@ void *RefGet(Ref ref) {
 
     // Check for valid ref
     if (RefCheckRef(ref) != true) {
-        ERROR("%s: No valid ref!", __FUNCTION__);
+        ERROR("%s: No valid ref!", __func__);
         return NULL;
     }
 
@@ -125,7 +125,7 @@ void *RefGet(Ref ref) {
     prd = RESDESC(id);
     if (prd->ptr == NULL) {
         if (ResLoadResource(REFID(ref)) == NULL) {
-            ERROR("%s: RefID %x == NULL!", __FUNCTION__, ref);
+            ERROR("%s: RefID %x == NULL!", __func__, ref);
             return (NULL);
         }
         ResAddToTail(prd);
@@ -139,25 +139,26 @@ void *RefGet(Ref ref) {
 
     // Return ptr
     if (!RefIndexValid(prt, index)) {
-        ERROR("%s: reference: $%x bad, index out of range", __FUNCTION__, ref);
+        ERROR("%s: reference: $%x bad, index out of range", __func__, ref);
         return (NULL);
     }
 
     return (((uint8_t *)prt) + (prt->offset[index]));
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResReadRefTable() reads a compound resource's ref table.
+//      ResReadRefTable() reads a compound resource's ref table.
 //
-//		id = id of compound resource
+//              id = id of compound resource
 //
-//	Returns: ptr to reftable allocated with Malloc(), or NULL
-//	---------------------------------------------------------
+//      Returns: ptr to reftable allocated with Malloc(), or NULL
+//      ---------------------------------------------------------
 //  For Mac version:  Use "ReadPartialResource" to mimic this code's
 //  functionality.
 
 RefTable *ResReadRefTable(Id id) {
+    int retval = 0;
     ResDesc *prd;
     RefIndex numRefs;
     RefTable *prt;
@@ -170,37 +171,39 @@ RefTable *ResReadRefTable(Id id) {
     fd = resFile[prd->filenum].fd;
 
     if (fd == NULL) {
-        ERROR("%s: id $%x doesn't exist", __FUNCTION__, id);
+        ERROR("%s: id $%x doesn't exist", __func__, id);
         return (NULL);
     }
 
     if (ResIsCompound(id) == 0) {
-        ERROR("%s: id $%x is not compound", __FUNCTION__, id);
+        ERROR("%s: id $%x is not compound", __func__, id);
         return (NULL);
     }
 
     // Seek to data, read numrefs, allocate table, read in offsets
 
     fseek(fd, RES_OFFSET_DESC2REAL(prd->offset), SEEK_SET);
-    fread(&numRefs, sizeof(RefIndex), 1, fd);
+    retval = fread(&numRefs, sizeof(RefIndex), 1, fd);
     prt = malloc(REFTABLESIZE(numRefs));
     prt->numRefs = numRefs;
-    fread(&prt->offset[0], sizeof(int32_t), (numRefs + 1), fd);
+    retval = fread(&prt->offset[0], sizeof(int32_t), (numRefs + 1), fd);
 
+    (void)retval;
     return (prt);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	ResExtractRefTable() extracts a compound res's ref table.
+//      ResExtractRefTable() extracts a compound res's ref table.
 //
-//		id   = id of compound resource
-//		prt  = ptr to ref table
-//		size = size of ref table in bytes
+//              id   = id of compound resource
+//              prt  = ptr to ref table
+//              size = size of ref table in bytes
 //
-//	Returns: 0 if ok, -1 if error
+//      Returns: 0 if ok, -1 if error
 
 int32_t ResExtractRefTable(Id id, RefTable *prt, int32_t size) {
+    int retval = 0;
     ResDesc *prd;
     FILE *fd;
 
@@ -211,39 +214,41 @@ int32_t ResExtractRefTable(Id id, RefTable *prt, int32_t size) {
     prd = RESDESC(id);
     fd = resFile[prd->filenum].fd;
     if (fd == NULL) {
-        ERROR("%s: id $%x doesn't exist", __FUNCTION__, id);
+        ERROR("%s: id $%x doesn't exist", __func__, id);
         return (-1);
     }
     if (ResIsCompound(id) == 0) {
-        ERROR("%s: id $%x is not compound", __FUNCTION__, id);
+        ERROR("%s: id $%x is not compound", __func__, id);
         return (-1);
     }
 
     // Seek to data, read numrefs, check table size, read in offsets
     fseek(fd, RES_OFFSET_DESC2REAL(prd->offset), SEEK_SET);
-    fread(&prt->numRefs, sizeof(RefIndex), 1, fd);
-    if (REFTABLESIZE(prt->numRefs) > size) {
-        ERROR("%s: ref table too large for buffer", __FUNCTION__);
+    retval = fread(&prt->numRefs, sizeof(RefIndex), 1, fd);
+    if ((signed)REFTABLESIZE(prt->numRefs) > size) {
+        ERROR("%s: ref table too large for buffer", __func__);
         return (-1);
     }
-    fread(&prt->offset[0], sizeof(int32_t) * (prt->numRefs + 1), 1, fd);
+    retval = fread(&prt->offset[0], sizeof(int32_t) * (prt->numRefs + 1), 1, fd);
 
+    (void)retval;
     return (0);
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
 // return number of refs, or -1 if error
 //
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 int32_t ResNumRefs(Id id) {
+    int retval = 0;
     ResDesc *prd;
 
     // Check id and file number and make sure compound
     if (!ResCheckId(id))
         return (-1);
     if (ResIsCompound(id) == 0) {
-        ERROR("%s: id $%x is not compound", __FUNCTION__, id);
+        ERROR("%s: id $%x is not compound", __func__, id);
         return (-1);
     }
     prd = RESDESC(id);
@@ -253,28 +258,30 @@ int32_t ResNumRefs(Id id) {
         FILE *fd = resFile[prd->filenum].fd;
         RefIndex result;
         if (fd == NULL) {
-            ERROR("%s: id $%x doesn't exist", __FUNCTION__, id);
+            ERROR("%s: id $%x doesn't exist", __func__, id);
             return (-1);
         }
         fseek(fd, RES_OFFSET_DESC2REAL(prd->offset), SEEK_SET);
-        fread(&result, sizeof(RefIndex), 1, fd);
+        retval = fread(&result, sizeof(RefIndex), 1, fd);
+        (void)retval;
         return result;
     }
 }
 
-//	---------------------------------------------------------
+//      ---------------------------------------------------------
 //
-//	RefExtract() extracts a ref item from a compound resource.
+//      RefExtract() extracts a ref item from a compound resource.
 //
-//		prt  = ptr to ref table
-//		ref  = ref
-//		buff = ptr to buffer (use RefSize() to compute needed buffer
+//              prt  = ptr to ref table
+//              ref  = ref
+//              buff = ptr to buffer (use RefSize() to compute needed buffer
 // size)
 //
-//	Returns: ptr to supplied buffer, or NULL if problem
-//	---------------------------------------------------------
+//      Returns: ptr to supplied buffer, or NULL if problem
+//      ---------------------------------------------------------
 
 void *RefExtract(RefTable *prt, Ref ref, void *buff) {
+    int retval = 0;
     RefIndex index;
     ResDesc *prd;
     FILE *fd;
@@ -295,10 +302,10 @@ void *RefExtract(RefTable *prt, Ref ref, void *buff) {
     } else {
         // seek into the file and find the stuff.
         fseek(fd, RES_OFFSET_DESC2REAL(prd->offset), SEEK_SET);
-        fread(&numrefs, sizeof(RefIndex), 1, fd);
+        retval = fread(&numrefs, sizeof(RefIndex), 1, fd);
         fseek(fd, index * sizeof(int32_t), SEEK_CUR);
-        fread(&offset, sizeof(int32_t), 1, fd);
-        fread(&refsize, sizeof(int32_t), 1, fd);
+        retval = fread(&offset, sizeof(int32_t), 1, fd);
+        retval = fread(&refsize, sizeof(int32_t), 1, fd);
         refsize -= offset;
     }
 
@@ -315,9 +322,10 @@ void *RefExtract(RefTable *prt, Ref ref, void *buff) {
                          refsize);                       // data amt
     } else {
         fseek(fd, offset - REFTABLESIZE(numrefs), SEEK_CUR);
-        fread(buff, refsize, 1, fd);
+        retval = fread(buff, refsize, 1, fd);
     }
 
+    (void)retval;
     return (buff);
 }
 
@@ -331,7 +339,7 @@ int32_t RefInject(RefTable *prt, Ref ref, void *buff)
    RefIndex numrefs;
    int32_t offset;
 
-//	Check id, get file number
+//      Check id, get file number
 
         if (ResFlags(REFID(ref)) & RDF_LZW)
    {
@@ -368,11 +376,11 @@ int32_t RefInject(RefTable *prt, Ref ref, void *buff)
                 return(NULL); \
                 }});
 
-//	Add to cumulative stats
+//      Add to cumulative stats
 
         CUMSTATS(REFID(ref),numExtracts);
 
-//	Seek to start of all data in compound resource
+//      Seek to start of all data in compound resource
 
         lseek(fd, RES_OFFSET_DESC2REAL(prd->offset) + REFTABLESIZE(numrefs),
                 SEEK_SET);
@@ -384,27 +392,27 @@ int32_t RefInject(RefTable *prt, Ref ref, void *buff)
 }
 */
 
-//	---------------------------------------------------------
-//		INTERNAL ROUTINES
-//	---------------------------------------------------------
-//
-//	RefCheckRef() checks if ref valid.
-//
-//		ref = ref to be checked
-//
-//	Returns: true if ref ok, false if invalid & prints warning
+ //      ---------------------------------------------------------
+ //              INTERNAL ROUTINES
+ //      ---------------------------------------------------------
+ //
+ //      RefCheckRef() checks if ref valid.
+ //
+ //              ref = ref to be checked
+ //
+ //      Returns: true if ref ok, false if invalid & prints warning
 
 bool RefCheckRef(Ref ref) {
     Id id;
 
     id = REFID(ref);
     if (!ResCheckId(id)) {
-        WARN("%s: id $%x is bad\n", __FUNCTION__, id);
+        WARN("%s: id $%x is bad\n", __func__, id);
         return false;
     }
 
     if (ResIsCompound(id) == 0) {
-        WARN("%s: id $%x is not a compound resource", __FUNCTION__, id);
+        WARN("%s: id $%x is not a compound resource", __func__, id);
         return false;
     }
 
