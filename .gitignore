@@ -54,3 +54,5 @@ savgam*.dat
 
 # Temporary audio files
 .temp.audio
+
+result

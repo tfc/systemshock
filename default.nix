@@ -1,21 +1,30 @@
-{ pkgs ? import <nixpkgs> {} }:
+{
+  nixpkgs ? <nixpkgs>,
+  pkgs ? (import nixpkgs {}).pkgsi686Linux
+}:
 
 with pkgs;
-with stdenv.lib;
+with pkgs.stdenv.lib;
 
 let
-    makeSDLCFlags = lib.concatMap (p: [ "-I${getDev p}/include/SDL2" "-I${getDev p}/include" ]);
-    makeSDLDFlags = lib.concatMap (p: [ "-L${getLib p}/lib" ]);
-    SDLlibs = [ SDL2 SDL2_mixer ];
+  makeSDLExtraCFlags = l: builtins.concatStringsSep " " (
+    concatMap (p: [ "-I${getDev p}/include/SDL2" ]) l
+  );
+  SDLlibs = [ SDL2 SDL2_mixer ];
+in pkgs.stdenv.mkDerivation {
+  name = "systemshock";
+  src = ./.;
 
-in pkgsi686Linux.stdenv.mkDerivation {
-    name = "systemshock";
-    src = ./.;
+  nativeBuildInputs = [ cmake pkgconfig ];
+  buildInputs = SDLlibs;
 
-    NIX_CFLAGS_COMPILE = (makeSDLCFlags SDLlibs);
-    NIX_CFLAGS_LINK    = (makeSDLDFlags SDLlibs);
+  NIX_CFLAGS_COMPILE = (makeSDLExtraCFlags SDLlibs) + " -Wimplicit-fallthrough=0";
 
-    installPhase = ''
-        install -Dsm 644 systemshock $out/bin/systemshock
-    '';
+  # These two are just for debugging to be able to see what's going wrong
+  makeFlags = "VERBOSE=1";
+  enableParallelBuilding = false;
+
+  installPhase = ''
+      install -Dsm 644 systemshock $out/bin/systemshock
+  '';
 }
