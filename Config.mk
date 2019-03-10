@@ -412,7 +412,7 @@ FIX_SRCS=\
 FIX_OBJS=$(patsubst %.c, %.o, $(FIX_SRCS))
 
 FIX_CPP_SRCS=src/Libraries/FIXPP/Source/fixpp.cpp
-FIX_CPP_OBJS=$(patsubst %.cpp, %.o, $(FIX_SRCS))
+FIX_CPP_OBJS=$(patsubst %.cpp, %.o, $(FIX_CPP_SRCS))
 
 INPUT_SRCS=\
 	src/Libraries/INPUT/Source/kbcook.c\

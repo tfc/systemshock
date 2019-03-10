@@ -8,7 +8,7 @@ let
     makeSDLDFlags = lib.concatMap (p: [ "-L${getLib p}/lib" ]);
     SDLlibs = [ SDL2 SDL2_mixer ];
 
-in pkgs.stdenv.mkDerivation {
+in pkgsi686Linux.stdenv.mkDerivation {
     name = "systemshock";
     src = ./.;
 
